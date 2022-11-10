@@ -169,9 +169,10 @@ contains
     endif
     do idx=1,len_sng
        ! Look for first abnormal character
-       if (sng(idx:idx) == ' ' .or. sng(idx:idx) == '=') goto 100
+!JQIGOTO       if (sng(idx:idx) == ' ' .or. sng(idx:idx) == '=') goto 100
+       if (sng(idx:idx) == ' ' .or. sng(idx:idx) == '=') exit      !JQIGOTO
     end do                    ! end loop over characters
-100 continue
+!JQIGOTO100 continue
     ftn_opt_lng_get=idx-1-dsh_nbr
     ! Strings initialized to '' should have length 0
     if (ftn_opt_lng_get < 0 .or. sng == '') ftn_opt_lng_get=0
@@ -653,16 +654,21 @@ contains
     ! Main Code
     lng1=ftn_strlen(sng1) ! [nbr] Length of string
     lng2=ftn_strlen(sng2) ! [nbr] Length of string
-    do idx1=1,lng1
+!JQIGOTO    do idx1=1,lng1
+    outloop: do idx1=1,lng1    !JQIGOTO
        if (sng1(idx1:idx1) == sng2(1:1)) then
           do idx2=2,lng2
-             if (sng1(idx1+idx2-1:idx1+idx2-1) /= sng2(idx2:idx2)) goto 200
+!JQIGOTO             if (sng1(idx1+idx2-1:idx1+idx2-1) /= sng2(idx2:idx2)) goto 200
+             if (sng1(idx1+idx2-1:idx1+idx2-1) /= sng2(idx2:idx2)) cycle outloop    !JQIGOTO
           end do              ! end loop over characters
-          goto 100
+          exit outloop     !JQIGOTO
+!JQIGOTO          goto 100
        endif                  ! endif
-200    continue
-    end do                    ! end loop over characters
-100 continue
+!JQIGOTO200    continue
+!JQIGOTO    end do                    ! end loop over characters
+    end do outloop       !JQIGOTO            ! end loop over characters
+!JQIGOTO100 continue
+
     if (idx2 == lng2+1) then
        ftn_strstr=idx1
     else
@@ -735,9 +741,10 @@ contains
     lng=len(sng)
     do idx=lng,1,-1
        ! Look for last normal character
-       if (sng(idx:idx) /= ' '.and.sng(idx:idx) /= char(0)) goto 100
+!JQIGOTO       if (sng(idx:idx) /= ' '.and.sng(idx:idx) /= char(0)) goto 100
+       if (sng(idx:idx) /= ' '.and.sng(idx:idx) /= char(0)) exit     !JQIGOTO
     end do                    ! end loop over characters
-100 continue
+!JQIGOTO100 continue
     ftn_strlsc=idx
     return
   end function ftn_strlsc
@@ -760,9 +767,10 @@ contains
     lng=len(sng)
     do idx=1,lng
        ! Look for first abnormal character
-       if (sng(idx:idx) == char(0) .or. iachar(sng(idx:idx)) > 127) goto 100
+!JQIGOTO       if (sng(idx:idx) == char(0) .or. iachar(sng(idx:idx)) > 127) goto 100
+       if (sng(idx:idx) == char(0) .or. iachar(sng(idx:idx)) > 127) exit      !JQIGOTO
     end do                    ! end loop over characters
-100 continue
+!JQIGOTO100 continue
     ftn_strfic=idx ! [idx] First NUL or 8-bit character position
     return
   end function ftn_strfic
@@ -899,7 +907,8 @@ contains
        endif               ! endif
        
        ! Characters were unequal, exit with appropriate value
-       goto 100            ! Exit Branch
+!JQIGOTO       goto 100            ! Exit Branch
+       return            ! Exit Branch      !JQIGOTO
     end do
     
     if (lng1 == lng2) then
@@ -917,7 +926,7 @@ contains
        endif                  ! endif
     endif ! endif lng1 == lng2
     
-100 continue                  ! Exit branch for unequal values inside loop
+!JQIGOTO100 continue                  ! Exit branch for unequal values inside loop
     return
   end function ftn_strcmp
   

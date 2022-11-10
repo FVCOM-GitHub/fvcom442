@@ -453,6 +453,9 @@ CONTAINS
     RIVER_NUMBER = -1
     RIVER_KIND = "Options:"//TRIM(PRDC)//" or "//TRIM(VRBL)
     RIVER_TS_SETTING = "'calculated' or 'specified'"
+!JQI NOV2021
+    TS_ADJUST_METHOD = "'average' or 'maximum'"
+!JQI NOV2021
     RIVER_INFLOW_LOCATION = "'node' or 'edge'"
     RIVER_INFO_FILE = "'default' or 'filename'"
 
@@ -3170,11 +3173,13 @@ CONTAINS
        case(STYPE_UNIFORM)
 
           CALL MPI_BCAST(P_SIGMA,1,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
+!JQI NOV2021
+          CALL MPI_BCAST(P_SIGMA_DISTRIBUTION,1,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
+!JQI NOV2021
 
        case(STYPE_GEOMETRIC)
 
           CALL MPI_BCAST(P_SIGMA,1,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
-
        case(STYPE_TANH)
 
           CALL MPI_BCAST(DL2,1,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
@@ -4506,6 +4511,12 @@ CONTAINS
 ! DEGENERATE CASE OF GEOMETRIC SIGMA COORDINATES - UNIFROM DISTRIBUTION
     case(TRIM(STYPE_UNIFORM))  
        P_SIGMA = 1.0
+!JQI NOV2021
+       ISCAN = SCAN_FILE(SIGMAUNIT,"P_SIGMA_DISTRIBUTION",FSCAL = P_SIGMA_DISTRIBUTION)
+       IF(ISCAN /= 0) then
+         P_SIGMA_DISTRIBUTION = 1
+       END IF
+!JQI NOV2021
        if(DBG_SET(dbg_log)) then
           WRITE(IPT,*)'!  Finished Reading SIGMA File'
           WRITE(IPT,*)'!  SIGMA COORDINATE TYPE = : '//trim(STYPE)
@@ -4527,11 +4538,13 @@ CONTAINS
                & 'Followed by a real value (1.0 is uniform sigma coordinates)')
        END IF
        
-       
        if(DBG_SET(dbg_log)) then
           WRITE(IPT,*)'!  Finished Reading SIGMA File'
           WRITE(IPT,*)'!  SIGMA COORDINATE TYPE = : '//trim(STYPE)
           WRITE(IPT,*)'!  P_SIGMA               = : ',P_SIGMA
+!JQI NOV2021
+          WRITE(IPT,*)'!  P_SIGMA_DISTRIBUTION  = : ',P_SIGMA_DISTRIBUTION
+!JQI NOV2021
           WRITE(IPT,*)'!  # OF SIGMA LEVELS(KB) = : ',KB
           WRITE(IPT,*)'!'
        end if

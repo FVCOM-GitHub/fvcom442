@@ -98,6 +98,10 @@ SUBROUTINE INTERNAL_STEP
 # if defined (PWP)
   USE MOD_PWP
 # endif
+# if defined (PROJ) && !defined (SPHERICAL)
+  USE MOD_VECTOR_PROJECTION  ! Siqi Li, 20221005
+# endif
+
   IMPLICIT NONE
   INTEGER :: I,J,K
   REAL(SP) :: UTMP,VTMP
@@ -490,10 +494,13 @@ SUBROUTINE INTERNAL_STEP
   
 # endif
 
-# if defined (WAVE_ONLY)
-  goto 5501
-# endif
+!JQIGOTO# if defined (WAVE_ONLY)
+!JQIGOTO  goto 5501
+!JQIGOTO# endif
 
+!JQIGOTO
+# if !defined (WAVE_ONLY)      
+!JQIGOTO
 # if !defined(ONE_D_MODEL) && !defined (SEMI_IMPLICIT)
   !==============================================================================!
   !  LOOP OVER EXTERNAL TIME STEPS                                               !
@@ -1734,6 +1741,15 @@ SUBROUTINE INTERNAL_STEP
   !==============================================================================!
   U = UF
   V = VF
+
+# if defined (PROJ) && !defined (SPHERICAL)
+  !==============================================================================!
+  !     UV-PROJECTION                                                            !
+  !==============================================================================!
+  ! Siqi Li, 20221005
+  CALL UV_PROJECTION
+# endif
+
   !==============================================================================!
   !    PERFORM DATA EXCHANGE FOR ELEMENT BASED INFORMATION AT PROC BNDRIES       |
   !==============================================================================!
@@ -1795,9 +1811,12 @@ SUBROUTINE INTERNAL_STEP
   ELTDT = ELT
 # endif
 
-# if defined (WAVE_ONLY)
-   5501 continue
-# endif
+!JQIGOTO# if defined (WAVE_ONLY)
+!JQIGOTO   5501 continue
+!JQIGOTO# endif
+!JQIGOTO
+# endif      
+!JQIGOTO
 
 !!$  CALL DUMP_PROBE_DATA 
 

@@ -94,7 +94,7 @@ dashL= $(empty) -L
 #                           SET PATH TO LIBRARIES WITH IOLIBS      
 #                           SET PATH TO INCLUDE FILES (netcdf.mod) WITH IOINCS
 #--------------------------------------------------------------------------
-            FLAG_USE_NETCDF4     = -DUSE_NETCDF4
+#            FLAG_USE_NETCDF4     = -DUSE_NETCDF4
 #            FLAG_USE_COMPRESSION = -DUSE_COMPRESSION
              IOLIBS       =  -lnetcdff -lnetcdf #-lhdf5_hl -lhdf5 -lz -lcurl -lm
 #             IOLIBS       =  -lnetcdf #-L/hosts/mao/usr/medm/install/netcdf/3.6.3/em64t/lib -lnetcdf
@@ -143,7 +143,7 @@ dashL= $(empty) -L
 #                           UNCOMMENT TO INCLUDE FLOODYING/DRYING
 #--------------------------------------------------------------------------
 
-             FLAG_3 = -DWET_DRY
+#             FLAG_3 = -DWET_DRY
 
 #--------------------------------------------------------------------------
 #        MULTI_PROCESSOR    INCLUDES PARALLELIZATION WITH MPI
@@ -182,10 +182,10 @@ dashL= $(empty) -L
 #
 #--------------------------------------------------------------------------
 
-             FLAG_6 = -DPROJ
+#             FLAG_6 = -DPROJ
 
-             PROJLIBS       = -lfproj4 -lproj -lm
-             PROJINCS       =
+#             PROJLIBS       = -lfproj4 -lproj -lm
+#             PROJINCS       =
 
 #--------------------------------------------------------------------------
 #        DATA_ASSIMILATION  INCLUDE NUDGING BASED DATA ASSIMILATION FOR
@@ -225,8 +225,8 @@ dashL= $(empty) -L
 #  Semi-Implicit time stepping method
 #--------------------------------------------------------------------------
 
-             FLAG_9 = -DSEMI_IMPLICIT
-             include ${PETSC_DIR}/bmake/common/variables
+#             FLAG_9 = -DSEMI_IMPLICIT
+#             include ${PETSC_DIR}/bmake/common/variables
 
 
 #---------------------------------------------------------------------------
@@ -274,7 +274,7 @@ dashL= $(empty) -L
 #       RIVER INPUT FILES!
 #--------------------------------------------------------------------------
 
-            FLAG_14 = -DRIVER_FLOAT
+#            FLAG_14 = -DRIVER_FLOAT
 
 #--------------------------------------------------------------------------
 #        The TVD (total variational diminishing) option for FVCOM was developed by 
@@ -283,7 +283,7 @@ dashL= $(empty) -L
 #        diffusion and better shape preserving properties than the standard scheme. 
 #--------------------------------------------------------------------------
 
-#            FLAG_44 = -DTVD
+            FLAG_44 = -DTVD
 
 #--------------------------------------------------------------------------
 #        Using A fully multidimensional positive definite advection
@@ -292,7 +292,7 @@ dashL= $(empty) -L
 #        Physics, 54, 325-362, 1984
 #--------------------------------------------------------------------------
 
-#            FLAG_15 = -DMPDATA
+            FLAG_15 = -DMPDATA
 
 #--------------------------------------------------------------------------
 #         Run Two-D Barotropic Mode Only
@@ -405,7 +405,7 @@ dashL= $(empty) -L
 #         AIR_PRESSURE FROM SURFACE FORCING                           
 #--------------------------------------------------------------------------
 
-            FLAG_28 = -DAIR_PRESSURE  
+#            FLAG_28 = -DAIR_PRESSURE  
 
 #--------------------------------------------------------------------------
 # Visit online simulation mode
@@ -439,10 +439,10 @@ dashL= $(empty) -L
 #--------------------------------------------------------------------------
 #        WAVE-CURRENT INTERACTION
 #--------------------------------------------------------------------------
-#             FLAG_32 =  -DWAVE_CURRENT_INTERACTION
+             FLAG_32 =  -DWAVE_CURRENT_INTERACTION
 #             FLAG_33 =  -DPLBC
 #           NOTE! THis option is for wave code          
-#             FLAG_34 =  -DEXPLICIT
+             FLAG_34 =  -DEXPLICIT
 #           WAVE ONLY
 #             FLAG_35 = -DWAVE_ONLY
 # Svendsen Roller contribution

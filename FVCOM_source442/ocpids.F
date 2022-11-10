@@ -100,12 +100,14 @@
    REAL       PLPARM(10)                                               
    INTEGER    NUMM(10)                                                 
    LOGICAL    STPNOW
+   INTEGER    ierr
    DATA PRCTIM /0,0,0,0,0,0/
 !
 !  version of initialisation file                                      
    INIVER = 4                                                         
    INIVEF = -1                                                         
-   INERR  = 0                                                          
+   INERR  = 0          
+   ierr = 0   
 !
 !  see whether initialisation file exists
 !
@@ -116,38 +118,103 @@
 !
      OPEN (11, FILE=INIFIL, STATUS='OLD',                         &     
 !CVIS             SHARED,                                        &     
-                ERR=950)                                              
-     READ (11, *, ERR=930, END=930) INIVEF 
-     IF(INIVEF > INIVER .OR. INIVEF <= 0) GOTO 935                   
-     READ (11, 120, ERR=930, END=930) INST
-     READ (11, *,   ERR=930, END=930) INPUTF
-     READ (11, 120, ERR=930, END=930) INPFIL
-     READ (11, *,   ERR=930, END=930) PRINTF
-     READ (11, 120, ERR=930, END=930) OUTFIL
-     READ (11, *,   ERR=930, END=930) PRTEST
-     READ (11, 120, ERR=930, END=930) TSTFIL
-     READ (11, *,   ERR=930, END=930) SCREEN
-     READ (11, *,   ERR=930, END=930) IUNMAX
-     READ (11, 130, ERR=930, END=930) COMID
-     READ (11, 130, ERR=930, END=930) TABC
-     IF(INIVEF >= 2)THEN                                             
-       READ (11, 130, ERR=930, END=930) DIRCH1
-       READ (11, 130, ERR=930, END=930) DIRCH2
-     ELSE
+                IOSTAT=ierr)
+     IF(ierr /=0) INERR=955                
+     IF(ierr ==0) THEN
+       READ (11, *, IOSTAT=ierr) INIVEF
+       IF(ierr /=0) INERR=930
+     ENDIF
+     IF(ierr ==0) THEN   
+       IF(INIVEF > INIVER .OR. INIVEF <= 0) THEN
+         ierr = 1
+         INERR = 935
+       ENDIF
+     ENDIF       
+     IF(ierr ==0) THEN
+       READ (11, 120, IOSTAT=ierr) INST
+       IF(ierr /=0) INERR=930
+     ENDIF
+     IF(ierr ==0) THEN
+       READ (11, *,   IOSTAT=ierr) INPUTF
+       IF(ierr /=0) INERR=930
+     ENDIF
+     IF(ierr ==0) THEN
+       READ (11, 120, IOSTAT=ierr) INPFIL
+       IF(ierr /=0) INERR=930
+     ENDIF
+     IF(ierr ==0) THEN
+       READ (11, *,   IOSTAT=ierr) PRINTF
+       IF(ierr /=0) INERR=930
+     ENDIF
+     IF(ierr ==0) THEN
+       READ (11, 120, IOSTAT=ierr) OUTFIL
+       IF(ierr /=0) INERR=930
+     ENDIF
+     IF(ierr ==0) THEN
+       READ (11, *,   IOSTAT=ierr) PRTEST
+       IF(ierr /=0) INERR=930
+     ENDIF
+     IF(ierr ==0) THEN
+       READ (11, 120, IOSTAT=ierr) TSTFIL
+       IF(ierr /=0) INERR=930
+     ENDIF
+     IF(ierr ==0) THEN
+       READ (11, *,   IOSTAT=ierr) SCREEN
+       IF(ierr /=0) INERR=930
+     ENDIF
+     IF(ierr ==0) THEN
+       READ (11, *,   IOSTAT=ierr) IUNMAX
+       IF(ierr /=0) INERR=930
+     ENDIF
+     IF(ierr ==0) THEN
+       READ (11, 130, IOSTAT=ierr) COMID
+       IF(ierr /=0) INERR=930
+     ENDIF
+     IF(ierr ==0) THEN
+       READ (11, 130, IOSTAT=ierr) TABC
+       IF(ierr /=0) INERR=930
+     ENDIF
+     
+     IF( ierr == 0) THEN
+       IF(INIVEF >= 2)THEN
+         IF(ierr == 0) THEN     
+           READ (11, 130, IOSTAT=ierr) DIRCH1
+           IF(ierr /=0) INERR=930
+         ENDIF
+         IF(ierr ==0) THEN
+           READ (11, 130, IOSTAT=ierr) DIRCH2
+           IF(ierr /=0) INERR=930
+         ENDIF
+       ELSE
 !DOS          DIRCH1 = CHAR(47)                                               
 !DOS          DIRCH2 = CHAR(92)                                               
 !UNIX          DIRCH1 = CHAR(92)                                               
 !UNIX          DIRCH2 = CHAR(47)                                               
-          DIRCH1 = CHAR(92)                                               
-          DIRCH2 = CHAR(47)                                               
-     ENDIF
-     IF(INIVEF < 3)THEN
-       READ (11, 140, ERR=930, END=930) PLTOPT
-       READ (11, *,   ERR=930, END=930) NPLP
-       READ (11, *,   ERR=930, END=930) (PLPARM(II),II=1,NPLP)
-       READ (11, *,   ERR=930, END=930) PFROPT
-     END IF
-     READ (11, *,   ERR=930, END=930) ITMOPT
+         DIRCH1 = CHAR(92)                                               
+         DIRCH2 = CHAR(47)                                               
+       ENDIF
+       IF(INIVEF < 3)THEN
+         IF(ierr ==0) THEN
+           READ (11, 140, IOSTAT=ierr) PLTOPT
+           IF(ierr /=0) INERR=930
+         ENDIF
+         IF(ierr ==0) THEN
+           READ (11, *,   IOSTAT=ierr) NPLP
+           IF(ierr /=0) INERR=930
+         ENDIF
+         IF(ierr ==0) THEN
+           READ (11, *,   IOSTAT=ierr) (PLPARM(II),II=1,NPLP)
+           IF(ierr /=0) INERR=930
+         ENDIF
+         IF(ierr ==0) THEN
+           READ (11, *,   IOSTAT=ierr) PFROPT
+           IF(ierr /=0) INERR=930
+         ENDIF
+       END IF
+       IF(ierr ==0) THEN
+         READ (11, *,   IOSTAT=ierr) ITMOPT
+         IF(ierr /=0) INERR=930
+       ENDIF
 !JQI     IF(INIVEF > 3)THEN
 !JQI       IF(PARLL)THEN
 !JQI         DO JJ = 1, NPROC
@@ -169,11 +236,12 @@
 !JQI         END DO
 !JQI       END IF
 !JQI     END IF
-120  FORMAT (A40)
-130  FORMAT (A1)
-140  FORMAT (A4)
-145  FORMAT (I5,A)
-150  CLOSE (11)
+120    FORMAT (A40)
+130    FORMAT (A1)
+140    FORMAT (A4)
+145    FORMAT (I5,A)
+150    IF(ierr ==0) CLOSE (11)
+     ENDIF
    ELSE
 !
 !    REFERENCE NUMBERS AND NAMES OF STANDARD FILES
@@ -204,8 +272,10 @@
      ITMOPT = 1
 !
    ENDIF
-   OUTFO = OUTFIL                                                      
-   TSTFO = TSTFIL                                                      
+   
+   IF(ierr ==0) THEN
+     OUTFO = OUTFIL                                                      
+     TSTFO = TSTFIL                                                      
 
 !  --- append node number to OUTFIL and TSTFIL                         
 !      in case of parallel computing                                   
@@ -226,93 +296,111 @@
 !JQI     IF(STPNOW()) RETURN
 !JQI   END IF
 
-   IF(INIVEF < INIVER)THEN
+     IF(INIVEF < INIVER)THEN
 !
 !    write initialisation file
 !
-     OPEN  (12, FILE=INIFIL, STATUS='UNKNOWN', FORM='FORMATTED', ERR=950)
-     WRITE (12, 210) INIVER, 'version of initialisation file'          
-     WRITE (12, 220) INST,   'name of institute'
-     WRITE (12, 210) INPUTF, 'command file ref. number'
-     WRITE (12, 220) INPFIL, 'command file name'
-     WRITE (12, 210) PRINTF, 'print file ref. number'
-     WRITE (12, 220) OUTFO,  'print file name'                         
-     WRITE (12, 210) PRTEST, 'test file ref. number'
-     WRITE (12, 220) TSTFO,  'test file name'                          
-     WRITE (12, 210) SCREEN, 'screen ref. number'
-     WRITE (12, 210) IUNMAX, 'highest file ref. number'
-     WRITE (12, 230) COMID,  'comment identifier'
-     WRITE (12, 230) TABC,   'TAB character'
-     WRITE (12, 230) DIRCH1, 'dir sep char in input file'
-     WRITE (12, 230) DIRCH2, 'dir sep char replacing previous one'     
-     WRITE (12, 210) ITMOPT, 'default time coding option'
+       IF(ierr ==0) THEN
+         OPEN  (12, FILE=INIFIL, STATUS='UNKNOWN', FORM='FORMATTED', IOSTAT=ierr)
+         IF(ierr /=0) INERR=950
+       ENDIF
+       IF(ierr ==0) THEN
+         WRITE (12, 210) INIVER, 'version of initialisation file'          
+         WRITE (12, 220) INST,   'name of institute'
+         WRITE (12, 210) INPUTF, 'command file ref. number'
+         WRITE (12, 220) INPFIL, 'command file name'
+         WRITE (12, 210) PRINTF, 'print file ref. number'
+         WRITE (12, 220) OUTFO,  'print file name'                         
+         WRITE (12, 210) PRTEST, 'test file ref. number'
+         WRITE (12, 220) TSTFO,  'test file name'                          
+         WRITE (12, 210) SCREEN, 'screen ref. number'
+         WRITE (12, 210) IUNMAX, 'highest file ref. number'
+         WRITE (12, 230) COMID,  'comment identifier'
+         WRITE (12, 230) TABC,   'TAB character'
+         WRITE (12, 230) DIRCH1, 'dir sep char in input file'
+         WRITE (12, 230) DIRCH2, 'dir sep char replacing previous one'     
+         WRITE (12, 210) ITMOPT, 'default time coding option'
 !JQI     IF(PARLL)THEN
 !JQI       DO II = 1, NPROC
 !JQI         WRITE (12, 240) IWEIG(II), 'speed of processor ',II
 !JQI       END DO
 !JQI     END IF
-     CLOSE (12)
-210  FORMAT (I5, T41, A)
-220  FORMAT (A40, A)
-230  FORMAT (A1, T41, A)
-240  FORMAT (I5, T41, A19, I3)
-   ENDIF
+         CLOSE (12)
+       ENDIF
+210    FORMAT (I5, T41, A)
+220    FORMAT (A40, A)
+230    FORMAT (A1, T41, A)
+240    FORMAT (I5, T41, A19, I3)
+     ENDIF
 !
-   IUNMIN = 0
-   FUNLO = 21
-   FUNHI = IUNMAX
+     IF(ierr ==0) THEN
+       IUNMIN = 0
+       FUNLO = 21
+       FUNHI = IUNMAX
 !
-   CALL OCDTIM (PRCTIM)
+       CALL OCDTIM (PRCTIM)
 !
 !  initialise command reader
 !
-   IF(OUTFIL /= '    ')THEN
-!    WRITE (*,*) ' Open print file ', PRINTF, OUTFIL
-     OPEN (UNIT=PRINTF, FILE=OUTFIL, STATUS='UNKNOWN', FORM='FORMATTED', &
-!/Cray         RECL=2000,                                                &
-!/SGI          RECL=2000,                                                & 
-           ERR=920)                                     
-!    WRITE (*,*) ' Print file opened ', PRINTF, OUTFIL
-     CALL DTTIST (ITMOPT, TIMSTR, PRCTIM)
-     WRITE (PRINTF, 12) TIMSTR
-12   FORMAT ('1',//,20X, 'Execution started at ',A, //)
+       IF(OUTFIL /= '    ')THEN
+!        WRITE (*,*) ' Open print file ', PRINTF, OUTFIL
+         IF(ierr ==0) THEN
+           OPEN (UNIT=PRINTF, FILE=OUTFIL, STATUS='UNKNOWN', FORM='FORMATTED', &
+!/Cray           RECL=2000,                                                &
+!/SGI            RECL=2000,                                                & 
+               IOSTAT=ierr)
+           IF(ierr /=0) INERR =920
+         ENDIF
+         IF(ierr ==0) THEN         
+!          WRITE (*,*) ' Print file opened ', PRINTF, OUTFIL
+           CALL DTTIST (ITMOPT, TIMSTR, PRCTIM)
+           WRITE (PRINTF, 12) TIMSTR
+12         FORMAT ('1',//,20X, 'Execution started at ',A, //)
+         ENDIF
+       ENDIF
+       IF(ierr ==0 .AND. PRTEST /= PRINTF) THEN 
+         OPEN (UNIT=PRTEST, FILE=TSTFIL, IOSTAT=ierr)
+         IF(ierr /=0) INERR =922
+       ENDIF
+       IF(ierr ==0 .AND. SCREEN /= 6) THEN
+         OPEN(UNIT=SCREEN, FILE='screen',IOSTAT=ierr)
+         IF(ierr /=0) INERR =960
+       ENDIF       
+       IF(ierr ==0 .AND. LREAD)THEN
+         IF (INPFIL /= '    ') OPEN (UNIT=INPUTF, FILE=INPFIL, STATUS='OLD', &
+!  CVIS             SHARED,                                                  &
+                    IOSTAT=ierr)
+         IF(ierr /=0) THEN
+           INERR =910
+         ELSE         
+           CALL RDINIT
+           IF (INPFIL /= '    ') CLOSE (UNIT=INPUTF) !conflict with open statement in function SCAN_FILE2, so close it.
+         ENDIF
+       ENDIF
+     ENDIF
    ENDIF
-   IF(PRTEST /= PRINTF) OPEN (UNIT=PRTEST, FILE=TSTFIL, ERR=922)
-   IF(SCREEN /= 6) OPEN(UNIT=SCREEN, FILE='screen',ERR=960)           
-   IF(LREAD)THEN
-     IF (INPFIL /= '    ') OPEN (UNIT=INPUTF, FILE=INPFIL, STATUS='OLD', &
-!CVIS           SHARED,                                                  &
-                ERR=910)                                               
-     CALL RDINIT
-     IF (INPFIL /= '    ') CLOSE (UNIT=INPUTF) !conflict with open statement in function SCAN_FILE2, so close it.
-   ENDIF
-!
-   RETURN
-!
-910 CALL MSGERR(4,'Input file missing')                                 
-   RETURN                                                              
-!
-920 INERR=920                                                           
-   IF (INODE == MASTER ) WRITE(*,*) 'Cannot open PRINT file '     
+!  
+   SELECT CASE (INERR)
+     CASE(910)
+       CALL MSGERR(4,'Input file missing')
+       INERR = 0
+     CASE(920)
+       IF (INODE == MASTER ) WRITE(*,*) 'Cannot open PRINT file '
+     CASE(922)
+       CALL MSGERR(4,'Cannot open test file: '//TSTFIL)
+       INERR = 0
+     CASE(930)
+       IF(INODE == MASTER) WRITE(*,*) 'Error reading initialisation file '
+     CASE(935)
+       IF(INODE == MASTER) WRITE(*,*) 'Error reading initialisation file '
+     CASE(950)
+       IF(INODE == MASTER) WRITE(*,*) 'Error opening initialisation file '
+     CASE(960)
+       CALL MSGERR(4,'Error opening output file: screen')
+       INERR = 0
+   END SELECT
+   
    RETURN                                                             
-!
-922 CALL MSGERR(4,'Cannot open test file: '//TSTFIL)                    
-   RETURN
-!
-930 INERR=930                                                           
-   IF(INODE == MASTER) WRITE(*,*) 'Error reading initialisation file '  
-   RETURN                                                              
-!
-935 INERR=935                                                           
-   IF(INODE == MASTER ) WRITE(*,*) 'Incorrect version of initialisation file '
-   RETURN                                                              
-!
-950 INERR=950                                                           
-   IF(INODE == MASTER) WRITE(*,*) 'Error opening initialisation file ' 
-   RETURN                                                              
-!
-960 CALL MSGERR(4,'Error opening output file: screen')                  
-   RETURN                                                              
 !
    END SUBROUTINE OCPINI
  
@@ -486,64 +574,87 @@
 !     Source:
 !
    INTEGER    IOPT, DTTIME(6)
+   INTEGER    ierr
    CHARACTER  TIMSTR *24, MONC(12) *3, MONCI *3
    DATA MONC /'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL',       &
               'AUG', 'SEP', 'OCT', 'NOV', 'DEC'/
 !
+   ierr = 0
    IF(IOPT == 1)THEN
-     READ (TIMSTR, '(I4,I2,I2,1X,3I2)', ERR=98) (DTTIME(II), II=1,6)
-	
-     print*,timstr,dttime,'ppppppppppppppppppppppp'
-	
-   ELSE IF(IOPT == 2)THEN
-     READ (TIMSTR, '(I2,1X,A3,1X,I2,3(1X,I2))', ERR=98)              &
-       DTTIME(3), MONCI, DTTIME(1), (DTTIME(II), II=4,6)
-     IF(DTTIME(1) < 10)THEN                                         
-       DTTIME(1) = 2000 + DTTIME(1)                                    
-     ELSE
-       DTTIME(1) = 1900 + DTTIME(1)
+     READ (TIMSTR, '(I4,I2,I2,1X,3I2)', IOSTAT=ierr) (DTTIME(II), II=1,6)
+	   IF(ierr == 0) THEN
+       print*,timstr,dttime,'ppppppppppppppppppppppp'
+	   ELSE
+       CALL MSGERR (2, 'time string unreadable: '//TIMSTR)
      ENDIF
-     DTTIME(2) = 0
-     DO 20 IMM = 1, 12                                                 
-       CALL UPCASE (MONCI)
-       IF (MONCI.NE.MONC(IMM)) GOTO 20
-       DTTIME(2) = IMM
-       GOTO 90
-20   CONTINUE
-     CALL MSGERR (2, 'incorrect month string: '//MONCI)                
-   ELSE IF(IOPT == 3)THEN
-     READ (TIMSTR, '(I2,5(1X,I2))', ERR=98)                          &
-       DTTIME(2), DTTIME(3), DTTIME(1), (DTTIME(II), II=4,6)
-     IF(DTTIME(1) < 10)THEN                                         
-       DTTIME(1) = 2000 + DTTIME(1)                                    
+   ELSE IF(IOPT == 2)THEN
+     READ (TIMSTR, '(I2,1X,A3,1X,I2,3(1X,I2))', IOSTAT=ierr)              &
+       DTTIME(3), MONCI, DTTIME(1), (DTTIME(II), II=4,6)
+     IF (ierr == 0) THEN
+       IF(DTTIME(1) < 10)THEN                                         
+         DTTIME(1) = 2000 + DTTIME(1)                                    
+       ELSE
+         DTTIME(1) = 1900 + DTTIME(1)
+       ENDIF
+       DTTIME(2) = 0
+       DO IMM = 1, 12                                                 
+         CALL UPCASE (MONCI)
+         IF (MONCI.NE.MONC(IMM)) CYCLE
+         DTTIME(2) = IMM
+         ierr = 1
+         EXIT
+       ENDDO
+       IF(ierr ==0) CALL MSGERR (2, 'incorrect month string: '//MONCI) 
      ELSE
-       DTTIME(1) = 1900 + DTTIME(1)
+       CALL MSGERR (2, 'time string unreadable: '//TIMSTR)
+     ENDIF
+   ELSE IF(IOPT == 3)THEN
+     READ (TIMSTR, '(I2,5(1X,I2))', IOSTAT=ierr)                          &
+       DTTIME(2), DTTIME(3), DTTIME(1), (DTTIME(II), II=4,6)
+     IF (ierr == 0 ) THEN
+       IF(DTTIME(1) < 10)THEN                                         
+         DTTIME(1) = 2000 + DTTIME(1)                                    
+       ELSE
+         DTTIME(1) = 1900 + DTTIME(1)
+       ENDIF
+     ELSE
+       CALL MSGERR (2, 'time string unreadable: '//TIMSTR)
      ENDIF
    ELSE IF(IOPT == 4)THEN
-     READ (TIMSTR, '(I2,2(1X,I2))', ERR=98) (DTTIME(II), II=4,6)
-     DO II = 1, 3
-       DTTIME(II) = 0
-     END DO
-   ELSE IF(IOPT == 5)THEN                                            
-     READ (TIMSTR, '(I2,5(1X,I2))', ERR=98) (DTTIME(II), II=1,6)       
-     IF(DTTIME(1) < 10)THEN                                         
-       DTTIME(1) = 2000 + DTTIME(1)                                    
+     READ (TIMSTR, '(I2,2(1X,I2))', IOSTAT=ierr) (DTTIME(II), II=4,6)
+     IF (ierr==0) THEN
+       DO II = 1, 3
+         DTTIME(II) = 0
+       END DO
      ELSE
-       DTTIME(1) = 1900 + DTTIME(1)
+       CALL MSGERR (2, 'time string unreadable: '//TIMSTR)
+     ENDIF
+   ELSE IF(IOPT == 5)THEN   
+     READ (TIMSTR, '(I2,5(1X,I2))', IOSTAT=ierr) (DTTIME(II), II=1,6)       
+     IF(ierr ==0) THEN
+       IF(DTTIME(1) < 10)THEN                                         
+         DTTIME(1) = 2000 + DTTIME(1)                                    
+       ELSE
+         DTTIME(1) = 1900 + DTTIME(1)
+       ENDIF
+     ELSE
+       CALL MSGERR (2, 'time string unreadable: '//TIMSTR)
      ENDIF
    ELSE IF(IOPT == 6)THEN                                            
-     READ (TIMSTR, '(5I2)', ERR=98) (DTTIME(II), II=1,5)
-     DTTIME(6) = 0.
-     IF(DTTIME(1) < 10)THEN                                         
-       DTTIME(1) = 2000 + DTTIME(1)                                    
+     READ (TIMSTR, '(5I2)', IOSTAT=ierr) (DTTIME(II), II=1,5)
+     IF(ierr ==0) THEN
+       DTTIME(6) = 0.
+       IF(DTTIME(1) < 10)THEN                                         
+         DTTIME(1) = 2000 + DTTIME(1)                                    
+       ELSE
+         DTTIME(1) = 1900 + DTTIME(1)
+       ENDIF
      ELSE
-       DTTIME(1) = 1900 + DTTIME(1)
+       CALL MSGERR (2, 'time string unreadable: '//TIMSTR)
      ENDIF
    ELSE
      CALL MSGERR (2, 'wrong time coding option in subroutine DTSTTI')
    ENDIF
-90 RETURN
-98 CALL MSGERR (2, 'time string unreadable: '//TIMSTR)
    RETURN
    END SUBROUTINE DTSTTI
  

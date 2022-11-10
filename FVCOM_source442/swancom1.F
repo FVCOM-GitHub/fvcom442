@@ -1736,7 +1736,7 @@
 !
      IF(.NOT.ACUPDA)THEN                                             
        IF(TESTFL .AND. ITEST >= 30) WRITE (PRINTF, *) ' No update'    
-       GOTO 700                                                        
+!JQIGOTO       GOTO 700                                                        
      ENDIF                                                             
 !
 !    preparatory steps before solution of linear system
@@ -1777,7 +1777,7 @@
 !
 !    calculate Dissipation and Leak in all points
 !
-700  CONTINUE                                                          
+!JQIGOTO700  CONTINUE                                                          
 !     CALL ADDDIS (COMPDA(1,JDISS)    ,COMPDA(1,JLEAK)    ,              &
 !                  AC2                ,LSWMAT(1,1,JABIN)  ,              &
 !		  SWMATR(1,1,JDIS0)  ,SWMATR(1,1,JDIS1)  ,              &
@@ -2166,11 +2166,17 @@
 
         TSTFL = .FALSE.                                                   
         IF (NPTST.GT.0) THEN                                              
-           DO 20 II = 1, NPTST                                            
-              IF (IX.NE.XYTST(2*II-1)) GOTO 20                            
-              IF (IY.NE.XYTST(2*II  )) GOTO 20                            
-              TSTFL = .TRUE.                                              
-  20       CONTINUE                                                       
+!JQIGOTO           DO 20 II = 1, NPTST                     
+!JQIGOTO              IF (IX.NE.XYTST(2*II-1)) GOTO 20 
+!JQIGOTO              IF (IY.NE.XYTST(2*II  )) GOTO 20                            
+!JQIGOTO              TSTFL = .TRUE.                                              
+!JQIGOTO  20       CONTINUE                                                       
+
+           IN: DO II = 1, NPTST                                 !JQIGOTO                        
+              IF (IX.NE.XYTST(2*II-1)) CYCLE IN                 !JQIGOTO                            
+              IF (IY.NE.XYTST(2*II  )) CYCLE IN                 !JQIGOTO                           
+              TSTFL = .TRUE.                                    !JQIGOTO   
+           END DO IN                                            !JQIGOTO   
         END IF                                                            
 
         IF ( DEP2(INDX) .GT. DEPMIN ) THEN                                
@@ -4145,7 +4151,9 @@
 !     --- solve the system by forward and backward substitutions
 !         in an iterative manner
 
- 10   IF ( ICONV.EQ.0 .AND. IT.LT.MAXIT ) THEN
+!JQIGOTO 10   IF ( ICONV.EQ.0 .AND. IT.LT.MAXIT ) THEN
+      IN: DO WHILE(.TRUE.)                                   !JQIGOTO
+        IF ( ICONV.EQ.0 .AND. IT.LT.MAXIT ) THEN
 
          IT    = IT + 1
          ICONV = 1
@@ -4301,7 +4309,8 @@
          IF ( RNORM.GT.1.E8 ) THEN
             IT = MAXIT + 1
             ICONV = 0
-            GOTO 10
+            CYCLE IN                                   !JQIGOTO
+!JQIGOTO            GOTO 10
          END IF
          RNORM=SQRT(RNORM)
          IF ( IAMOUT.EQ.3 .AND. IT.EQ.1 ) RNRM0 = RNORM
@@ -4345,7 +4354,8 @@
          END DO
 
          IF ( RNORM.GT.UNDFLW**2 .AND. RNORM.GT.EPSLIN ) ICONV = 0
-         GOTO 10
+!JQIGOTO         GOTO 10
+         CYCLE IN                                   !JQIGOTO
 
       END IF
 
@@ -4418,6 +4428,10 @@
             END IF
          END DO
       END IF
+      
+      EXIT IN                                      !JQIGOTO
+      
+      END DO IN                                    !JQIGOTO
 
 !     --- set matrix coefficients to zero
 
@@ -4649,7 +4663,11 @@
 
 !     --- start iteration process
 
- 10   IF ( ICONV.EQ.0 .AND. IT.LT.MAXIT ) THEN
+!JQIGOTO 10   IF ( ICONV.EQ.0 .AND. IT.LT.MAXIT ) THEN
+
+      IN: DO WHILE(.TRUE.)                          !JQIGOTO
+   
+      IF ( ICONV.EQ.0 .AND. IT.LT.MAXIT ) THEN      !JQIGOTO
 
          IT    = IT + 1
          ICONV = 1
@@ -4853,7 +4871,8 @@
          IF ( RESM.GT.1.E8 ) THEN
             IT = MAXIT + 1
             ICONV = 0
-            GOTO 10
+            CYCLE IN                                      !JQIGOTO
+!JQIGOTO            GOTO 10
          END IF
          IF ( IAMOUT.EQ.2 ) THEN
             WRITE (PRINTF,'(A,I3,A,E13.6,A,I3,A,I3,A)')     &
@@ -4863,9 +4882,14 @@
          IF ( IAMOUT.EQ.3 .AND. IT.EQ.1 ) RESM0 = RESM
 
          IF ( RESM.GT.REPS ) ICONV = 0
-         GOTO 10
+         CYCLE IN                                         !JQIGOTO
+!JQIGOTO         GOTO 10
 
       END IF
+      
+      EXIT                                                !JQIGOTO
+      
+      END DO IN                                           !JQIGOTO
 
 !     --- investigate the reason to stop
 
@@ -5332,11 +5356,19 @@
 
             TSTFL = .FALSE.
             IF (NPTST.GT.0) THEN
-               DO 20 II = 1, NPTST
-                  IF (IX.NE.XYTST(2*II-1)) GOTO 20
-                  IF (IY.NE.XYTST(2*II  )) GOTO 20
+
+!JQIGOTO               DO 20 II = 1, NPTST
+!JQIGOTO                  IF (IX.NE.XYTST(2*II-1)) GOTO 20
+!JQIGOTO                  IF (IY.NE.XYTST(2*II  )) GOTO 20
+!JQIGOTO                  TSTFL = .TRUE.
+!JQIGOTO  20           CONTINUE
+
+               IN: DO II = 1, NPTST
+                  IF (IX.NE.XYTST(2*II-1)) CYCLE IN     !JQIGOTO
+                  IF (IY.NE.XYTST(2*II  )) CYCLE IN     !JQIGOTO
                   TSTFL = .TRUE.
-  20           CONTINUE
+	       END DO IN  
+!JQIGOTO  20           CONTINUE
             END IF
 
             DELHS(INDX) = 0.0
