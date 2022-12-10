@@ -48,14 +48,15 @@
 #========== TOPDIR ========================================================
 # TOPDIR is the directory in which this make file and the fvcom source reside
 
-           TOPDIR        = 
+           TOPDIR        = $(HOME)/Github/fvcom442/FVCOM_source442
 #EXAMPLE
 # TOPDIR = /home/user/cchen/FVCOM_source
 # TOPDIR must be set!
 #========== INSTALLDIR =====================================================
 # INSTALLDIR is the directory where you wish to install external libraries
 # The default is in the $(TOPDIR)/libs/install, but you can choose...
-            INSTALLDIR    = $(TOPDIR)/libs/install
+#            INSTALLDIR    = $(TOPDIR)/libs/install
+            INSTALLDIR    = $(HOME)/Github/fvcom442_2021/FVCOM_source/libs/install
 #===========================================================================
 # PREPROCESSOR OPTIONS FOR CPP
 #            DEF_FLAGS     = -P -C -traditional 
@@ -75,9 +76,9 @@ dashL= $(empty) -L
 
 ###########################################################################
 
-# LOCAL INSTAL
-#             LIBDIR       =  -L$(INSTALLDIR)/lib
-#             INCDIR       =  -I$(INSTALLDIR)/include
+# LOCAL INSTALL
+             LIBDIR       =  -L$(INSTALLDIR)/lib
+             INCDIR       =  -I$(INSTALLDIR)/include
 
 
 #--------------------------------------------------------------------------
@@ -94,15 +95,23 @@ dashL= $(empty) -L
 #                           SET PATH TO LIBRARIES WITH IOLIBS      
 #                           SET PATH TO INCLUDE FILES (netcdf.mod) WITH IOINCS
 #--------------------------------------------------------------------------
-#            FLAG_USE_NETCDF4     = -DUSE_NETCDF4
+            FLAG_USE_NETCDF4     = -DUSE_NETCDF4
 #            FLAG_USE_COMPRESSION = -DUSE_COMPRESSION
-             IOLIBS       =  -lnetcdff -lnetcdf #-lhdf5_hl -lhdf5 -lz -lcurl -lm
+#             IOLIBS       =  -lnetcdff -lnetcdf #-lhdf5_hl -lhdf5 -lz -lcurl -lm
 #             IOLIBS       =  -lnetcdf #-L/hosts/mao/usr/medm/install/netcdf/3.6.3/em64t/lib -lnetcdf
-             IOINCS       =  #-I/hosts/mao/usr/medm/install/netcdf/3.6.3/em64t/include
+#             IOINCS       =  #-I/hosts/mao/usr/medm/install/netcdf/3.6.3/em64t/include
 #             IOLIBS       =  -L/usr/local/install/netcdf/gcc_ifort/3.6.2/lib  -lnetcdf
 #             IOINCS       =  -I/usr/local/install/netcdf/gcc_ifort/3.6.2/include
 ##             IOLIBS       = -L/usr/local/install/netcdf-4.4.1.1-with-fortran/lib -lnetcdff -lnetcdf
 ##             IOINCS       = -I/usr/local/install/netcdf-4.4.1.1-with-fortran/include
+## Oakbridge-CX@UTokyo
+#             IOLIBS = -lnetcdff -lnetcdf -lhdf5_hl -lhdf5
+## Ubuntu 20.04LTS on WSL2
+              IOLIBS = -L$(HOME)/local/netcdf4-intel-wrf/lib -lnetcdff -lnetcdf
+              IOINCS = -I$(HOME)/local/netcdf4-intel-wrf/include
+## ITO-A@kyushu-u
+#              IOLIBS = -lnetcdff -lnetcdf
+#             IOINCS = -I/home/app/a/NetCDF-4.4.1.1/include
 #--------------------------------------------------------------------------
 
 
@@ -122,7 +131,7 @@ dashL= $(empty) -L
 #                           UNCOMMENT TO SELECT DOUBLE PRECISION
 #--------------------------------------------------------------------------
 
-#            FLAG_1 =  -DDOUBLE_PRECISION 
+            FLAG_1 =  -DDOUBLE_PRECISION 
 
 ## SINGLE PRECISION OUTPUT FOR VISIT
 #            FLAG_1 =  -DDOUBLE_PRECISION -DSINGLE_OUTPUT
@@ -143,7 +152,7 @@ dashL= $(empty) -L
 #                           UNCOMMENT TO INCLUDE FLOODYING/DRYING
 #--------------------------------------------------------------------------
 
-#             FLAG_3 = -DWET_DRY
+             FLAG_3 = -DWET_DRY
 
 #--------------------------------------------------------------------------
 #        MULTI_PROCESSOR    INCLUDES PARALLELIZATION WITH MPI
@@ -274,7 +283,7 @@ dashL= $(empty) -L
 #       RIVER INPUT FILES!
 #--------------------------------------------------------------------------
 
-#            FLAG_14 = -DRIVER_FLOAT
+            FLAG_14 = -DRIVER_FLOAT
 
 #--------------------------------------------------------------------------
 #        The TVD (total variational diminishing) option for FVCOM was developed by 
@@ -283,7 +292,7 @@ dashL= $(empty) -L
 #        diffusion and better shape preserving properties than the standard scheme. 
 #--------------------------------------------------------------------------
 
-            FLAG_44 = -DTVD
+#            FLAG_44 = -DTVD
 
 #--------------------------------------------------------------------------
 #        Using A fully multidimensional positive definite advection
@@ -292,7 +301,7 @@ dashL= $(empty) -L
 #        Physics, 54, 325-362, 1984
 #--------------------------------------------------------------------------
 
-            FLAG_15 = -DMPDATA
+#            FLAG_15 = -DMPDATA
 
 #--------------------------------------------------------------------------
 #         Run Two-D Barotropic Mode Only
@@ -439,10 +448,10 @@ dashL= $(empty) -L
 #--------------------------------------------------------------------------
 #        WAVE-CURRENT INTERACTION
 #--------------------------------------------------------------------------
-             FLAG_32 =  -DWAVE_CURRENT_INTERACTION
+#             FLAG_32 =  -DWAVE_CURRENT_INTERACTION
 #             FLAG_33 =  -DPLBC
 #           NOTE! THis option is for wave code          
-             FLAG_34 =  -DEXPLICIT
+#             FLAG_34 =  -DEXPLICIT
 #           WAVE ONLY
 #             FLAG_35 = -DWAVE_ONLY
 # Svendsen Roller contribution
@@ -534,38 +543,40 @@ dashL= $(empty) -L
 #--------------------------------------------------------------------------
 #  Intel Compiler Definitions
 #--------------------------------------------------------------------------
-#         CPP      = /usr/bin/cpp
-#         COMPILER = -DIFORT
-#         FC       = ifort
-#         CC       = icc
-#         CXX      = icc
-#         CFLAGS   = -O3
-#         DEBFLGS  = #-check all
+         CPP      = /usr/bin/cpp
+         COMPILER = -DIFORT
+         FC       = ifort
+         CC       = icc
+         CXX      = icpc
+         CFLAGS   = -O3
+         DEBFLGS  = -check all -warn -stand -fpe0 -ftrapuv -traceback -g
+#        DEBFLGS  = -traceback
 # Use 'OPT = -O0 -g' for fast compile to test the make 
 # Use 'OPT = -xP' for fast run on em64t (Hydra and Guppy)
 # Use 'OPT = -xN' for fast run on ia32 (Salmon and Minke)
 #         OPT      = -O0 -g  
-#         OPT      = -xP 
+         OPT      = -O2 
 
 # Do not set static for use with visit!
 #         VISOPT   = -Wl,--export-dynamic
 #         LDFLAGS  = $(VISITLIBPATH)
 #--------------------------------------------------------------------------
-#  Intel/MPI Compiler Definitions (SMAST)      
+#  Intel/MPI Compiler Definitions (Ubuntu-20.04 on WSL2, Oakbridge-CX, ITO-A)      
 #--------------------------------------------------------------------------
          CPP      = /usr/bin/cpp
          COMPILER = -DIFORT  
-         CC       = mpicc
-         CXX      = mpicxx
+         CC       = mpiicc
+         CXX      = mpiicpc
          CFLAGS   = -O3 
-         FC       = mpif90
-#         DEBFLGS  = -check all -traceback
+         FC       = mpiifort
+         DEBFLGS  = -traceback -check all -warn -stand -fpe0 -ftrapuv
+
 # Use 'OPT = -O0 -g'  for fast compile to test the make 
 # Use 'OPT = -xP' for fast run on em64t (Hydra and Guppy)
 # Use 'OPT = -xN' for fast run on ia32 (Salmon and Minke)
 #         OPT      = -O0 -g
 #         OPT      = -axN -xN
-         OPT      = -O3
+         OPT      = -O2
 
 # Do not set static for use with visit!
 #         VISOPT   = -Wl,--export-dynamic

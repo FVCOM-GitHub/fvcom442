@@ -423,21 +423,8 @@ END SUBROUTINE BIO_3D1D
         ! David moved HPRNU and added HVC
         VISCOF=(FACT*0.5_SP*(VISCOFF(IA)*NN_HVC(IA)+VISCOFF(IB)*NN_HVC(IB)) + FM1*0.5_SP*(NN_HVC(IA)+NN_HVC(IB)))
 
-!JQI NOV2021
-# if defined (WET_DRY)
-	   !Added by Adi Nugraha
-	   !Allow no diffusive flux between a wet node and a dry node (Wen Long and Tarang Khangaonkar)
-	   IF(ISWETN(IA)==1.AND.ISWETN(IB)==1)THEN
-# endif 	
          TXX=0.5_SP*(PFPXD(IA)+PFPXD(IB))*VISCOF
          TYY=0.5_SP*(PFPYD(IA)+PFPYD(IB))*VISCOF
-# if defined (WET_DRY)			   
-	   ELSE
-		 TXX = 0.0_SP
-		 TYY = 0.0_SP
-	   ENDIF
-# endif	
-!JQI NOV2021
 
          FXX=-DTIJ(I,K)*TXX*DLTYE(I)
          FYY= DTIJ(I,K)*TYY*DLTXE(I)
@@ -1329,17 +1316,11 @@ SUBROUTINE BIO_EXCHANGE
           END DO
         END IF
         IF (TRIM(INI_TYPE).EQ.'LINEAR') THEN
-!JQIGOTO          N_DATA=1
-!JQIGOTO 11       READ(1,*,END=12)DEPTH_STD(N_DATA),DATA_BIO(N_DATA)
-!JQIGOTO          N_DATA=N_DATA+1
-!JQIGOTO          GO TO 11
-!JQIGOTO 12       N_DATA=N_DATA-1
-          N_DATA=0                                                 !JQIGOTO 
-	  DO WHILE(.TRUE.)                                         !JQIGOTO
-            READ(1,*,IOSTAT=IOS)DEPTH_STD(N_DATA),DATA_BIO(N_DATA) !JQIGOTO
-            IF(IOS < 0) exit                                       !JQIGOTO
-            N_DATA=N_DATA+1                                        !JQIGOTO
-          END DO                                                   !JQIGOTO
+          N_DATA=1
+ 11       READ(1,*,END=12)DEPTH_STD(N_DATA),DATA_BIO(N_DATA)
+          N_DATA=N_DATA+1
+          GO TO 11
+ 12       N_DATA=N_DATA-1
           DO I=1,M
             DO K= 1,KBM1
               ZM(K) =ZZ(I,K)*(D(I)+EL(I))
@@ -1402,17 +1383,11 @@ SUBROUTINE BIO_EXCHANGE
           END DO
         END IF
         IF (TRIM(INI_TYPE).EQ.'LINEAR') THEN
-!JQIGOTO          N_DATA=1
-!JQIGOTO 21       READ(1,*,END=22)DEPTH_STD(N_DATA),DATA_BIO(N_DATA)
-!JQIGOTO          N_DATA=N_DATA+1
-!JQIGOTO          GO TO 21
-!JQIGOTO 22       N_DATA=N_DATA-1
-          N_DATA=0                                                 !JQIGOTO
-	  DO WHILE(.TRUE.)                                         !JQIGOTO
-            READ(1,*,IOSTAT=IOS)DEPTH_STD(N_DATA),DATA_BIO(N_DATA) !JQIGOTO
-            IF(IOS < 0) exit                                       !JQIGOTO
-            N_DATA=N_DATA+1                                        !JQIGOTO
-          END DO                                                   !JQIGOTO
+          N_DATA=1
+ 21       READ(1,*,END=22)DEPTH_STD(N_DATA),DATA_BIO(N_DATA)
+          N_DATA=N_DATA+1
+          GO TO 21
+ 22       N_DATA=N_DATA-1
           DO I=1,M
             DO K= 1,KBM1
               ZM(K) =ZZ(I,K)*D(I)+EL(I)
@@ -1473,17 +1448,11 @@ SUBROUTINE BIO_EXCHANGE
           END DO
         END IF
         IF (TRIM(INI_TYPE).EQ.'LINEAR') THEN
-!JQIGOTO          N_DATA=1
-!JQIGOTO 31       READ(1,*,END=32)DEPTH_STD(N_DATA),DATA_BIO(N_DATA)
-!JQIGOTO          N_DATA=N_DATA+1
-!JQIGOTO          GO TO 31
-!JQIGOTO 32       N_DATA=N_DATA-1
-          N_DATA=0                                                 !JQIGOTO
-	  DO WHILE(.TRUE.)                                         !JQIGOTO
-            READ(1,*,IOSTAT=IOS)DEPTH_STD(N_DATA),DATA_BIO(N_DATA) !JQIGOTO
-            IF(IOS < 0) exit                                       !JQIGOTO
-            N_DATA=N_DATA+1                                        !JQIGOTO
-          END DO                                                   !JQIGOTO
+          N_DATA=1
+ 31       READ(1,*,END=32)DEPTH_STD(N_DATA),DATA_BIO(N_DATA)
+          N_DATA=N_DATA+1
+          GO TO 31
+ 32       N_DATA=N_DATA-1
           DO I=1,M
             DO K= 1,KBM1
               ZM(K) =ZZ(I,K)*D(I)+EL(I)
@@ -1545,17 +1514,11 @@ SUBROUTINE BIO_EXCHANGE
           END DO
         END IF
         IF (TRIM(INI_TYPE).EQ.'LINEAR') THEN
-!JQIGOTO          N_DATA=1
-!JQIGOTO 41       READ(1,*,END=42)DEPTH_STD(N_DATA),DATA_BIO(N_DATA)
-!JQIGOTO          N_DATA=N_DATA+1
-!JQIGOTO          GO TO 41
-!JQIGOTO 42       N_DATA=N_DATA-1
-          N_DATA=0                                                 !JQIGOTO
-	  DO WHILE(.TRUE.)                                         !JQIGOTO
-            READ(1,*,IOSTAT=IOS)DEPTH_STD(N_DATA),DATA_BIO(N_DATA) !JQIGOTO
-            IF(IOS < 0) exit                                       !JQIGOTO
-            N_DATA=N_DATA+1                                        !JQIGOTO
-          END DO                                                   !JQIGOTO
+          N_DATA=1
+ 41       READ(1,*,END=42)DEPTH_STD(N_DATA),DATA_BIO(N_DATA)
+          N_DATA=N_DATA+1
+          GO TO 41
+ 42       N_DATA=N_DATA-1
           DO I=1,M
             DO K= 1,KBM1
               ZM(K) =ZZ(I,K)*D(I)+EL(I)
@@ -1617,17 +1580,11 @@ SUBROUTINE BIO_EXCHANGE
           END DO
         END IF
         IF (TRIM(INI_TYPE).EQ.'LINEAR') THEN
-!JQIGOTO          N_DATA=1
-!JQIGOTO 51       READ(1,*,END=52)DEPTH_STD(N_DATA),DATA_BIO(N_DATA)
-!JQIGOTO          N_DATA=N_DATA+1
-!JQIGOTO          GO TO 51
-!JQIGOTO 52       N_DATA=N_DATA-1
-          N_DATA=0                                                 !JQIGOTO
-	  DO WHILE(.TRUE.)                                         !JQIGOTO
-            READ(1,*,IOSTAT=IOS)DEPTH_STD(N_DATA),DATA_BIO(N_DATA) !JQIGOTO
-            IF(IOS < 0) exit                                       !JQIGOTO
-            N_DATA=N_DATA+1                                        !JQIGOTO
-          END DO                                                   !JQIGOTO
+          N_DATA=1
+ 51       READ(1,*,END=52)DEPTH_STD(N_DATA),DATA_BIO(N_DATA)
+          N_DATA=N_DATA+1
+          GO TO 51
+ 52       N_DATA=N_DATA-1
           DO I=1,M
             DO K= 1,KBM1
               ZM(K) =ZZ(I,K)*D(I)+EL(I)
@@ -1688,17 +1645,11 @@ SUBROUTINE BIO_EXCHANGE
           END DO
         END IF
         IF (TRIM(INI_TYPE).EQ.'LINEAR') THEN
-!JQIGOTO          N_DATA=1
-!JQIGOTO 61       READ(1,*,END=62)DEPTH_STD(N_DATA),DATA_BIO(N_DATA)
-!JQIGOTO          N_DATA=N_DATA+1
-!JQIGOTO          GO TO 61
-!JQIGOTO 62       N_DATA=N_DATA-1
-          N_DATA=0                                                 !JQIGOTO
-	  DO WHILE(.TRUE.)                                         !JQIGOTO
-            READ(1,*,IOSTAT=IOS)DEPTH_STD(N_DATA),DATA_BIO(N_DATA) !JQIGOTO
-            IF(IOS < 0) exit                                       !JQIGOTO
-            N_DATA=N_DATA+1                                        !JQIGOTO
-          END DO                                                   !JQIGOTO
+          N_DATA=1
+ 61       READ(1,*,END=62)DEPTH_STD(N_DATA),DATA_BIO(N_DATA)
+          N_DATA=N_DATA+1
+          GO TO 61
+ 62       N_DATA=N_DATA-1
           DO I=1,M
             DO K= 1,KBM1
               ZM(K) =ZZ(I,K)*D(I)+EL(I)

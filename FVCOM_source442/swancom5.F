@@ -26,20 +26,20 @@
 !
 !
   USE M_GENARR
-  USE SWCOMM3                                                         
-  USE SWCOMM4                                                         
+  USE SWCOMM3
+  USE SWCOMM4
   USE OCPCOMM4
 # if defined (EXPLICIT)
   USE MOD_ACTION_EX
-# else         
+# else
   USE MOD_ACTION_IM
-# endif    
-  USE ALL_VARS 
-   
-  IMPLICIT NONE                                                     
+# endif
+  USE ALL_VARS
+
+  IMPLICIT NONE
 
   INTEGER :: IC,IS,ID,IG,NICMAX,INDX
-  REAL    :: NN(1:MSC), ND(1:MSC)                                    
+  REAL    :: NN(1:MSC), ND(1:MSC)
   REAL    :: DEP2(MT),KWAVE(MSC,NICMAX),CGO(MSC,NICMAX)
   REAL    :: DEPLOC
 
@@ -50,33 +50,37 @@
       IF(DEPLOC <= DEPMIN)THEN
 !     *** depth is negative ***
         DO IS = 1, MSC
-          KWAVE(IS,IC) = -1.                                           
-          CGO(IS,IC)   = 0.                                            
-        END DO	 
+          KWAVE(IS,IC) = -1.
+          CGO(IS,IC)   = 0.
+        END DO
       ELSE
 !     *** call KSCIP1 to compute KWAVE and CGO ***
-        CALL KSCIP1(MSC,SPCSIG,DEPLOC,KWAVE(1,IC),CGO(1,IC),NN,ND)                                 
+! jsasaki 2019.11.12
+        CALL KSCIP1(MSC,SPCSIG,DEPLOC,KWAVE(1:MSC,IC),CGO(1:MSC,IC),NN,ND)
+! jsasaki
       ENDIF
-    ELSE                                                    
+    ELSE
       INDX  = NBVE(IG,IC-1)
       DEPLOC = DEP2(NV(INDX,1))+DEP2(NV(INDX,2))+DEP2(NV(INDX,3))
       DEPLOC = DEPLOC/3.0
       IF(DEPLOC <= DEPMIN)THEN
 !     *** depth is negative ***
         DO IS = 1, MSC
-          KWAVE(IS,IC) = -1.                                           
-          CGO(IS,IC)   = 0.                                            
-        END DO	 
+          KWAVE(IS,IC) = -1.
+          CGO(IS,IC)   = 0.
+        END DO
       ELSE
 !     *** call KSCIP1 to compute KWAVE and CGO ***
-        CALL KSCIP1(MSC,SPCSIG,DEPLOC,KWAVE(1,IC),CGO(1,IC),NN,ND)
+! jsasaki 2019.11.12
+        CALL KSCIP1(MSC,SPCSIG,DEPLOC,KWAVE(1:MSC,IC),CGO(1:MSC,IC),NN,ND)
+! jsasaki
       ENDIF
-    END IF  
-  ENDDO                                                              
+    END IF
+  ENDDO
 
   RETURN
   END SUBROUTINE SWAPAR
- 
+
  !
 !
 !****************************************************************
@@ -105,37 +109,41 @@
 !                    2   2 sinh 2K(IS,IC)DEP(IX,IY)  |k(IS,IC)|
 !
   USE M_GENARR
-  USE SWCOMM3                                                         
-  USE SWCOMM4                                                         
-  USE OCPCOMM4 
+  USE SWCOMM3
+  USE SWCOMM4
+  USE OCPCOMM4
 # if defined (EXPLICIT)
   USE MOD_ACTION_EX
-# else        
+# else
   USE MOD_ACTION_IM
-# endif    
+# endif
   USE ALL_VARS, ONLY : NV,NTVE,MT
-   
-  IMPLICIT NONE                                                     
+
+  IMPLICIT NONE
 !
   INTEGER :: IC,IS,ID,I,INDX
-  REAL    :: NN(1:MSC), ND(1:MSC)                                    
-  REAL    :: DEP2(MT),KWAVEL,CGOL
-  REAL    :: DEPLOC,SPCSIGL
+! jsasaki 2019.11.12
+  REAL    :: NN(1), ND(1)
+  REAL   :: DEP2(MT),KWAVEL(1),CGOL(1)
+  REAL    :: DEPLOC,SPCSIGL(1)
+! jsasaki
 
   DEPLOC = (DEP2(NV(I,1))+DEP2(NV(I,2))+DEP2(NV(I,3)))/3.0
   IF(DEPLOC <= DEPMIN)THEN
 !   *** depth is negative ***
-    KWAVEL = -1.                                           
-    CGOL   = 0.                                            
+! jsasaki 2019.11.12
+    KWAVEL(1) = -1.
+    CGOL(1)   = 0.
   ELSE
 !   *** call KSCIP1 to compute KWAVE and CGO ***
-    SPCSIGL = SPCSIG(IS)
-    CALL KSCIP1(1,SPCSIGL,DEPLOC,KWAVEL,CGOL,NN,ND)                                 
+! jsasaki 2019.11.12
+    SPCSIGL(1) = SPCSIG(IS)
+    CALL KSCIP1(1,SPCSIGL,DEPLOC,KWAVEL,CGOL,NN,ND)
   END IF
 
   RETURN
   END SUBROUTINE SWAPAR1
-!    
+!
 !****************************************************************
 !
    SUBROUTINE SPROXY (I1     ,IS     ,ID     ,CAXL   ,CAYL   ,  &
@@ -223,9 +231,9 @@
    USE M_DIFFR
 #  if defined (EXPLICIT)
    USE MOD_ACTION_EX
-#  else      
+#  else
    USE MOD_ACTION_IM
-#  endif   
+#  endif
 
    IMPLICIT NONE
 
@@ -238,8 +246,8 @@
 !    --- adapt the velocities in case of diffraction
 !
    IF(IDIFFR == 1 .AND. PDIFFR(3) /= 0.)THEN
-!     CAXL = CAXL*DIFPARAM(I1)      
-!     CAYL = CAYL*DIFPARAM(I1)      
+!     CAXL = CAXL*DIFPARAM(I1)
+!     CAYL = CAYL*DIFPARAM(I1)
    END IF
 !
 !    --- ambient currents added
@@ -335,17 +343,17 @@
 !   End IF
 !   ------------------------------------------------------------
 !****************************************************************
-   USE SWCOMM3                                                         
-   USE SWCOMM4                                                         
-   USE OCPCOMM4                                                        
-   USE M_DIFFR 
+   USE SWCOMM3
+   USE SWCOMM4
+   USE OCPCOMM4
+   USE M_DIFFR
 #  if defined (EXPLICIT)
    USE MOD_ACTION_EX
-#  else      
+#  else
    USE MOD_ACTION_IM
-#  endif   
-   
-   IMPLICIT NONE                                              
+#  endif
+
+   IMPLICIT NONE
 
    INTEGER  IC,IS,ID,I1,NICMAX
    REAL     CAXL(MDC,MSC),CAYL(MDC,MSC),CG0L(MDC,MSC),ECOSL(MDC),ESINL(MDC),UX2L,UY2L
@@ -358,14 +366,14 @@
 !
 !    --- adapt the velocities in case of diffraction
 !
-   IF(IDIFFR == 1 .AND. PDIFFR(3) /= 0.)THEN 
-!     CAXL = CAXL*DIFPARAM(I1)      
-!     CAYL = CAYL*DIFPARAM(I1)      
+   IF(IDIFFR == 1 .AND. PDIFFR(3) /= 0.)THEN
+!     CAXL = CAXL*DIFPARAM(I1)
+!     CAYL = CAYL*DIFPARAM(I1)
    END IF
 !
 !    --- ambient currents added
 !
-   IF(ICUR == 1)THEN 
+   IF(ICUR == 1)THEN
      CAXL = CAXL + UX2L
      CAYL = CAYL + UY2L
    END IF
@@ -476,8 +484,8 @@
 !    --- adapt the velocities in case of diffraction
 !
    IF(IDIFFR == 1 .AND. PDIFFR(3) /= 0.)THEN
-!     CAXL = CAXL*DIFPARAM(I1)      
-!     CAYL = CAYL*DIFPARAM(I1)      
+!     CAXL = CAXL*DIFPARAM(I1)
+!     CAYL = CAYL*DIFPARAM(I1)
    END IF
 !
 !    --- ambient currents added
@@ -498,11 +506,11 @@
 !
   SUBROUTINE SPROSD (KWAVE    ,CAS      ,CAD      ,          &
                      CGO      ,DEP2     ,DEP1     ,          &
-		     ECOS     ,ESIN     ,UX2      ,          &
-		     UY2      ,IDCMIN   ,IDCMAX   ,          &
-		     COSCOS   ,SINSIN   ,SINCOS   ,          &
-		     RDX      ,RDY      ,CAX      ,          &
-		     CAY      ,IG       )
+     ECOS     ,ESIN     ,UX2      ,          &
+     UY2      ,IDCMIN   ,IDCMAX   ,          &
+     COSCOS   ,SINSIN   ,SINCOS   ,          &
+     RDX      ,RDY      ,CAX      ,          &
+     CAY      ,IG       )
 !
 !****************************************************************
 !
@@ -556,45 +564,45 @@
 !****************************************************************
 !
   USE M_GENARR
-  USE SWCOMM2                                           
-  USE SWCOMM3                                                         
-  USE SWCOMM4                                                         
-  USE TIMECOMM                                                        
-  USE OCPCOMM4                                                        
-  USE M_DIFFR   
+  USE SWCOMM2
+  USE SWCOMM3
+  USE SWCOMM4
+  USE TIMECOMM
+  USE OCPCOMM4
+  USE M_DIFFR
 # if defined (EXPLICIT)
   USE MOD_ACTION_EX
-# else            
+# else
   USE MOD_ACTION_IM
-# endif      
-  USE ALL_VARS, ONLY : NTVE,NBVE,NV,VX,VY,XC,YC,ART1,MT,ISONB_W,NBSN,NTSN  
+# endif
+  USE ALL_VARS, ONLY : NTVE,NBVE,NV,VX,VY,XC,YC,ART1,MT,ISONB_W,NBSN,NTSN
 # if defined (SPHERICAL)
-  USE CONTROL, ONLY : TPI,DEG2RAD                                                      
-# endif      
+  USE CONTROL, ONLY : TPI,DEG2RAD
+# endif
 !
   IMPLICIT NONE
 !
   INTEGER, INTENT(IN) :: IDCMIN(MSC), IDCMAX(MSC)
-  REAL  :: CAS(MDC,MSC,MICMAX)                                        
-  REAL  :: CAD(MDC,MSC,MICMAX)                                        
-  REAL  :: CAX(MDC,MSC,MICMAX)                                        
-  REAL  :: CAY(MDC,MSC,MICMAX)                                        
-  REAL  :: CGO(MSC,MICMAX)                                            
+  REAL  :: CAS(MDC,MSC,MICMAX)
+  REAL  :: CAD(MDC,MSC,MICMAX)
+  REAL  :: CAX(MDC,MSC,MICMAX)
+  REAL  :: CAY(MDC,MSC,MICMAX)
+  REAL  :: CGO(MSC,MICMAX)
   REAL  :: DEP2(MT) ,DEP1(MT) ,ECOS(MDC) ,ESIN(MDC) ,COSCOS(MDC) ,    &
-	   SINSIN(MDC) ,SINCOS(MDC)
-  REAL  :: KWAVE(MSC,MICMAX)                                          
-  REAL  :: UX2(MT) ,UY2(MT) ,RDX(10) ,RDY(10)  
-  INTEGER  IENT ,IS ,ID ,II ,SWPNGB ,IDDUM ,ID1 ,ID2 ,ISWEEP   
-  INTEGER :: ISWP                                              
-  INTEGER :: IC, KCGI                                             
-  LOGICAL :: VALSWP                                            
+           SINSIN(MDC) ,SINCOS(MDC)
+  REAL  :: KWAVE(MSC,MICMAX)
+  REAL  :: UX2(MT) ,UY2(MT) ,RDX(10) ,RDY(10)
+  INTEGER  IENT ,IS ,ID ,II ,SWPNGB ,IDDUM ,ID1 ,ID2 ,ISWEEP
+  INTEGER :: ISWP
+  INTEGER :: IC, KCGI
+  LOGICAL :: VALSWP
   REAL    :: VLSINH ,KD1   ,COEF
   REAL    :: RDXL(2) ,RDYL(2) ,DET ,DX2 ,DY2 ,DX3 ,DY3
   REAL    :: DPDX   ,DPDY   ,DUXDX ,DUXDY ,DUYDX ,DUYDY
   REAL    :: CAST1    ,CAST2    ,CAST3(3) ,CAST4(3) ,               &
              CAST5    ,CAST6(3) ,CAST7(3) ,CAST8(3) ,CAST9(3) ,     &
-	     CADT1    ,CADT2(3) ,CADT3(3) ,                         &
-	     CADT4(3) ,CADT5(3) ,CADT6(3) ,CADT7(3)
+             CADT1    ,CADT2(3) ,CADT3(3) ,                         &
+             CADT4(3) ,CADT5(3) ,CADT6(3) ,CADT7(3)
   REAL    :: DLOC1, DLOC2, DLOC3
 
   INTEGER, PARAMETER :: SWP_ARRAY(1:3) = (/2,1,3/)
@@ -606,8 +614,8 @@
   REAL    :: X1,X2,X3,Y1,Y2,Y3,DX1,DY1
 # if defined (SPHERICAL)
   REAL    :: DX_TMP
-# endif      
-      
+# endif
+
   CAST1 = 0.
   CAST2 = 0.
   CAST5 = 0.
@@ -619,14 +627,14 @@
 !
 ! *** coefficients for CAS -> function of IX and IY only ***
 !
-  IF(NSTATC == 0 .OR. .NOT.DYNDEP)THEN                            
+  IF(NSTATC == 0 .OR. .NOT.DYNDEP)THEN
 !   *** stationary calculation ***
     CAST2 = 0.
   ELSE
 !   nonstationary depth, CAST2 is @D/@t
     CAST2 = (DLOC1-DEP1(IG))*RDTIM
   END IF
-      
+
   SUMHDX = 0.0
   SUMHDY = 0.0
   IF(ICUR /= 0)THEN
@@ -637,48 +645,48 @@
     SUMUXHDY = 0.0
     SUMUYHDX = 0.0
   END IF
-      
+
   DO I = 1,NTVE(IG)
     UX = UX2(NV(NBVE(IG,I),1))+UX2(NV(NBVE(IG,I),2))+UX2(NV(NBVE(IG,I),3))
-    UX = UX/3.0     
+    UX = UX/3.0
     UY = UY2(NV(NBVE(IG,I),1))+UY2(NV(NBVE(IG,I),2))+UY2(NV(NBVE(IG,I),3))
-    UY = UY/3.0     
-	
+    UY = UY/3.0
+
     DLOC2 = DEP2(NV(NBVE(IG,I),1)) +         &
             DEP2(NV(NBVE(IG,I),2)) +         &
-            DEP2(NV(NBVE(IG,I),3)) 
+            DEP2(NV(NBVE(IG,I),3))
     DLOC2 = DLOC2/3.0
 
-    IF(IREFR == -1)THEN                                          
+    IF(IREFR == -1)THEN
 !     limitation of depths in neighbouring grid points
       DLOC2 = MIN(DLOC2, PNUMS(17)*DLOC1)
-    ELSE  
+    ELSE
       IF(ABS(DLOC2 - DLOC1) > 100.0)THEN
         DLOC2 = DLOC1
-      ELSE	                                                         
-!       no limitation                                                
+      ELSE
+!       no limitation
         DLOC2 = DLOC2
-      END IF                                           
-    END IF                                                         
- 
+      END IF
+    END IF
+
     X1 = VX(IG)
     Y1 = VY(IG)
-	
+
     IF(NV(NBVE(IG,I),1) == IG)THEN
-      X2 = VX(NV(NBVE(IG,I),2))	
-      Y2 = VY(NV(NBVE(IG,I),2))	
-      X3 = VX(NV(NBVE(IG,I),3))	
-      Y3 = VY(NV(NBVE(IG,I),3))	
+      X2 = VX(NV(NBVE(IG,I),2))
+      Y2 = VY(NV(NBVE(IG,I),2))
+      X3 = VX(NV(NBVE(IG,I),3))
+      Y3 = VY(NV(NBVE(IG,I),3))
     ELSE IF(NV(NBVE(IG,I),2) == IG)THEN
-      X2 = VX(NV(NBVE(IG,I),3))	
-      Y2 = VY(NV(NBVE(IG,I),3))	
-      X3 = VX(NV(NBVE(IG,I),1))	
-      Y3 = VY(NV(NBVE(IG,I),1))	
-    ELSE  
-      X2 = VX(NV(NBVE(IG,I),1))	
-      Y2 = VY(NV(NBVE(IG,I),1))	
-      X3 = VX(NV(NBVE(IG,I),2))	
-      Y3 = VY(NV(NBVE(IG,I),2))	
+      X2 = VX(NV(NBVE(IG,I),3))
+      Y2 = VY(NV(NBVE(IG,I),3))
+      X3 = VX(NV(NBVE(IG,I),1))
+      Y3 = VY(NV(NBVE(IG,I),1))
+    ELSE
+      X2 = VX(NV(NBVE(IG,I),1))
+      Y2 = VY(NV(NBVE(IG,I),1))
+      X3 = VX(NV(NBVE(IG,I),2))
+      Y3 = VY(NV(NBVE(IG,I),2))
     END IF
 
 # if defined (SPHERICAL)
@@ -712,11 +720,11 @@
       DX1 = -360.0_SP*TPI+DX1
     ELSE IF(DX_TMP < -180.0_SP)THEN
       DX1 =  360.0_SP*TPI+DX1
-    END IF 
+    END IF
     DX1 = DX1*COS(DEG2RAD*VY(IG))
-    DY1 = DY1*TPI 
-# endif    
-	
+    DY1 = DY1*TPI
+# endif
+
 
 # if defined (SPHERICAL)
     if ((abs(X1-X3)).GT.300.0)then
@@ -747,17 +755,17 @@
       DX2 = -360.0_SP*TPI+DX2
     ELSE IF(DX_TMP < -180.0_SP)THEN
       DX2 =  360.0_SP*TPI+DX2
-    END IF 
+    END IF
     DX2 = DX2*COS(DEG2RAD*VY(IG))
-    DY2 = DY2*TPI 
-# endif    
-	
+    DY2 = DY2*TPI
+# endif
+
     DX = DX1+DX2
     DY = DY1+DY2
-	
+
     SUMHDX = SUMHDX - DLOC2*DX
     SUMHDY = SUMHDY - DLOC2*DY
-	
+
     IF(ICUR /= 0)THEN
       SUMUXDX = SUMUXDX - UX*DX
       SUMUXDY = SUMUXDY - UX*DY
@@ -766,7 +774,7 @@
       SUMUXHDY = SUMUXHDY - UX*DLOC2*DY
       SUMUYHDX = SUMUYHDX - UY*DLOC2*DX
     END IF
-  END DO	    
+  END DO
 
   IF(ISONB_W(IG) == 1)THEN
     DX = VX(NBSN(IG,2))-VX(NBSN(IG,NTSN(IG)-1))
@@ -777,16 +785,16 @@
       DX = -360.0_SP*TPI+DX
     ELSE IF(DX_TMP < -180.0_SP)THEN
       DX =  360.0_SP*TPI+DX
-    END IF 
+    END IF
     DX = DX*COS(DEG2RAD*VY(IG))
-# endif    
+# endif
     DX = 0.5*DX
     DY = VY(NBSN(IG,2))-VY(NBSN(IG,NTSN(IG)-1))
 # if defined (SPHERICAL)
-    DY = DY*TPI 
-# endif    
+    DY = DY*TPI
+# endif
     DY = 0.5*DY
-	
+
     SUMHDX = SUMHDX - DEP2(IG)*DX
     SUMHDY = SUMHDY - DEP2(IG)*DY
 
@@ -798,7 +806,7 @@
       SUMUXHDY = SUMUXHDY - UX2(IG)*DEP2(IG)*DY
       SUMUYHDX = SUMUYHDX - UY2(IG)*DEP2(IG)*DX
     END IF
-  END IF	
+  END IF
 
   DO IS =1,MSC
     KD1 = KWAVE(IS,1)*DLOC1
@@ -817,54 +825,54 @@
 !
 !   loop over spectral directions
 !
-    DO IDDUM = IDCMIN(IS)-1, IDCMAX(IS)+1  
+    DO IDDUM = IDCMIN(IS)-1, IDCMAX(IS)+1
       ID = MOD(IDDUM-1+MDC, MDC)+1
       IF(ICUR == 0)THEN
         CAS(ID,IS,1) = CAST1*CAST2
         CAD(ID,IS,1) = CADT1*(ESIN(ID)*SUMHDY+ECOS(ID)*SUMHDX)
         CAD(ID,IS,1) = CAD(ID,IS,1)/ART1(IG)
-	    
-!       --- adapt the velocity in case of diffraction                
-        IF(IDIFFR == 1)THEN                                        
+
+!       --- adapt the velocity in case of diffraction
+        IF(IDIFFR == 1)THEN
 !          CAD(ID,IS,1) = DIFPARAM(IG)*CAD(ID,IS,1)          &
 !                       - DIFPARDX(IG)*CGO(IS,1)*ESIN(ID)    &
-!	                + DIFPARDY(IG)*CGO(IS,1)*ECOS(ID)          
+!                + DIFPARDY(IG)*CGO(IS,1)*ECOS(ID)
           PRINT*,'NOT FINISH YET. SEE SPROSD 001'
           STOP
         END IF
       ELSE
-        IF(IDIFFR == 0)THEN                                        
+        IF(IDIFFR == 0)THEN
           CAS(ID,IS,1)= CAST1*(CAST2*ART1(IG)+                            &
-	 	        SUMUXHDY-SUMUYHDX-DLOC1*SUMUXDY+DLOC1*SUMUYDX)-   &
-		        CAST5 *                                           &
-		       (COSCOS(ID)*SUMUXDY-SINCOS(ID)*(SUMUXDX-SUMUYDY)-  &
-		        SINSIN(ID)*SUMUYDX)
-          CAS(ID,IS,1)=CAS(ID,IS,1)/ART1(IG)		     
+          SUMUXHDY-SUMUYHDX-DLOC1*SUMUXDY+DLOC1*SUMUYDX)-   &
+          CAST5 *                                           &
+         (COSCOS(ID)*SUMUXDY-SINCOS(ID)*(SUMUXDX-SUMUYDY)-  &
+          SINSIN(ID)*SUMUYDX)
+          CAS(ID,IS,1)=CAS(ID,IS,1)/ART1(IG)
 
           CAD(ID,IS,1) = CADT1*(ESIN(ID)*SUMHDY+ECOS(ID)*SUMHDX)      +   &
-		         SINCOS(ID)*(SUMUXDY+SUMUYDX) +                   &
-		         SINSIN(ID)*SUMUYDY+COSCOS(ID)*SUMUXDX
-          CAD(ID,IS,1) = CAD(ID,IS,1)/ART1(IG)		   
-        ELSE IF(IDIFFR == 1)THEN                                    
+          SINCOS(ID)*(SUMUXDY+SUMUYDX) +                   &
+          SINSIN(ID)*SUMUYDY+COSCOS(ID)*SUMUXDX
+          CAD(ID,IS,1) = CAD(ID,IS,1)/ART1(IG)
+        ELSE IF(IDIFFR == 1)THEN
 !          CAS(ID,IS,1)= CAST1 * (CAST2 + CAST3(ISWEEP) + CAST4(ISWEEP)) - &
-!		         DIFPARAM(IG)*CAST5 *                              &
-!		        (COSCOS(ID) * CAST6(ISWEEP) +                      &
-!		         SINCOS(ID) * (CAST7(ISWEEP) + CAST8(ISWEEP)) +    &
-!		         SINSIN(ID) * CAST9(ISWEEP) )                  
+!          DIFPARAM(IG)*CAST5 *                              &
+!         (COSCOS(ID) * CAST6(ISWEEP) +                      &
+!          SINCOS(ID) * (CAST7(ISWEEP) + CAST8(ISWEEP)) +    &
+!          SINSIN(ID) * CAST9(ISWEEP) )
 
 !          CAD(ID,IS,1) = DIFPARAM(IG)*CADT1 * (ESIN(ID) * CADT2(ISWEEP) - &
-!			  ECOS(ID) * CADT3(ISWEEP)) -                      &
-!	    	          DIFPARDX(IG)*CGO(IS,1)*ESIN(ID) +                &
-!			  DIFPARDY(IG)*CGO(IS,1)*ECOS(ID) +                &
-!		          SINCOS(ID) * (CADT4(ISWEEP) - CADT5(ISWEEP)) +   &
-!		          SINSIN(ID) *  CADT6(ISWEEP) -                    &
-!		          COSCOS(ID) *  CADT7(ISWEEP)                         
+!     ECOS(ID) * CADT3(ISWEEP)) -                      &
+!          DIFPARDX(IG)*CGO(IS,1)*ESIN(ID) +                &
+!     DIFPARDY(IG)*CGO(IS,1)*ECOS(ID) +                &
+!          SINCOS(ID) * (CADT4(ISWEEP) - CADT5(ISWEEP)) +   &
+!          SINSIN(ID) *  CADT6(ISWEEP) -                    &
+!          COSCOS(ID) *  CADT7(ISWEEP)
           PRINT*,'NOT FINISH YET. SEE SPROSD 002'
-	  STOP
-        END IF                                                        
+          STOP
+        END IF
       ENDIF
     END DO    !IDDUM
-  END DO      !IS	  
+  END DO      !IS
 
 !
 ! *** for most cases CAS and CAD will be activated. Therefore ***
@@ -884,7 +892,7 @@
   END SUBROUTINE SPROSD
 !****************************************************************
 !
-  SUBROUTINE DSPHER (CAD, CAX, CAY, IG, ECOS, ESIN)       
+  SUBROUTINE DSPHER (CAD, CAX, CAY, IG, ECOS, ESIN)
 !
 !****************************************************************
 !
@@ -915,17 +923,17 @@
 !
 !****************************************************************
 !
-  USE SWCOMM2                                                         
-  USE SWCOMM3                                                         
-  USE SWCOMM4                                                         
-  USE OCPCOMM4  
-  USE ALL_VARS, ONLY : VY                                                      
+  USE SWCOMM2
+  USE SWCOMM3
+  USE SWCOMM4
+  USE OCPCOMM4
+  USE ALL_VARS, ONLY : VY
 !
   IMPLICIT NONE
 !
-  REAL  :: CAD(MDC,MSC,MICMAX)                                        
-  REAL  :: CAX(MDC,MSC,MICMAX)                                        
-  REAL  :: CAY(MDC,MSC,MICMAX)                                        
+  REAL  :: CAD(MDC,MSC,MICMAX)
+  REAL  :: CAX(MDC,MSC,MICMAX)
+  REAL  :: CAY(MDC,MSC,MICMAX)
   REAL  :: ECOS(MDC)
   REAL  :: ESIN(MDC)
   INTEGER :: IS, ID, IG
@@ -942,26 +950,26 @@
     CTTMP = ECOS(ID) * TANLAT / REARTH2
     DO IS = 1, MSC
       CAD(ID,IS,1) = CAD(ID,IS,1) -                &
-	        (CAX(ID,IS,1)*ECOS(ID) + CAY(ID,IS,1)*ESIN(ID)) * CTTMP  
+         (CAX(ID,IS,1)*ECOS(ID) + CAY(ID,IS,1)*ESIN(ID)) * CTTMP
     END DO
   END DO
 
   RETURN
   END SUBROUTINE DSPHER
- 
+
 !
 !*******************************************************************
 !
       SUBROUTINE ADDDIS (DISSXY     ,LEAKXY     ,                  &
                          AC2        ,ANYBIN     ,                  &
-			 DISC0      ,DISC1      ,                  &
-			 LEAKC1     ,SPCSIG     )               
+  DISC0      ,DISC1      ,                  &
+  LEAKC1     ,SPCSIG     )
 !    (This subroutine has not been tested yet)
 !
 !*******************************************************************
 !
-      USE SWCOMM3 
-      USE ALL_VARS, ONLY : MT                                                
+      USE SWCOMM3
+      USE ALL_VARS, ONLY : MT
 !
 !
 !   --|-----------------------------------------------------------|--
@@ -1018,7 +1026,7 @@
 !
 !     SPCSIG: Relative frequencies in computational domain in sigma-space 30.72
 !
-      REAL    SPCSIG(MSC)                                              
+      REAL    SPCSIG(MSC)
 !
 !     IX          Counter of gridpoints in x-direction
 !     IY          Counter of gridpoints in y-direction
@@ -1064,7 +1072,7 @@
 !
       REAL     DISSXY(MT)    ,LEAKXY(MT)      ,          &
                DISC0(MDC,MSC)   ,DISC1(MDC,MSC)     ,          &
-	       LEAKC1(MDC,MSC)  ,AC2(MDC,MSC,0:MT)            
+               LEAKC1(MDC,MSC)  ,AC2(MDC,MSC,0:MT)
 !
       LOGICAL  ANYBIN(MDC,MSC)
       INTEGER, SAVE :: IENT=0
@@ -1075,9 +1083,9 @@
         DO 90 IDC = 1, MDC
           IF (ANYBIN(IDC,ISC)) THEN
             DISSXY(KCGRD(1)) = DISSXY(KCGRD(1)) + DSDD*(DISC0(IDC,ISC) +  &
-	                       DISC1(IDC,ISC) * AC2(IDC,ISC,KCGRD(1)))
+                               DISC1(IDC,ISC) * AC2(IDC,ISC,KCGRD(1)))
             LEAKXY(KCGRD(1)) = LEAKXY(KCGRD(1)) + DSDD *                  &
-	                       LEAKC1(IDC,ISC) * AC2(IDC,ISC,KCGRD(1))
+                               LEAKC1(IDC,ISC) * AC2(IDC,ISC,KCGRD(1))
           ENDIF
   90    CONTINUE
  100  CONTINUE
@@ -1087,7 +1095,7 @@
 !****************************************************************
 !
    SUBROUTINE SPREDT (AC2     ,CAX     ,CAY     ,IDCMIN  ,IDCMAX  ,    &
-	              ISSTOP  ,RDX     ,RDY     )     
+              ISSTOP  ,RDX     ,RDY     )
 !  (This subroutine has not been tested yet)
 !
 !****************************************************************
@@ -1125,19 +1133,19 @@
 !     ---------------------------------------------------------
 !****************************************************************
 !
-   USE SWCOMM3                                                         
-   USE SWCOMM4                                                         
-   USE OCPCOMM4 
-   USE ALL_VARS, ONLY : MT                                                       
+   USE SWCOMM3
+   USE SWCOMM4
+   USE OCPCOMM4
+   USE ALL_VARS, ONLY : MT
 
    IMPLICIT NONE
-   
-   INTEGER :: IS ,ID ,IDDUM ,ISSTOP                                       
+
+   INTEGER :: IS ,ID ,IDDUM ,ISSTOP
    REAL    :: FAC_A ,FAC_B
-   REAL    :: AC2(MDC,MSC,0:MT)                                         
-   REAL    :: CAX(MDC,MSC,MICMAX)                                        
-   REAL    :: CAY(MDC,MSC,MICMAX)                                        
-   REAL    :: RDX(10),  RDY(10)                                          
+   REAL    :: AC2(MDC,MSC,0:MT)
+   REAL    :: CAX(MDC,MSC,MICMAX)
+   REAL    :: CAY(MDC,MSC,MICMAX)
+   REAL    :: RDX(10),  RDY(10)
    INTEGER :: IDCMIN(MSC) ,IDCMAX(MSC)
    REAL    :: CDEN ,CNUM ,WEIG1, WEIG2
 !
@@ -1149,17 +1157,17 @@
 !
        CDEN = RDX(1) * CAX(ID,IS,1) + RDY(1) * CAY(ID,IS,1)
        CNUM = (RDX(1) + RDX(2)) * CAX(ID,IS,1)              &
-	    + (RDY(1) + RDY(2)) * CAY(ID,IS,1)
+     + (RDY(1) + RDY(2)) * CAY(ID,IS,1)
        WEIG1 = CDEN/CNUM
        WEIG2 = 1. - WEIG1
 !
-       FAC_A = WEIG1 * AC2(ID,IS,KCGRD(2))                         
-       FAC_B = WEIG2 * AC2(ID,IS,KCGRD(3))                         
+       FAC_A = WEIG1 * AC2(ID,IS,KCGRD(2))
+       FAC_B = WEIG2 * AC2(ID,IS,KCGRD(3))
 !
-       IF (ACUPDA) AC2(ID,IS,KCGRD(1)) = MAX ( 0. , (FAC_A + FAC_B))      
+       IF (ACUPDA) AC2(ID,IS,KCGRD(1)) = MAX ( 0. , (FAC_A + FAC_B))
 !
-     END DO   !IDDUM	    
-   END DO     !IS  
+     END DO   !IDDUM
+   END DO     !IS
 !
    RETURN
    END SUBROUTINE SPREDT
@@ -1168,35 +1176,35 @@
 !
   SUBROUTINE SWPSEL(IDCMIN    ,IDCMAX    ,CAX       ,             &
                     CAY       ,ISCMIN    ,ISCMAX    ,             &
-		    IDTOT     ,ISTOT     ,IDDLOW    ,             &
-		    IDDTOP    ,ISSTOP    ,DEP2      ,             &
-		    UX2       ,UY2       ,SPCDIR    )
+      IDTOT     ,ISTOT     ,IDDLOW    ,             &
+      IDDTOP    ,ISSTOP    ,DEP2      ,             &
+      UX2       ,UY2       ,SPCDIR    )
 !
 !******************************************************************
 !
 !     compute the frequency dependent counters in directional space
 !     in a situation with a current and without a current.
 !     The counters are only computed for the gridpoint
-!     considered. This means IC = 1 
+!     considered. This means IC = 1
 !
 !******************************************************************
-  USE SWCOMM1                                                         
-  USE SWCOMM2                                                         
-  USE SWCOMM3                                                         
-  USE SWCOMM4                                                         
-  USE OCPCOMM4                                                        
-  USE ALL_VARS, ONLY : MT                                                       
+  USE SWCOMM1
+  USE SWCOMM2
+  USE SWCOMM3
+  USE SWCOMM4
+  USE OCPCOMM4
+  USE ALL_VARS, ONLY : MT
 
   IMPLICIT NONE
 !
-  REAL    :: SPCDIR(MDC,6)                                               
-  INTEGER :: IS ,ID ,IDSUM ,IDCLOW ,IDCHGH ,IDTOT ,ISTOT ,    & 
+  REAL    :: SPCDIR(MDC,6)
+  INTEGER :: IS ,ID ,IDSUM ,IDCLOW ,IDCHGH ,IDTOT ,ISTOT ,    &
              IDDLOW ,IDDTOP ,ISSLOW ,ISSTOP ,IENT ,IDDUM ,ISCLOW ,    &
-	     ISCHGH ,IX ,IY ,IC         
-  REAL    :: CAXMID ,CAYMID ,GROUP ,UABS ,THDIR    
+      ISCHGH ,IX ,IY ,IC
+  REAL    :: CAXMID ,CAYMID ,GROUP ,UABS ,THDIR
   INTEGER :: IDCMIN(MSC) ,IDCMAX(MSC) ,ISCMIN(MDC) ,ISCMAX(MDC) ,SECTOR(MSC)
   REAL    :: CAX(MDC,MSC,MICMAX) ,CAY(MDC,MSC,MICMAX) ,DEP2(MT) ,     &
-             UX2(MT) ,UY2(MT) ,RDX(10) ,RDY(10)    
+             UX2(MT) ,UY2(MT) ,RDX(10) ,RDY(10)
   LOGICAL :: LOWEST ,LOWBIN ,HGHBIN
 !
 ! *** initialize arrays in frequency direction ***
@@ -1204,7 +1212,7 @@
   DO ID = 1, MDC
     ISCMIN(ID) = 1
     ISCMAX(ID) = 1
-  END DO  
+  END DO
 !
 ! *** initialize array's in theta direction ***
 !
@@ -1212,7 +1220,7 @@
     IDCMIN(IS) = 1
     IDCMAX(IS) = MDC
     SECTOR(IS) = 1
-  END DO  
+  END DO
 !
 !     *** calculate minimum and maximum counters in frequency ***
 !     *** space if a current is present: ISCMIN and ISCMAX    ***
@@ -1269,8 +1277,8 @@
 !
   IDTOT  =     1
   ISTOT  =     1
-  ISSLOW =  9999                                                     
-  ISSTOP = -9999                                                     
+  ISSLOW =  9999
+  ISSTOP = -9999
 
   DO IS = 1, MSC
     IDCLOW  = 0
@@ -1278,15 +1286,15 @@
     IDSUM   = 0
     DO ID = 1, MDC
       IDSUM = IDSUM + 1
-      ISSLOW = MIN(IS,ISSLOW)                                   
-      ISSTOP = MAX(IS,ISSTOP)                                   
+      ISSLOW = MIN(IS,ISSLOW)
+      ISSTOP = MAX(IS,ISSTOP)
     END DO
-  END DO  
+  END DO
 !
   IF(ISSLOW /= 9999)THEN
     ISSLOW = 1
-!   minimal value of ISSTOP is 4 (or MSC if MSC<4)                    
-    IF(ICUR > 0) ISSTOP = MAX(MIN(4,MSC),ISSTOP)                    
+!   minimal value of ISSTOP is 4 (or MSC if MSC<4)
+    IF(ICUR > 0) ISSTOP = MAX(MIN(4,MSC),ISSTOP)
     ISTOT = ( ISSTOP - ISSLOW ) + 1
   ELSE
     ISTOT = 0
@@ -1306,9 +1314,9 @@
 !     *** the propagation velocity Cg = sqrt (gd) < U       ***
 !
   IF(ICUR == 1 .AND. FULCIR .AND.                      &
-     ISSLOW /= 1 .AND. ISSLOW /= 9999)THEN                          
-!        CALL MSGERR (2,'The lowest freqency is blocked')                  
-7002 FORMAT (I4, 1X, I4, 1X, I2)                                       
+     ISSLOW /= 1 .AND. ISSLOW /= 9999)THEN
+!        CALL MSGERR (2,'The lowest freqency is blocked')
+7002 FORMAT (I4, 1X, I4, 1X, I2)
     IC = 1
     GROUP = SQRT ( GRAV_W * DEP2(KCGRD(IC)) )
   END IF

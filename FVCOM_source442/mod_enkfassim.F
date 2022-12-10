@@ -1650,7 +1650,6 @@ end if !(msr)
    CHARACTER(LEN=24) HEADINFO
    INTEGER STLTMP(ENKF_NOBSMAX)
    INTEGER LAY(ENKF_NOBSMAX)
-   INTEGER ierr
 
    NUM     = 0 
    IDUMMY  = 0
@@ -1668,31 +1667,34 @@ end if !(msr)
     
    OPEN(INOOB,FILE=TRIM(FILENAME),FORM='FORMATTED')
    
-   DO WHILE ( .TRUE. )
-     READ(INOOB,*,IOSTAT=ierr) HEADINFO
-     IF (IERR /=0) exit
-     IF (SWITCH /=1) THEN
-       IF(HEADINFO=='!===READ') SWITCH = 1
-       CYCLE  
-     ENDIF
+ 100 READ(INOOB,*,END=200) HEADINFO
+     IF(SWITCH/=1) THEN
+       IF(HEADINFO=='!===READ') THEN
+         SWITCH = 1
+         GOTO 100
+       ELSE
+         GOTO 100
+       ENDIF
+     ENDIF 
 
      IF(TRIM(HEADINFO)=='!EL') THEN
        IF(EL_OBS) THEN
          READ(INOOB,*) NUM
-	       NLOC = NLOC + NUM
+	 NLOC = NLOC + NUM
 !         IF(NLOC>ENKF_NOBSMAX) THEN
 !           WRITE(IPT,*) 'not enough storage for observations:', 'Nloc=', Nloc, 'Nobsmax=', ENKF_NOBSMAX
 !           CALL PSTOP
 !         ENDIF
-	       READ(INOOB,*)  (STLOC(K), K=1,NLOC)	
+	 READ(INOOB,*)  (STLOC(K), K=1,NLOC)	
 	 
-	       DO K=1, NLOC   
-           WKTMP(k) = OBSERR_EL      ! FIND THE NAME OF VARIABLE
-         ENDDO 
+	   DO K=1, NLOC   
+              WKTMP(k) = OBSERR_EL      ! FIND THE NAME OF VARIABLE
+           ENDDO 
+	 
        ENDIF
 
        IF(EL_ASSIM) THEN
-         IDUMMY = IDUMMY + MGL
+	 IDUMMY = IDUMMY + MGL
        ENDIF
      ENDIF
      
@@ -1704,41 +1706,41 @@ end if !(msr)
 !           WRITE(IPT,*) 'not enough storage for observations:', 'Nloc=', Nloc+num, 'Nobsmax=', ENKF_NOBSMAX
 !           CALL PSTOP
 !         ENDIF
-	       READ(INOOB,*)  (STLOC(K), K=NLOC-NUM+1,NLOC)
-	       READ(INOOB,*)  (LAY(K),   K=NLOC-NUM+1,NLOC)
+	 READ(INOOB,*)  (STLOC(K), K=NLOC-NUM+1,NLOC)
+	 READ(INOOB,*)  (LAY(K),   K=NLOC-NUM+1,NLOC)
          DO K=NLOC-NUM+1, NLOC
-	         STLOC(K)=STLOC(K)+IDUMMY+NGL*(LAY(K)-1)
-	         WKTMP(K) = OBSERR_UV
-	       ENDDO   
+	   STLOC(K)=STLOC(K)+IDUMMY+NGL*(LAY(K)-1)
+	   WKTMP(K) = OBSERR_UV
+	 ENDDO   
 	 
-	       NLOC = NLOC + NUM
-	       DO K=NLOC-NUM+1, NLOC
-	         STLOC(K)=STLOC(K-NUM)+IDUMMY+NGL*KBM1
-	         WKTMP(K) = OBSERR_UV
-	       ENDDO
+	 NLOC = NLOC + NUM
+	 DO K=NLOC-NUM+1, NLOC
+	   STLOC(K)=STLOC(K-NUM)+IDUMMY+NGL*KBM1
+	   WKTMP(K) = OBSERR_UV
+	 ENDDO
+	 
        ENDIF
-       
        IF(UV_ASSIM) THEN  
-         IDUMMY = IDUMMY + 2*NGL*KBM1
+          IDUMMY = IDUMMY + 2*NGL*KBM1
        ENDIF
      ENDIF
      
      IF(TRIM(HEADINFO)=='!T') THEN
        IF(T_OBS) THEN
          READ(INOob,*) NUM
-         NLOC = NLOC + NUM
+	 NLOC = NLOC + NUM
 !         IF(NLOC>ENKF_NOBSMAX) THEN
 !           WRITE(IPT,*) 'not enough storage for observations:', 'Nloc=', Nloc, 'Nobsmax=', ENKF_NOBSMAX
 !           CALL PSTOP
 !         ENDIF
-         READ(INOOB,*)  (STLOC(K), K=NLOC-NUM+1,NLOC)       
+	 READ(INOOB,*)  (STLOC(K), K=NLOC-NUM+1,NLOC)       
          READ(INOOB,*)  (LAY(K),   K=NLOC-NUM+1,NLOC)
          DO K=NLOC-NUM+1, NLOC
-           STLOC(K)=STLOC(K)+IDUMMY+MGL*(LAY(K)-1)
-           WKTMP(K) = OBSERR_T
-	       ENDDO   
-       ENDIF
-       
+	   STLOC(K)=STLOC(K)+IDUMMY+MGL*(LAY(K)-1)
+	   WKTMP(K) = OBSERR_T
+	 ENDDO   
+        
+       ENDIF   
        IF(T_ASSIM) THEN
          IDUMMY = IDUMMY + MGL*1
        ENDIF
@@ -1747,44 +1749,45 @@ end if !(msr)
      IF(TRIM(HEADINFO)=='!S') THEN
        IF(S_OBS) THEN
          READ(INOOB,*) NUM
-         NLOC = NLOC + NUM
+	 NLOC = NLOC + NUM
 !         IF(NLOC>ENKF_NOBSMAX) THEN
 !           WRITE(IPT,*) 'not enough storage for observations:', 'Nloc=', Nloc, 'Nobsmax=', ENKF_NOBSMAX
 !           CALL PSTOP
 !         ENDIF
-         READ(INOOB,*)  (STLOC(K),K=NLOC-NUM+1,NLOC)        
+	 READ(INOOB,*)  (STLOC(K),K=NLOC-NUM+1,NLOC)        
          READ(INOOB,*)  (LAY(K),  K=NLOC-NUM+1,NLOC)
          DO K=NLOC-NUM+1, NLOC
-           STLOC(K)=STLOC(K)+IDUMMY+MGL*(LAY(K)-1)
-           WKTMP(K) = OBSERR_S
-         ENDDO     
+	   STLOC(K)=STLOC(K)+IDUMMY+MGL*(LAY(K)-1)
+	   WKTMP(K) = OBSERR_S
+	 ENDDO   
+         
        ENDIF
-       
        IF(S_ASSIM) THEN
          IDUMMY = IDUMMY + MGL*KBM1 
        ENDIF 
      ENDIF
-   ENDDO
-   
-   REWIND(INOOB)
+
+     GOTO 100
+ 200 CONTINUE
+     REWIND(INOOB)
      
-   IF(NLOC==0) THEN 
-     WRITE(IPT,*) "!WARNING, NOT OBSERVATION DATA FOUND!"
-     CALL PSTOP
-   ELSE   
-     IF(NLOC>1) THEN
-       DO J=1, NLOC-1
-         DO K=J+1, NLOC
-           IF(STLOC(K)<STLOC(J)) THEN
-             TMP = STLOC(J)
-             STLOC(J) = STLOC(K)
-             STLOC(K) = TMP 
-           ENDIF
+    IF(NLOC==0) THEN 
+       WRITE(IPT,*) "!WARNING, NOT OBSERVATION DATA FOUND!"
+       CALL PSTOP
+    ELSE   
+       IF(NLOC>1) THEN
+         DO J=1, NLOC-1
+           DO K=J+1, NLOC
+             IF(STLOC(K)<STLOC(J)) THEN
+               TMP = STLOC(J)
+               STLOC(J) = STLOC(K)
+               STLOC(K) = TMP 
+             ENDIF
+           ENDDO
          ENDDO
-       ENDDO
-     ENDIF
-   ENDIF
-   RETURN
+       ENDIF
+    ENDIF
+    RETURN
    END SUBROUTINE GETOBSLOC1
 !####################################
 !#####################################
@@ -1804,7 +1807,6 @@ end if !(msr)
    CHARACTER(LEN=24) HEADINFO
    INTEGER STLTMP(ENKF_NOBSMAX)
    INTEGER LAY(ENKF_NOBSMAX)
-   INTEGER IERR
 
    NUM     = 0 
    IDUMMY  = 0
@@ -1820,50 +1822,58 @@ end if !(msr)
     
    OPEN(INOOB,FILE=TRIM(FILENAME),FORM='FORMATTED')
    REWIND(INOOB)
-   DO WHILE ( .TRUE. )
-     READ(INOOB,*,IOSTAT=ierr) HEADINFO
-     IF (IERR /=0) exit
+ 100 READ(INOOB,*,END=200) HEADINFO
      IF(SWITCH/=1) THEN
-       IF(HEADINFO=='!===READ') SWITCH = 1
-       CYCLE
+       IF(HEADINFO=='!===READ') THEN
+         SWITCH = 1
+         GOTO 100
+       ELSE
+         GOTO 100
+       ENDIF
      ENDIF 
 
      IF(TRIM(HEADINFO)=='!EL') THEN
        IF(EL_OBS) THEN
          READ(INOOB,*) NUM
-         NLOC = NLOC + NUM
+	 NLOC = NLOC + NUM
+	 
        ENDIF
+
      ENDIF
      
      IF(TRIM(HEADINFO)=='!UV') THEN
        IF(UV_OBS) THEN
          READ(INOOB,*) NUM
-         NLOC = NLOC + 2*NUM 
+	 NLOC = NLOC + 2*NUM 
        ENDIF
+
      ENDIF
      
      IF(TRIM(HEADINFO)=='!T') THEN
        IF(T_OBS) THEN
          READ(INOob,*) NUM
-         NLOC = NLOC + NUM
+	 NLOC = NLOC + NUM
        ENDIF   
      ENDIF
 
      IF(TRIM(HEADINFO)=='!S') THEN
        IF(S_OBS) THEN
          READ(INOOB,*) NUM
-         NLOC = NLOC + NUM
+	 NLOC = NLOC + NUM
+         
        ENDIF
+ 
      ENDIF
-   ENDDO 
 
-   REWIND(INOOB)
-    
-   IF(NLOC==0) THEN 
-     WRITE(IPT,*) "!WARNING, NOT OBSERVATION DATA FOUND!"
-   ENDIF
+     GOTO 100
+ 200 CONTINUE
+     REWIND(INOOB)
+     
+    IF(NLOC==0) THEN 
+       WRITE(IPT,*) "!WARNING, NOT OBSERVATION DATA FOUND!"
+    ENDIF
 
-   RETURN
+    RETURN
    END SUBROUTINE GETNLOC
 
 
@@ -2004,13 +2014,10 @@ end if !(msr)
    DATA iset/0/
 
    if (iset.eq.0) then
-  rsq=2 !xing 20210604 remove goto
-  DO WHILE (rsq >=1. .or. rsq == 0.) !xing 20210604 remove goto
-      v1=2.*ran2(idum)-1.
+1     v1=2.*ran2(idum)-1.
       v2=2.*ran2(idum)-1.
       rsq=v1**2+v2**2
-  END DO !xing 20210604 remove goto
-    !  if(rsq.ge.1..or.rsq.eq.0.)goto 1 !xing 20210604 remove goto 
+      if(rsq.ge.1..or.rsq.eq.0.)goto 1
          fac=sqrt(-2.*log(rsq)/rsq)
          gset=v1*fac
          gasdev=v2*fac

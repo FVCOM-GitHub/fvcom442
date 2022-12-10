@@ -564,66 +564,64 @@ MODULE MOD_DAM
        DO NN=1,CELL_DAM_N
           ITMP1=I_CELL_DAM_N(NN,1)
           ITMP2=I_CELL_DAM_N(NN,2)
-          IF(ITMP1==I.OR.ITMP2==I) exit
+          IF(ITMP1==I.OR.ITMP2==I)GOTO 1111
        END DO
-       IF (ITMP1 /= I .AND. ITMP2 /= I) THEN
-         COUNT = 0
-         DO NN=1,NODE_DAM1_N
-           ITMP1=I_NODE_DAM1_N(NN,1)
-           ITMP2=I_NODE_DAM1_N(NN,2)
-           IF(ITMP1==NV(I,1).OR.ITMP1==NV(I,2).OR.ITMP1==NV(I,3).OR. &
-           &  ITMP2==NV(I,1).OR.ITMP2==NV(I,2).OR.ITMP2==NV(I,3) )THEN
-              COUNT = COUNT + 1
-           END IF
-         END DO
-         DO NN=1,NODE_DAM2_N
-           ITMP1=I_NODE_DAM2_N(NN,1)
-           ITMP2=I_NODE_DAM2_N(NN,2)
-           ITMP3=I_NODE_DAM2_N(NN,3)
-           IF(ITMP1==NV(I,1).OR.ITMP1==NV(I,2).OR.ITMP1==NV(I,3).OR. &
-           &  ITMP2==NV(I,1).OR.ITMP2==NV(I,2).OR.ITMP2==NV(I,3).OR. &
-           &  ITMP3==NV(I,1).OR.ITMP3==NV(I,2).OR.ITMP3==NV(I,3) )THEN
-              COUNT = COUNT + 1
-           END IF
-         END DO
-         DO NN=1,NODE_DAM3_N
-           ITMP1=I_NODE_DAM3_N(NN,1)
-           ITMP2=I_NODE_DAM3_N(NN,2)
-           ITMP3=I_NODE_DAM3_N(NN,3)
-           ITMP4=I_NODE_DAM3_N(NN,4)
-           IF(ITMP1==NV(I,1).OR.ITMP1==NV(I,2).OR.ITMP1==NV(I,3).OR. &
-           &  ITMP2==NV(I,1).OR.ITMP2==NV(I,2).OR.ITMP2==NV(I,3).OR. &
-           &  ITMP3==NV(I,1).OR.ITMP3==NV(I,2).OR.ITMP3==NV(I,3).OR. &
-           &  ITMP4==NV(I,1).OR.ITMP4==NV(I,2).OR.ITMP4==NV(I,3) )THEN
-              COUNT = COUNT + 1
-           END IF
-         END DO
-         IF(COUNT /= 0) THEN
-           DO NN=1,CELL_DAM_N
-             ITMP=I_CELL_DAM_N(NN,1)
-             IF(ITMP/=I)THEN
-               IF(NBE(I,1)==ITMP.OR.NBE(I,2)==ITMP.OR.NBE(I,3)=&
-                    &=ITMP)THEN
-                 CLP_COUNT=CLP_COUNT+1
-                 ALPHA1=ALPHA1+ALPHA(ITMP)
-!                CLP_KDAM(I,CLP_COUNT+1)=ITMP
-                 CLP_KDAM(I,CLP_COUNT)=ITMP
-               END IF
-             END IF
-             ITMP=I_CELL_DAM_N(NN,2)
-             IF(ITMP/=I)THEN
-               IF(NBE(I,1)==ITMP.OR.NBE(I,2)==ITMP.OR.NBE(I,3)=&
-                   &=ITMP)THEN
-                 CLP_COUNT=CLP_COUNT+1
-                 ALPHA1=ALPHA1+ALPHA(ITMP)
-!                CLP_KDAM(I,CLP_COUNT+1)=ITMP
-                 CLP_KDAM(I,CLP_COUNT)=ITMP
-               END IF
-             END IF
-           END DO
-         ENDIF
-       ENDIF
-       IF(CLP_COUNT>=1)THEN
+       COUNT = 0
+       DO NN=1,NODE_DAM1_N
+          ITMP1=I_NODE_DAM1_N(NN,1)
+          ITMP2=I_NODE_DAM1_N(NN,2)
+          IF(ITMP1==NV(I,1).OR.ITMP1==NV(I,2).OR.ITMP1==NV(I,3).OR. &
+          &  ITMP2==NV(I,1).OR.ITMP2==NV(I,2).OR.ITMP2==NV(I,3) )THEN
+             COUNT = COUNT + 1
+          END IF
+       END DO
+       DO NN=1,NODE_DAM2_N
+          ITMP1=I_NODE_DAM2_N(NN,1)
+          ITMP2=I_NODE_DAM2_N(NN,2)
+          ITMP3=I_NODE_DAM2_N(NN,3)
+          IF(ITMP1==NV(I,1).OR.ITMP1==NV(I,2).OR.ITMP1==NV(I,3).OR. &
+          &  ITMP2==NV(I,1).OR.ITMP2==NV(I,2).OR.ITMP2==NV(I,3).OR. &
+          &  ITMP3==NV(I,1).OR.ITMP3==NV(I,2).OR.ITMP3==NV(I,3) )THEN
+             COUNT = COUNT + 1
+          END IF
+       END DO
+       DO NN=1,NODE_DAM3_N
+          ITMP1=I_NODE_DAM3_N(NN,1)
+          ITMP2=I_NODE_DAM3_N(NN,2)
+          ITMP3=I_NODE_DAM3_N(NN,3)
+          ITMP4=I_NODE_DAM3_N(NN,4)
+          IF(ITMP1==NV(I,1).OR.ITMP1==NV(I,2).OR.ITMP1==NV(I,3).OR. &
+          &  ITMP2==NV(I,1).OR.ITMP2==NV(I,2).OR.ITMP2==NV(I,3).OR. &
+          &  ITMP3==NV(I,1).OR.ITMP3==NV(I,2).OR.ITMP3==NV(I,3).OR. &
+          &  ITMP4==NV(I,1).OR.ITMP4==NV(I,2).OR.ITMP4==NV(I,3) )THEN
+             COUNT = COUNT + 1
+          END IF
+       END DO
+       IF(COUNT == 0) GOTO 1111
+
+       DO NN=1,CELL_DAM_N
+          ITMP=I_CELL_DAM_N(NN,1)
+          IF(ITMP/=I)THEN
+            IF(NBE(I,1)==ITMP.OR.NBE(I,2)==ITMP.OR.NBE(I,3)=&
+                 &=ITMP)THEN
+              CLP_COUNT=CLP_COUNT+1
+              ALPHA1=ALPHA1+ALPHA(ITMP)
+!              CLP_KDAM(I,CLP_COUNT+1)=ITMP
+              CLP_KDAM(I,CLP_COUNT)=ITMP
+            END IF
+          END IF
+          ITMP=I_CELL_DAM_N(NN,2)
+          IF(ITMP/=I)THEN
+            IF(NBE(I,1)==ITMP.OR.NBE(I,2)==ITMP.OR.NBE(I,3)=&
+                 &=ITMP)THEN
+              CLP_COUNT=CLP_COUNT+1
+              ALPHA1=ALPHA1+ALPHA(ITMP)
+!              CLP_KDAM(I,CLP_COUNT+1)=ITMP
+              CLP_KDAM(I,CLP_COUNT)=ITMP
+            END IF
+          END IF
+       END DO
+1111   IF(CLP_COUNT>=1)THEN
          CLP_CELL(I)=1
          CLP_ALPHA(I) = ALPHA1/CLP_COUNT
          CLP_KDAM(I,1)  = CLP_COUNT 

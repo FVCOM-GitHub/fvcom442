@@ -95,21 +95,21 @@
 !     For smaller values a constant value of fw is used (fw = 0.3
 !     for Ab,r/Kn < 1.57 )
 !
-   USE SWCOMM3                                                         
-   USE SWCOMM4                                                         
-   USE OCPCOMM4  
-!   USE ALL_VARS, ONLY : MT,AC2                                                      
-   USE VARS_WAVE, ONLY : MT,AC2                                                      
+   USE SWCOMM3
+   USE SWCOMM4
+   USE OCPCOMM4
+!   USE ALL_VARS, ONLY : MT,AC2
+   USE VARS_WAVE, ONLY : MT,AC2
 
    IMPLICIT NONE
-   
-   REAL    SPCSIG(MSC)                                                 
+
+   REAL    SPCSIG(MSC)
    INTEGER  ID,IS,ISSTOP,J,IDDUM,IG
    REAL :: XDUM,KD,SBOTEO,CFBOT,FACB,CFW,FW,CURR,UC,ABRBOT,ADUM,CDUM,DDUM
    LOGICAL  VARFR
    REAL :: DEP2(MT),ECOS(MDC),ESIN(MDC),IMATDA(MDC,MSC),IMATRA(MDC,MSC), &
            KWAVE(MSC,ICMAX),PLBTFR(MDC,MSC,NPTST),UBOT(MT),  &
-	   UX2(MT),UY2(MT),DISSC1(MDC,MSC),FRCOEF(MT)  
+	   UX2(MT),UY2(MT),DISSC1(MDC,MSC),FRCOEF(MT)
    INTEGER :: IDCMIN(MSC),IDCMAX(MSC)
    REAL    :: AKN
 
@@ -121,7 +121,7 @@
 !      PBOT(3) = GAMMA (a) in the Jonswap equation,
 !
        CFBOT = PBOT(3) / GRAV_W**2
-       
+
 !       CFBOT = CFBOT*10.0               !JQI added
      ELSE IF (IBOT == 2)THEN
 !
@@ -129,7 +129,7 @@
 !
 !      PBOT(2) = [cfw]
 !
-       IF(VARFR)THEN                                                
+       IF(VARFR)THEN
          CFW = FRCOEF(IG)
        ELSE
          CFW = PBOT(2)
@@ -139,7 +139,7 @@
 !
 !      *** Madsen model ***
 !
-       IF(VARFR)THEN                                                 
+       IF(VARFR)THEN
          AKN = FRCOEF(IG)
        ELSE
          AKN = PBOT(5)
@@ -161,9 +161,10 @@
            CDUM  = ADUM
            DDUM  = ( ADUM + LOG10(ADUM) - XDUM ) / ( 1.+ ( 1. / ADUM) )
            ADUM  = ADUM - DDUM
-           IF(ABS(CDUM - ADUM) < 1.E-4) EXIT
-         END DO	   
-         IF(J .eq. 51 ) WRITE(*,*) ' error in iteration fw: Madsen formulation'
+           IF(ABS(CDUM - ADUM) < 1.E-4) GOTO 29
+         END DO
+         WRITE(*,*) ' error in iteration fw: Madsen formulation'
+29       CONTINUE
 !                                                 1               1
 !        *** computation of FW -->  A = ----- --> FW = -----
 !                                              4 uFW          16 A**2
@@ -177,39 +178,39 @@
      DO IS = 1, ISSTOP
        KD      = KWAVE(IS,1) * DEP2(IG)
        IF(KD < 10.)THEN
-         FACB = CFBOT * (SPCSIG(IS) / SINH(KD)) **2                   
+         FACB = CFBOT * (SPCSIG(IS) / SINH(KD)) **2
 !
          DO IDDUM = IDCMIN(IS) , IDCMAX(IS)
            ID = MOD ( IDDUM - 1 + MDC , MDC ) + 1
 !
-           SBOTEO = FACB                                               
+           SBOTEO = FACB
            IF(IBOT == 2 .AND. ICUR == 1 .AND. PBOT(1) > 0.)THEN
 !            additional dissipation due to current, seldom used
              CURR = UX2(IG)*ECOS(ID) + UY2(IG)*ESIN(ID)
              UC   = ABS(CURR)
 !             PBOT(1) = [cfc]
-             SBOTEO = FACB + PBOT(1) * UC * (SPCSIG(IS) / SINH(KD)) **2 
+             SBOTEO = FACB + PBOT(1) * UC * (SPCSIG(IS) / SINH(KD)) **2
            END IF
 !
 !          *** store the results in the array IMATDA             ***
 !
            IMATRA(ID,IS) = IMATRA(ID,IS) - SBOTEO*AC2(ID,IS,IG)
            IMATDA(ID,IS) = IMATDA(ID,IS) + SBOTEO
-!           IF (TESTFL) PLBTFR(ID,IS,IPTST) = -1.* SBOTEO               
+!           IF (TESTFL) PLBTFR(ID,IS,IPTST) = -1.* SBOTEO
 !           DISSC1(ID,IS) = DISSC1(ID,IS) + SBOTEO
-	 END DO   !IDDUM  
+	 END DO   !IDDUM
        END IF
-     END DO   !IS  
+     END DO   !IS
 !
    ENDIF
 !
    RETURN
    END SUBROUTINE SBOT
- 
+
 !
 !****************************************************************
 !
-   SUBROUTINE FRABRE ( HM, ETOT, QBLOC )                               
+   SUBROUTINE FRABRE ( HM, ETOT, QBLOC )
 !
 !****************************************************************
 !
@@ -257,8 +258,8 @@
 !     |   Qb = 1.                                      B >= 1.0
 !     |
 !
-   USE SWCOMM4                                                         
-   USE OCPCOMM4                                                        
+   USE SWCOMM4
+   USE OCPCOMM4
 !
    IMPLICIT NONE
 
@@ -403,32 +404,32 @@
 !       Compute source terms for energy averaged frequency
 !       Store results in the arrays IMATDA and IMATRA
 !     ------------------------------------------------------------
-   USE SWCOMM3                                                         
-   USE SWCOMM4                                                         
-   USE OCPCOMM4 
-!   USE ALL_VARS, ONLY : MT,AC2                                                       
-   USE VARS_WAVE, ONLY : MT,AC2                                                       
+   USE SWCOMM3
+   USE SWCOMM4
+   USE OCPCOMM4
+!   USE ALL_VARS, ONLY : MT,AC2
+   USE VARS_WAVE, ONLY : MT,AC2
 !
    IMPLICIT NONE
 
    INTEGER :: ISSTOP,IDCMIN(MSC),IDCMAX(MSC)
    REAL    :: DISSC0(MDC,MSC),DISSC1(MDC,MSC),     &
               IMATDA(MDC,MSC),IMATRA(MDC,MSC),PLWBRK(MDC,MSC,NPTST)
-   REAL    :: ETOT,HM,QB,SMEBRK                         
+   REAL    :: ETOT,HM,QB,SMEBRK
    INTEGER :: ID,IDDUM,IENT,IS,IG
    DOUBLE PRECISION BB,DIS0,SbrD,SURFA0,SURFA1,WS
 !
 !     ALFA = PSURF(1)   <default = 1.0>
 !
-   BB = 8. * DBLE(ETOT) / ( DBLE(HM)**2 )                              
+   BB = 8. * DBLE(ETOT) / ( DBLE(HM)**2 )
 !   SURFA0 = 0.
 !   SURFA1 = 0.
-!   IF(REAL(BB) > 0. .AND. REAL(ABS(BB - DBLE(QB))) > 0.)THEN  
+!   IF(REAL(BB) > 0. .AND. REAL(ABS(BB - DBLE(QB))) > 0.)THEN
 !     IF(BB < 1.)THEN
-!       WS  = ( DBLE(PSURF(1)) / DBLE(PI_W)) * DBLE(QB) * DBLE(SMEBRK) / BB 
-!       SbrD = WS * (1. - DBLE(QB)) / (BB - DBLE(QB))                   
+!       WS  = ( DBLE(PSURF(1)) / DBLE(PI_W)) * DBLE(QB) * DBLE(SMEBRK) / BB
+!       SbrD = WS * (1. - DBLE(QB)) / (BB - DBLE(QB))
 !     ELSE
-!       WS  = ( DBLE(PSURF(1)) / DBLE(PI_W)) * DBLE(SMEBRK)               
+!       WS  = ( DBLE(PSURF(1)) / DBLE(PI_W)) * DBLE(SMEBRK)
 !       SbrD = 0.
 !     END IF
 !     SURFA0 = SbrD
@@ -466,8 +467,8 @@
    SUBROUTINE SWCAP  (SPCDIR  ,SPCSIG  ,KWAVE   ,IDCMIN  ,      &
                       IDCMAX  ,ISSTOP  ,ETOT    ,IMATDA  ,      &
 		      IMATRA  ,PLWCAP  ,CGO     ,UFRIC   ,      &
-		      DEP2    ,DISSIP  ,DISIMP  ,IG      )              
-!  (This subroutine has not been fully tested. Only tested for 
+		      DEP2    ,DISSIP  ,DISIMP  ,IG      )
+!  (This subroutine has not been fully tested. Only tested for
 !   case IWCAP = 2)
 !
 !****************************************************************
@@ -594,9 +595,9 @@
 !     ------------------------------------------------------------
 !     End of SWCAP
 !     ------------------------------------------------------------
-   USE SWCOMM3                                                         
-   USE SWCOMM4                                                         
-   USE OCPCOMM4                                                        
+   USE SWCOMM3
+   USE SWCOMM4
+   USE OCPCOMM4
    USE M_WCAP
 !   USE ALL_VARS, ONLY : MT,AC2
    USE VARS_WAVE, ONLY : MT,AC2
@@ -606,35 +607,40 @@
    INTEGER, INTENT(IN)  :: ISSTOP, IDCMIN(MSC), IDCMAX(MSC)
    REAL, INTENT(IN)     :: DEP2(MT)
    REAL, INTENT(IN)     :: ETOT
-   REAL, INTENT(IN)     :: KWAVE(MSC,MICMAX)                           
+   REAL, INTENT(IN)     :: KWAVE(MSC,MICMAX)
    REAL, INTENT(IN)     :: SPCDIR(MDC,6), SPCSIG(MSC)
    REAL, INTENT(OUT)    :: PLWCAP(MDC,MSC,NPTST)
    REAL, INTENT(IN OUT) :: IMATDA(MDC,MSC), IMATRA(MDC,MSC)
-   REAL, INTENT(IN OUT) :: DISSIP(MDC,MSC), DISIMP(MDC,MSC)            
-   REAL, INTENT(IN)     :: UFRIC                                       
-   REAL, INTENT(IN)     :: CGO(MSC,MICMAX)                             
+   REAL, INTENT(IN OUT) :: DISSIP(MDC,MSC), DISIMP(MDC,MSC)
+   REAL, INTENT(IN)     :: UFRIC
+   REAL, INTENT(IN)     :: CGO(MSC,MICMAX)
 
    INTEGER, SAVE     :: IENT = 0
    INTEGER           :: ID, IDDUM, IS, ID1, ID2, IF, IL, MXWCP,IG
    REAL              :: A, C_BJ, HM, HRMS, N1, N2
    REAL              :: QB_WC, SIG0, STP_OV, STP_PM
-   REAL              :: DDIF, DELTA, DSTEEP, EBIN, XFAC          
-   REAL              :: CPOW, CTOT, GAMMA                              
-   REAL              :: BINSIZE                                      
+   REAL              :: DDIF, DELTA, DSTEEP, EBIN, XFAC
+   REAL              :: CPOW, CTOT, GAMMA
+   REAL              :: BINSIZE
    REAL, ALLOCATABLE :: C_K(:), C_LH(:), WCAP(:), WCIMPL(:)
-   REAL, ALLOCATABLE :: CUMSTP(:,:), DSIGMA(:)                         
-   REAL, ALLOCATABLE :: FCOS(:)                                        
-   REAL              :: B, P                                           
-   REAL              :: EF(MSC)                                        
-   CHARACTER*20 NUMSTR, CHARS                                          
-   CHARACTER*80 MSGSTR                                                 
+   REAL, ALLOCATABLE :: CUMSTP(:,:), DSIGMA(:)
+   REAL, ALLOCATABLE :: FCOS(:)
+   REAL              :: B, P
+   REAL              :: EF(MSC)
+   CHARACTER*20 NUMSTR, CHARS
+   CHARACTER*80 MSGSTR
 
    MXWCP = 7
-   IF(IWCAP > MXWCP)THEN                                            
+   IF(IWCAP > MXWCP)THEN
 !
 ! Error message
 !
-     CHARS = NUMSTR(MXWCP+1,RNAN,'(I1)')
+!* jsasaki start '(I1)' only valid for integer and error in case of real
+!     CHARS = NUMSTR(MXWCP+1,RNAN,'(I1)')
+     if (MXWCP+1 /= INAN) then
+       WRITE(CHARS,'(I1)') MXWCP+1
+     end if
+!* jsasaki end '(I1)' only valid for integer and error in case of real
      CALL TXPBLA(CHARS,IF,IL)
      MSGSTR = 'Value for IWCAP should be less than '// CHARS(IF:IL)
      CALL MSGERR ( 4, MSGSTR )
@@ -650,13 +656,13 @@
    IF(EDRKTOT <= 0.) RETURN
 !
    ALLOCATE (C_K(MSC), C_LH(MSC), WCAP(MSC), WCIMPL(MSC))
-   ALLOCATE (CUMSTP(0:MSC,MDC), DSIGMA(1:MSC))                         
-   ALLOCATE (FCOS(1:MDC))                                              
+   ALLOCATE (CUMSTP(0:MSC,MDC), DSIGMA(1:MSC))
+   ALLOCATE (FCOS(1:MDC))
    WCIMPL(1:MSC) = 0.
 !
 ! Calculate coefficients
 !
-   IF((IWCAP == 1) .OR. (IWCAP == 2) .OR. (IWCAP == 5))THEN                 
+   IF((IWCAP == 1) .OR. (IWCAP == 2) .OR. (IWCAP == 5))THEN
 !
 ! Calculate C_K
 !
@@ -709,81 +715,81 @@
      END DO
    END IF
 !
-! In case of cumulative steepness method, calculate its spectrum          
+! In case of cumulative steepness method, calculate its spectrum
 !
-   IF(IWCAP == 6)THEN                                              
-     XFAC      = (SPCSIG(3)-SPCSIG(1))/(2.*SPCSIG(2))                 
-     DSIGMA(:) = XFAC*SPCSIG(:)                                       
-     DELTA     = SPCDIR(2,1)-SPCDIR(1,1)                              
+   IF(IWCAP == 6)THEN
+     XFAC      = (SPCSIG(3)-SPCSIG(1))/(2.*SPCSIG(2))
+     DSIGMA(:) = XFAC*SPCSIG(:)
+     DELTA     = SPCDIR(2,1)-SPCDIR(1,1)
 !
-!    --- precompute cos dependence                                    
-!                                                                     
-     DO ID1 = 1, MDC                                                  
-       DDIF = REAL(ID1-1)*DELTA                                       
-       FCOS(ID1) = (ABS(COS(DDIF)))**PWCAP(13)                        
-     END DO                                                           
+!    --- precompute cos dependence
 !
-!    --- compute normalisation coefficient                            
+     DO ID1 = 1, MDC
+       DDIF = REAL(ID1-1)*DELTA
+       FCOS(ID1) = (ABS(COS(DDIF)))**PWCAP(13)
+     END DO
 !
-     CPOW = PWCAP(13)                                                 
-     IF(CPOW > 10)THEN                                              
-       CTOT = SQRT(CPOW/(2.*PI_W))*(1.+0.25/CPOW)                       
-     ELSE                                                             
-       CTOT = 1./SQRT(PI_W)*GAMMA(0.5*CPOW+1.)/GAMMA(0.5*CPOW+0.5)      
-     END IF                                                           
+!    --- compute normalisation coefficient
 !
-     CUMSTP = 0.                                                      
-     DO IS = 1,ISSTOP                                                 
-       BINSIZE = SPCSIG(IS)*DELTA*DSIGMA(IS)                         
-       DO ID1 = 1,MDC                                                
-         CUMSTP(IS,ID1) = CUMSTP(IS-1,ID1)                          
-         DO ID2 = 1,MDC                                             
-           EBIN= AC2(ID2,IS,IG)*BINSIZE                      
-!           EBIN= AC2(ID2,IS,kcgrd(1))*BINSIZE                      
-           DSTEEP = KWAVE(IS,1)**2*EBIN*FCOS(ABS(ID1-ID2)+1)       
-           CUMSTP(IS,ID1) = CUMSTP(IS,ID1) + DSTEEP                
-         END DO                                                     
-       END DO                                                        
-     END DO                                                           
-     CUMSTP = PWCAP(12)*CUMSTP                                        
-     CUMSTP = CUMSTP*CTOT                                             
-   END IF                                                              
+     CPOW = PWCAP(13)
+     IF(CPOW > 10)THEN
+       CTOT = SQRT(CPOW/(2.*PI_W))*(1.+0.25/CPOW)
+     ELSE
+       CTOT = 1./SQRT(PI_W)*GAMMA(0.5*CPOW+1.)/GAMMA(0.5*CPOW+0.5)
+     END IF
 !
-! Calculate dissipation according to Alves & Banner (2003)                
+     CUMSTP = 0.
+     DO IS = 1,ISSTOP
+       BINSIZE = SPCSIG(IS)*DELTA*DSIGMA(IS)
+       DO ID1 = 1,MDC
+         CUMSTP(IS,ID1) = CUMSTP(IS-1,ID1)
+         DO ID2 = 1,MDC
+           EBIN= AC2(ID2,IS,IG)*BINSIZE
+!           EBIN= AC2(ID2,IS,kcgrd(1))*BINSIZE
+           DSTEEP = KWAVE(IS,1)**2*EBIN*FCOS(ABS(ID1-ID2)+1)
+           CUMSTP(IS,ID1) = CUMSTP(IS,ID1) + DSTEEP
+         END DO
+       END DO
+     END DO
+     CUMSTP = PWCAP(12)*CUMSTP
+     CUMSTP = CUMSTP*CTOT
+   END IF
 !
-   IF(IWCAP == 7)THEN                                              
-!                                                                         
-!  Loop to calculate B(k)                                                 
-!                                                                         
-     DO IS = 1, ISSTOP                                                 
-!                                                                         
-!  Calculate E(f)                                                         
-!                                                                         
-       EF(IS) = 0.                                                     
-       DO ID = 1,MDC                                                   
-         EF(IS) = EF(IS) + AC2(ID,IS,IG)*SPCSIG(IS)*PI2_W*DDIR     
-       END DO                                                          
-!                                                                      
-!  Calculate saturation spectrum B(k) from E(f)                          
-!                                                                        
-       B = (1./PI2_W) * CGO(IS,1) * KWAVE(IS,1)**3 * EF(IS)             
-!                                                                        
-!  Calculate exponent P of the relative saturation (B/Br)                
-!                                                                        
-       PWCAP(10)= 3. + TANH(25.76*(UFRIC*KWAVE(IS,1)/SPCSIG(IS)-0.1)) 
-       P = 0.5*PWCAP(10)*(1. + TANH( 10.*( (B/PWCAP(12))**0.5 - 1.))) 
-!                                                                        
-!  Calculate WCAP(IS) from B(k) and P                                    
-!                                                                        
-       STP_OV = KM_WAM * SQRT(ETOT)                                   
+! Calculate dissipation according to Alves & Banner (2003)
+!
+   IF(IWCAP == 7)THEN
+!
+!  Loop to calculate B(k)
+!
+     DO IS = 1, ISSTOP
+!
+!  Calculate E(f)
+!
+       EF(IS) = 0.
+       DO ID = 1,MDC
+         EF(IS) = EF(IS) + AC2(ID,IS,IG)*SPCSIG(IS)*PI2_W*DDIR
+       END DO
+!
+!  Calculate saturation spectrum B(k) from E(f)
+!
+       B = (1./PI2_W) * CGO(IS,1) * KWAVE(IS,1)**3 * EF(IS)
+!
+!  Calculate exponent P of the relative saturation (B/Br)
+!
+       PWCAP(10)= 3. + TANH(25.76*(UFRIC*KWAVE(IS,1)/SPCSIG(IS)-0.1))
+       P = 0.5*PWCAP(10)*(1. + TANH( 10.*( (B/PWCAP(12))**0.5 - 1.)))
+!
+!  Calculate WCAP(IS) from B(k) and P
+!
+       STP_OV = KM_WAM * SQRT(ETOT)
        WCAP(IS) = PWCAP(1)*(B/PWCAP(12))**(P/2.) *                     &
                   STP_OV**PWCAP(9) * (KWAVE(IS,1)/KM_WAM)**PWCAP(11) * &
 		  (GRAV_W**(0.5)*KWAVE(IS,1)**(0.5)/SPCSIG(IS))**(PWCAP(10)/2-1) * &
-		  GRAV_W**(0.5)*KWAVE(IS,1)**(0.5)                                 
-     END DO                                                           
-   END IF                                                             
+		  GRAV_W**(0.5)*KWAVE(IS,1)**(0.5)
+     END DO
+   END IF
 !
-   IF(IWCAP < 6)THEN                                             
+   IF(IWCAP < 6)THEN
 !
 ! Calculate the whitecapping source term WCAP(IS)
 !
@@ -814,7 +820,7 @@
 !
 ! Fill the diagonal of the matrix and the PLWCAP-array
 !
-   IF(IWCAP /= 6)THEN                                              
+   IF(IWCAP /= 6)THEN
 
      DO IS=1, ISSTOP
 !
@@ -824,25 +830,25 @@
          ID = MOD(IDDUM - 1 + MDC, MDC) + 1
          IMATDA(ID,IS) = IMATDA(ID,IS) + WCAP(IS)
          IMATRA(ID,IS) = IMATRA(ID,IS) - WCAP(IS) * AC2(ID,IS,IG)
-	 
-         DISSIP(ID,IS) = DISSIP(ID,IS) + WCAP(IS)                      
+
+         DISSIP(ID,IS) = DISSIP(ID,IS) + WCAP(IS)
          IF (TESTFL) PLWCAP(ID,IS,IPTST) = -1.*(WCAP(IS)-WCIMPL(IS))
        END DO
      END DO
 
    ELSE
 
-     DO IS=1, ISSTOP                                                   
-!                                                                         
-!      Only fill the values for the current sweep                      
-!                                                                         
-       DO IDDUM = IDCMIN(IS), IDCMAX(IS)                               
-         ID = MOD(IDDUM - 1 + MDC, MDC) + 1                            
-         IMATDA(ID,IS) = IMATDA(ID,IS) + CUMSTP(IS,ID)                 
-         DISSIP(ID,IS) = DISSIP(ID,IS) + CUMSTP(IS,ID)                 
-         IF (TESTFL) PLWCAP(ID,IS,IPTST) = -1.*CUMSTP(IS,ID)           
-       END DO                                                          
-     END DO                                                            
+     DO IS=1, ISSTOP
+!
+!      Only fill the values for the current sweep
+!
+       DO IDDUM = IDCMIN(IS), IDCMAX(IS)
+         ID = MOD(IDDUM - 1 + MDC, MDC) + 1
+         IMATDA(ID,IS) = IMATDA(ID,IS) + CUMSTP(IS,ID)
+         DISSIP(ID,IS) = DISSIP(ID,IS) + CUMSTP(IS,ID)
+         IF (TESTFL) PLWCAP(ID,IS,IPTST) = -1.*CUMSTP(IS,ID)
+       END DO
+     END DO
 
    END IF
 !
@@ -856,36 +862,36 @@
        DO IDDUM = IDCMIN(IS), IDCMAX(IS)
          ID = MOD(IDDUM - 1 + MDC, MDC) + 1
          IMATRA(ID,IS) = IMATRA(ID,IS) + WCIMPL(IS) * AC2(ID,IS,IG)
-         DISIMP(ID,IS) = DISIMP(ID,IS) + WCIMPL(IS) * AC2(ID,IS,IG)      
+         DISIMP(ID,IS) = DISIMP(ID,IS) + WCIMPL(IS) * AC2(ID,IS,IG)
        END DO
      END DO
    END IF
 !
    DEALLOCATE (C_K, C_LH, WCAP, WCIMPL)
-   DEALLOCATE (CUMSTP, DSIGMA, FCOS)                                   
+   DEALLOCATE (CUMSTP, DSIGMA, FCOS)
 !
    RETURN
    END SUBROUTINE SWCAP
 
 !****************************************************************
 !
-!!$  SUBROUTINE BRKPAR(BRCOEF,ECOS,ESIN,AC2,SPCSIG,DEP2,RDX,RDY,IG)     
-  SUBROUTINE BRKPAR(BRCOEF,ECOS,ESIN,AC2,SPCSIG,DEP2,IG)     
-  
-! (This subroutine has not been fully tested yet)    
+!!$  SUBROUTINE BRKPAR(BRCOEF,ECOS,ESIN,AC2,SPCSIG,DEP2,RDX,RDY,IG)
+  SUBROUTINE BRKPAR(BRCOEF,ECOS,ESIN,AC2,SPCSIG,DEP2,IG)
+
+! (This subroutine has not been fully tested yet)
 !
 !****************************************************************
 !
-      USE SWCOMM3                                                         
-      USE SWCOMM4                                                         
-      USE OCPCOMM4 
+      USE SWCOMM3
+      USE SWCOMM4
+      USE OCPCOMM4
       USE MOD_PREC
-      USE ALL_VARS, ONLY : MT,NTSN,NBSN,VX,VY,ART2 
+      USE ALL_VARS, ONLY : MT,NTSN,NBSN,VX,VY,ART2
 #     if defined (SPHERICAL)
       USE MOD_SPHERICAL, ONLY : TPI,DEG2RAD
-#     endif                                                            
+#     endif
 !
-      IMPLICIT NONE                                                       
+      IMPLICIT NONE
 !
 !  2. Purpose
 !
@@ -913,15 +919,15 @@
 !     op 0.73 is imposed (which is the average value in Table 2 of
 !     Battjes and Janssen (1978).
 !
-      REAL, INTENT(OUT) :: BRCOEF    ! variable breaker coefficient       
+      REAL, INTENT(OUT) :: BRCOEF    ! variable breaker coefficient
 
-      REAL, INTENT(IN)  :: SPCSIG(MSC)                                    
-      REAL, INTENT(IN)  :: AC2(MDC,MSC,0:MT)  ! action densities         
-      REAL, INTENT(IN)  :: ECOS(MDC), ESIN(MDC)  ! Cos and Sin of Theta   
-      REAL, INTENT(IN)  :: DEP2(MT)         ! depths at grid points    
+      REAL, INTENT(IN)  :: SPCSIG(MSC)
+      REAL, INTENT(IN)  :: AC2(MDC,MSC,0:MT)  ! action densities
+      REAL, INTENT(IN)  :: ECOS(MDC), ESIN(MDC)  ! Cos and Sin of Theta
+      REAL, INTENT(IN)  :: DEP2(MT)         ! depths at grid points
 
 !!$      REAL, INTENT(IN)  :: RDX(10), RDY(10)
-      INTEGER, INTENT(IN) :: IG                               
+      INTEGER, INTENT(IN) :: IG
 
 !     9. STRUCTURE
 !
@@ -939,15 +945,15 @@
 !
 !************************************************************************
 !
-  INTEGER :: ID    ,IS      ! counters 
+  INTEGER :: ID    ,IS      ! counters
   INTEGER :: J,I1,I2
-  REAL(SP) :: F1    
+  REAL(SP) :: F1
 # if defined (SPHERICAL)
-  REAL(DP) XTMP,XTMP1	    
+  REAL(DP) XTMP,XTMP1
 # endif
 !
 !
-  REAL  :: ETOTS,EEX,EEY,EAD,SIGMA1,COSDIR,SINDIR,DDDX,DDDY,DDDS,DETOT                                
+  REAL  :: ETOTS,EEX,EEY,EAD,SIGMA1,COSDIR,SINDIR,DDDX,DDDY,DDDS,DETOT
 !
 !     *** determine the average wave direction ***
 !
@@ -957,7 +963,7 @@
   DO ID = 1, MDC
     EAD = 0.
     DO IS = 1, MSC
-      SIGMA1 = SPCSIG(IS)                                            
+      SIGMA1 = SPCSIG(IS)
       DETOT  = SIGMA1**2 * AC2(ID,IS,KCGRD(1))
       EAD    = EAD + DETOT
     END DO
@@ -982,20 +988,20 @@
 !        + RDY(2) * (DEP2(KCGRD(1)) - DEP2(KCGRD(3)))
   DDDX = 0.0_SP
   DDDY = 0.0_SP
-  
+
   DO J=1,NTSN(IG)-1
     I1 = NBSN(IG,J)
     I2 = NBSN(IG,J+1)
-    F1 = 0.50_SP*(DEP2(I1)+DEP2(I2)) 
+    F1 = 0.50_SP*(DEP2(I1)+DEP2(I2))
 #   if defined (SPHERICAL)
     DDDX=DDDX+F1*(VY(I1)-VY(I2))*TPI
 
-    XTMP  = VX(I2)*TPI-VX(I1)*TPI  
-    XTMP1 = VX(I2)-VX(I1)  
+    XTMP  = VX(I2)*TPI-VX(I1)*TPI
+    XTMP1 = VX(I2)-VX(I1)
     IF(XTMP1 >  180.0_SP)THEN
-      XTMP = -360.0_SP*TPI+XTMP     
+      XTMP = -360.0_SP*TPI+XTMP
     ELSE IF(XTMP1 < -180.0_SP)THEN
-      XTMP =  360.0_SP*TPI+XTMP     
+      XTMP =  360.0_SP*TPI+XTMP
     END IF
     DDDY=DDDY+F1*XTMP*COS(DEG2RAD*VY(IG))
 #   else
@@ -1013,14 +1019,14 @@
 !
   IF(DDDS >= 0.)THEN
     DDDS   = MAX ( 1.E-6 , DDDS)
-    BRCOEF = PSURF(4) + PSURF(7) * EXP ( -PSURF(8) / DDDS )           
-    BRCOEF = MIN ( PSURF(5) , BRCOEF )                                
+    BRCOEF = PSURF(4) + PSURF(7) * EXP ( -PSURF(8) / DDDS )
+    BRCOEF = MIN ( PSURF(5) , BRCOEF )
   ELSE
-    BRCOEF = PSURF(6)                                                 
+    BRCOEF = PSURF(6)
   END IF
 !
-!  PSURF(2) = BRKVAR                              deleted             
-!  PSURF(2) is no longer used to transmit br. coefficient             
+!  PSURF(2) = BRKVAR                              deleted
+!  PSURF(2) is no longer used to transmit br. coefficient
 
   RETURN
   END SUBROUTINE BRKPAR

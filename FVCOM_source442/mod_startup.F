@@ -107,13 +107,6 @@ CONTAINS
 ! =================================================
 
        CALL READ_SSH
-!qxu{for SSH assimilation by 04/01/2022
-!       IF(SSHGRD_ASSIM) then
-         !SSH_SAVED(:,24) = EL(:)
-         EL_INITIAL=EL
-         FIRST_DAY = .TRUE.
-!       ENDIF
-!qxu}
 
        IF(WETTING_DRYING_ON) CALL READ_WETDRY
 
@@ -173,13 +166,6 @@ CONTAINS
     CASE(STARTUP_TYPE_CRASHRESTART)
 ! =================================================
        CALL READ_SSH
-!qxu{for SSH assimilation by 04/01/2022
-!       IF(SSHGRD_ASSIM) then
-         !SSH_SAVED(:,24) = EL(:)
-         EL_INITIAL=EL
-         FIRST_DAY = .TRUE.
-!       ENDIF
-!qxu}
      
        IF(WETTING_DRYING_ON) CALL READ_WETDRY
 

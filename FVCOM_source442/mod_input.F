@@ -1,23 +1,23 @@
 !/===========================================================================/
-! Copyright (c) 2007, The University of Massachusetts Dartmouth 
-! Produced at the School of Marine Science & Technology 
+! Copyright (c) 2007, The University of Massachusetts Dartmouth
+! Produced at the School of Marine Science & Technology
 ! Marine Ecosystem Dynamics Modeling group
 ! All rights reserved.
 !
-! FVCOM has been developed by the joint UMASSD-WHOI research team. For 
+! FVCOM has been developed by the joint UMASSD-WHOI research team. For
 ! details of authorship and attribution of credit please see the FVCOM
 ! technical manual or contact the MEDM group.
 !
-! 
-! This file is part of FVCOM. For details, see http://fvcom.smast.umassd.edu 
-! The full copyright notice is contained in the file COPYRIGHT located in the 
+!
+! This file is part of FVCOM. For details, see http://fvcom.smast.umassd.edu
+! The full copyright notice is contained in the file COPYRIGHT located in the
 ! root directory of the FVCOM code. This original header must be maintained
 ! in all distributed versions.
 !
-! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 ! AND ANY EXPRESS OR  IMPLIED WARRANTIES, INCLUDING,  BUT NOT  LIMITED TO,
 ! THE IMPLIED WARRANTIES OF MERCHANTABILITY AND  FITNESS FOR A PARTICULAR
-! PURPOSE ARE DISCLAIMED.  
+! PURPOSE ARE DISCLAIMED.
 !
 !/---------------------------------------------------------------------------/
 ! CVS VERSION INFORMATION
@@ -78,7 +78,7 @@ CONTAINS
 
     logical :: outtofile = .false.
 
-    ! Initialize values from in variables 
+    ! Initialize values from in variables
     CaseName="empty"//nlc ! declared in mod_main - all_vars
     dbg_lvl=0 ! declared in mod_dbg
     INFOFILE="screen"//nlc ! Get output file parameter
@@ -148,11 +148,11 @@ CONTAINS
           else if (opt_sng == "LogFile" .or.opt_sng == "logfile"&
                & .or.opt_sng == "LOGFILE") then
 
-             call ftn_arg_get(arg_idx,arg_val,INFOFILE) 
+             call ftn_arg_get(arg_idx,arg_val,INFOFILE)
              INFOFILE=INFOFILE(1:ftn_strlen(INFOFILE))
-             
+
              OUTTOFILE=.true.
-             
+
           else if (opt_sng == "help" .or.opt_sng == "HELP" .or. opt_sng&
                & == "Help") then
 
@@ -209,14 +209,14 @@ CONTAINS
 
     !--Parameters in NameList NML_CASE
     CASE_TITLE = "'AN FVCOM CASE DESCRIPTION' - note string must be in 'quotes'"
-    TIMEZONE = "Select Time Zone or for idealized case select 'none' (start time=0.0)" 
+    TIMEZONE = "Select Time Zone or for idealized case select 'none' (start time=0.0)"
     USE_REAL_WORLD_TIME=.FALSE.
     DATE_FORMAT="A three letter string specify date format: 'YMD' or 'DMY'"
     DATE_REFERENCE= "Date (specified as a string -- example '2007-11-05 00:00:00') or 'default'"
     START_DATE= "Date and Time are specified as a string (example '2007-11-05 00:00:00')"
     END_DATE= "For an idealized case specify 'seconds=(flt)','days=(flt)', or 'cycles=(int)'"
 
-    
+
     STARTUP_TYPE = "'hotstart', 'coldstart', 'forecast' or 'crashrestart'"
     STARTUP_FILE= trim(casename)//"_restart.nc"
     STARTUP_UV_TYPE = "'default' or 'set values'"
@@ -227,7 +227,7 @@ CONTAINS
     STARTUP_U_VALS = -99.0_sp
     STARTUP_V_VALS = -99.0_sp
     STARTUP_DMAX = -99.0_sp
-    
+
     !--Parameters in NameList NML_IO
     INPUT_DIR = "/Your/relative/path/to/input/files"
     OUTPUT_DIR = "/Your/relative/path/to/output/files :Must already exist!"
@@ -241,10 +241,12 @@ CONTAINS
     !--Parameters in NameList NML_INTEGRATION
     ExtStep_Seconds = 0.0
     ISplit = 0
-    IRamp = 0 
+    IRamp = 0
     Static_SSH_Adj = 0.0
     Min_Depth = 0.0
     RK_3D_ON = .False.
+    ! jsasaki 2021/11/14 bugfix: RAMP in BCOND_GCN.F not initialized; thus initialize here.
+    RAMP = 1.0_sp
 
     !--Parameters in NameList NML_RESTART
     RST_ON            = .False.
@@ -259,7 +261,7 @@ CONTAINS
     NC_OUTPUT_STACK = 0
     NC_SUBDOMAIN_FILES= "FVCOM"
     NC_GRID_METRICS = .False.
-    NC_FILE_DATE    = .False.   
+    NC_FILE_DATE    = .False.
     NC_VELOCITY     = .False.
     NC_SALT_TEMP    = .False.
     NC_TURBULENCE   = .False.
@@ -270,11 +272,11 @@ CONTAINS
     NC_WIND_VEL     = .False.
 # if defined (AIR_PRESSURE) || (HEATING_CALCULATED)
     NC_ATM_PRESS    = .False.
-# endif    
+# endif
     NC_WIND_STRESS  = .False.
 # if defined (WAVE_CURRENT_INTERACTION)
-    NC_WAVE_PARA    = .False. 
-    NC_WAVE_STRESS  = .False. 
+    NC_WAVE_PARA    = .False.
+    NC_WAVE_STRESS  = .False.
 # endif
     NC_EVAP_PRECIP  = .False.
     NC_SURFACE_HEAT = .False.
@@ -301,14 +303,14 @@ CONTAINS
     NCSF_OUTPUT_STACK = 0
     NCSF_SUBDOMAIN_FILES= "FVCOM"
     NCSF_GRID_METRICS = .False.
-    NCSF_FILE_DATE    = .False.   
+    NCSF_FILE_DATE    = .False.
     NCSF_VELOCITY     = .False.
     NCSF_SALT_TEMP    = .False.
     NCSF_TURBULENCE   = .False.
     NCSF_WIND_VEL     = .False.
 # if defined (AIR_PRESSURE) || (HEATING_CALCULATED)
     NCSF_ATM_PRESS    = .False.
-# endif    
+# endif
     NCSF_WIND_STRESS  = .False.
 # if defined (WAVE_CURRENT_INTERACTION)
     NCSF_WAVE_PARA    = .False.
@@ -318,7 +320,7 @@ CONTAINS
 # endif
     NCSF_EVAP_PRECIP  = .False.
     NCSF_SURFACE_HEAT = .False.
-    
+
     ! OUTPUT VARIABLES DEFAULT TO OFF
 
     !--Parameters in NameList NML_NETCDF_AV
@@ -328,7 +330,7 @@ CONTAINS
     NCAV_OUTPUT_STACK = 0
     NCAV_SUBDOMAIN_FILES= "FVCOM"
     NCAV_GRID_METRICS = .False.
-    NCAV_FILE_DATE    = .False.   
+    NCAV_FILE_DATE    = .False.
     NCAV_VELOCITY     = .False.
     NCAV_SALT_TEMP    = .False.
     NCAV_TURBULENCE   = .False.
@@ -338,8 +340,8 @@ CONTAINS
     NCAV_NH_RHS       = .False.
     NCAV_WIND_VEL     = .False.
 # if defined (AIR_PRESSURE) || (HEATING_CALCULATED)
-    NCAV_ATM_PRESS    = .False.  
-# endif    
+    NCAV_ATM_PRESS    = .False.
+# endif
     NCAV_WIND_STRESS  = .False.
     NCAV_WAVE_PARA    = .False.  !Jadon
     NCAV_WAVE_STRESS  = .False.  !Jadon
@@ -378,10 +380,10 @@ CONTAINS
 
     BOTTOM_ROUGHNESS_KIND = "Options:"//TRIM(CNSTNT)//","//TRIM(STTC)
     BOTTOM_ROUGHNESS_FILE =trim(casename)//"_brf.nc"
-    
-    CONVECTIVE_OVERTURNING     = .FALSE.  
+
+    CONVECTIVE_OVERTURNING     = .FALSE.
     SCALAR_POSITIVITY_CONTROL  = .FALSE.
-    BAROTROPIC                 = .FALSE. 
+    BAROTROPIC                 = .FALSE.
 
     BAROCLINIC_PRESSURE_GRADIENT = "'sigma levels' or 'z coordinates'; select method of calculation"
 
@@ -391,9 +393,9 @@ CONTAINS
     RECALCULATE_RHO_MEAN = .FALSE.
     INTERVAL_RHO_MEAN = "A length of time or number of cycles in standard format"
 
-    TEMPERATURE_ACTIVE  = .FALSE.          
-    SALINITY_ACTIVE     = .FALSE.          
-    SURFACE_WAVE_MIXING = .FALSE.          
+    TEMPERATURE_ACTIVE  = .FALSE.
+    SALINITY_ACTIVE     = .FALSE.
+    SURFACE_WAVE_MIXING = .FALSE.
     WETTING_DRYING_ON   = .FALSE.
 !J. Ge
     ! for tracer advection
@@ -415,14 +417,14 @@ CONTAINS
     WIND_STRESS_METHOD = "Options:: LP1981, COARE, TY2001, OOST, DGHQ"  ! Siqi Li, 2021-01-27
     ZUU = 10.0_SP                                                       ! Siqi Li, 2021-01-27
     HEATING_ON = .FALSE.
-    HEATING_TYPE = "'surface' or 'flux' or 'body'" 
+    HEATING_TYPE = "'surface' or 'flux' or 'body'"
     HEATING_FILE = trim(casename)//"_hfx.nc"
     HEATING_KIND = "Options:"//TRIM(CNSTNT)//","//TRIM(STTC)//","//TRIM(TMDPNDNT)//","//TRIM(PRDC)//","//TRIM(VRBL)
     HEATING_RADIATION = 0.0_SP
     HEATING_NETFLUX = 0.0_SP
     HEATING_LONGWAVE_PERCTAGE = 0.78_SP
-    HEATING_LONGWAVE_LENGTHSCALE = 1.4_SP 
-    HEATING_SHORTWAVE_LENGTHSCALE= 6.3_SP 
+    HEATING_LONGWAVE_LENGTHSCALE = 1.4_SP
+    HEATING_SHORTWAVE_LENGTHSCALE= 6.3_SP
     PRECIPITATION_ON = .FALSE.
     PRECIPITATION_FILE = trim(casename)//"_emp.nc"
     PRECIPITATION_KIND = "Options:"//TRIM(CNSTNT)//","//TRIM(STTC)//","//TRIM(TMDPNDNT)//","//TRIM(PRDC)//","//TRIM(VRBL)
@@ -438,7 +440,7 @@ CONTAINS
     WAVE_KIND = "Options:"//TRIM(CNSTNT)//","//TRIM(STTC)//","//TRIM(TMDPNDNT)//","//TRIM(PRDC)//","//TRIM(VRBL)
     WAVE_HEIGHT     = 0.0_SP
     WAVE_LENGTH     = 0.0_SP
-    WAVE_DIRECTION  = 0.0_SP 
+    WAVE_DIRECTION  = 0.0_SP
     WAVE_PERIOD     = 0.0_SP
     WAVE_PER_BOT    = 0.0_SP
     WAVE_UB_BOT     = 0.0_SP
@@ -453,9 +455,6 @@ CONTAINS
     RIVER_NUMBER = -1
     RIVER_KIND = "Options:"//TRIM(PRDC)//" or "//TRIM(VRBL)
     RIVER_TS_SETTING = "'calculated' or 'specified'"
-!JQI NOV2021
-    TS_ADJUST_METHOD = "'average' or 'maximum'"
-!JQI NOV2021
     RIVER_INFLOW_LOCATION = "'node' or 'edge'"
     RIVER_INFO_FILE = "'default' or 'filename'"
 
@@ -486,12 +485,12 @@ CONTAINS
     OBC_WQM_NUDGING = .False.
     OBC_WQM_FILE = trim(casename)//"_obc.nc "
     OBC_WQM_NUDGING_TIMESCALE = 0.0
-#   endif    
+#   endif
 #   if defined (BioGen)
     OBC_BIO_NUDGING = .False.
     OBC_BIO_FILE = trim(casename)//"_obc.nc "
     OBC_BIO_NUDGING_TIMESCALE = 0.0
-#   endif    
+#   endif
     OBC_MEANFLOW = .FALSE.
     OBC_MEANFLOW_FILE = trim(casename)//"_obc.nc"
     OBC_LONGSHORE_FLOW_ON = .FALSE.
@@ -589,7 +588,7 @@ CONTAINS
     MLD_DEFAULT     = 5.0
     DEEPWATER_DEPTH = 100.0
     DEEPWATER_GAMMA = 0.03e-3
-!<--- 
+!<---
   END SUBROUTINE NAME_LIST_INITIALIZE
 
 
@@ -832,13 +831,13 @@ CONTAINS
        ! Read River Namelists...
        ios = 0
        i = 0
-       DO 
+       DO
           READ(UNIT=RIVERNMLUNIT, NML=NML_RIVER,IOSTAT=ios)
 
           if (IOS /= 0 ) exit
           I = I +1
           if  (I > RIVER_NUMBER) exit ! To prevent sigsev...
-    
+
           RIVERS(i)%NAME=RIVER_NAME
           RIVERS(i)%FILE=RIVER_FILE
           RIVERS(i)%LOCATION=RIVER_GRID_LOCATION
@@ -852,17 +851,17 @@ CONTAINS
              write(ipt,*)"But Found",I, "; Valid river name list objects.(Printing Last)"
              write(UNIT=IPT,NML=NML_RIVER)
           end if
-          
+
           CALL FATAL_ERROR('PLEASE REPAIR THE NAME LIST SO IT IS CONSISTANT... see above')
        END IF
-       
+
     ELSE IF (RIVER_NUMBER .eq. 0) THEN
-       
+
        READ(UNIT=NMLUNIT, NML=NML_RIVER,IOSTAT=ios)
        !THERE SHOULD BE NO RIVER NAME LISTS
        if (IOS == 0 ) CALL FATAL_ERROR &
             & ('THERE ARE ONE OR MORE RIVER NAME LISTS, BUT RIVER TYPE SPECIFIED ZERO RIVERS?')
-       
+
     ELSE
        if(DBG_SET(dbg_log)) write(UNIT=IPT,NML=NML_RIVER_TYPE)
        CALL FATAL_ERROR("YOU CAN'T HAVE A NEGATIVE NUMBER OF RIVERS!")
@@ -925,7 +924,7 @@ CONTAINS
        if(DBG_SET(dbg_log)) write(UNIT=IPT,NML=NML_LAG)
        Call Fatal_Error("Can Not Read NameList NML_LAG from file: "//trim(FNAME))
     end if
-       
+
     REWIND(NMLUNIT)
 
     if(DBG_SET(dbg_scl)) &
@@ -991,15 +990,15 @@ CONTAINS
 
     if(DBG_SET(dbg_scl)) &
          & write(UNIT=IPT,NML=NML_MLD)
-!<---     
+!<---
 
     CLOSE(NMLUNIT)
 
 ! ----- END
     if(DBG_SET(dbg_sbr)) &
-         & write(IPT,*) "Subroutine Ends: Read_Name_List;"    
+         & write(IPT,*) "Subroutine Ends: Read_Name_List;"
   END SUBROUTINE NAME_LIST_READ
-  
+
 
   SUBROUTINE CHECK_IO_DIRS
     USE CONTROL
@@ -1046,15 +1045,15 @@ CONTAINS
           CALL FATAL_ERROR("Unable to OPEN the test file:",&
                & trim(testchar), "IOSTAT ERROR#"//cios//"; suggests ba&
                &d directory path:", trim(output_dir))
-   
+
        else if (ios /= 0) then
           CALL FATAL_ERROR("Unable to OPEN the test file:",&
                & trim(testchar), "Unknown IOSTAT error# "//cios)
        end if
-          
+
        write(TESTUNIT,*)"This is a test file created by FVCOM. You may delete it."
        write(TESTUNIT,*)"Have a nice day."
-       
+
        CLOSE(UNIT=TESTUNIT,IOSTAT=ios2)
        if (ios2 /= 0) then
           write(cios,'(i2.2)') ios2
@@ -1090,12 +1089,12 @@ CONTAINS
                   & trim(testchar), "Unknown IOSTAT error# "//cios)
           end if
        end if
-          
+
 
     end if
 
-  END SUBROUTINE CHECK_IO_DIRS  
-!=============================================================  
+  END SUBROUTINE CHECK_IO_DIRS
+!=============================================================
   SUBROUTINE NULLIFY_FILE_POINTERS
     IMPLICIT NONE
 
@@ -1105,7 +1104,7 @@ CONTAINS
     NULLIFY(NC_START)
     NULLIFY(NC_SF)
   END SUBROUTINE NULLIFY_FILE_POINTERS
-!=============================================================  
+!=============================================================
   SUBROUTINE INCRIMENT_FNAME(FNAME)
     IMPLICIT NONE
     CHARACTER(LEN=160) FNAME
@@ -1136,7 +1135,7 @@ CONTAINS
          & write(IPT,*) "END INCRIMENT_FNAME"
 
   END SUBROUTINE INCRIMENT_FNAME
-!=============================================================  
+!=============================================================
   SUBROUTINE OPEN_STARTUP_FILE
     USE CONTROL
     IMPLICIT NONE
@@ -1149,13 +1148,13 @@ CONTAINS
     ! CHECK FOR INPUT AND OUTPUT DIRECTORIES
 
     back = .true.
-    
+
     ! TEST FILE NAME
     charnum = index (STARTUP_FILE,".nc",back)
     if (charnum /= len_trim(STARTUP_FILE)-2)&
          & CALL WARNING("STARUP FILE NAME does not end in .nc", &
          & trim(STARTUP_FILE))
-    
+
     ! INITIALIZE TYPE TO HOLD FILE METADATA
     pathnfile= trim(INPUT_DIR)//trim(STARTUP_FILE)
 
@@ -1164,11 +1163,11 @@ CONTAINS
 
     Call NC_OPEN(NCF)
     CALL NC_LOAD(NCF)
-       
+
     NC_START => NCF
-    
+
   END SUBROUTINE OPEN_STARTUP_FILE
-!=============================================================  
+!=============================================================
   SUBROUTINE OPEN_CRASHSTART
     USE CONTROL
     IMPLICIT NONE
@@ -1186,18 +1185,18 @@ CONTAINS
        !RESTART FILE
        RESTART_FILE_NAME = trim(casename)//"_restart_0001.nc"
        pathnfile= trim(OUTPUT_DIR)//TRIM(RESTART_FILE_NAME)
-       
+
        CALL SEARCH_FOR_LAST_MATCHING_NAME(PATHNFILE)
-       
+
        ! OPEN THE FILE AND LOAD FOR STARTUP
        NCF => NEW_FILE()
        NCF%FNAME=trim(pathnfile)
        Call NC_OPEN(NCF)
        CALL NC_LOAD(NCF)
        NC_START => NCF
-       
+
        Nullify(NCF)
-       
+
 
        ! NOW CREATE ANOTHER FILE OBJECT FOR OUTPUT
        ! INITIALIZE TYPE TO HOLD FILE METADATA
@@ -1206,14 +1205,14 @@ CONTAINS
        NCF%writable = .true.
        NC_RST => NCF
        FILEHEAD => ADD(FILEHEAD,NCF)
-       
+
     END IF
 
     IF(NC_ON) then
        ! DATA FILE
        NC_FILE_NAME = trim(casename)//"_0001.nc"
        pathnfile= trim(OUTPUT_DIR)//TRIM(NC_FILE_NAME)
-       
+
        CALL SEARCH_FOR_LAST_MATCHING_NAME(PATHNFILE)
        NCF => NEW_FILE()
        NCF%FNAME=trim(pathnfile)
@@ -1222,13 +1221,13 @@ CONTAINS
        FILEHEAD => ADD(FILEHEAD,NCF)
 
     END IF
-       
+
 
      IF(NCSF_ON) then
        ! DATA FILE
        NCSF_FILE_NAME = trim(casename)//"_surface_0001.nc"
        pathnfile= trim(OUTPUT_DIR)//TRIM(NCSF_FILE_NAME)
-       
+
        CALL SEARCH_FOR_LAST_MATCHING_NAME(PATHNFILE)
        NCF => NEW_FILE()
        NCF%FNAME=trim(pathnfile)
@@ -1237,13 +1236,13 @@ CONTAINS
        FILEHEAD => ADD(FILEHEAD,NCF)
 
     END IF
-       
+
 
    IF(NCAV_ON) then
        ! DATA FILE
        NCAV_FILE_NAME = trim(casename)//"_avg_0001.nc"
        pathnfile= trim(OUTPUT_DIR)//TRIM(NCAV_FILE_NAME)
-       
+
        CALL SEARCH_FOR_LAST_MATCHING_NAME(PATHNFILE)
        NCF => NEW_FILE()
        NCF%FNAME=trim(pathnfile)
@@ -1256,12 +1255,12 @@ CONTAINS
 
 
   END SUBROUTINE OPEN_CRASHSTART
-!=============================================================  
+!=============================================================
 
   ! THIS ROUTINE SEARCHES FOR THE LAST NAME SUFFIX IN THE DIRECTORY
   SUBROUTINE SEARCH_FOR_LAST_MATCHING_NAME(FNAME)
     IMPLICIT NONE
-    CHARACTER(LEN=160), INTENT(INOUT) :: FNAME 
+    CHARACTER(LEN=160), INTENT(INOUT) :: FNAME
     CHARACTER(LEN=160) :: FNAME_NEXT
     logical :: fexist
 
@@ -1271,7 +1270,7 @@ CONTAINS
          & TRIM(FNAME), "If there is no output yet a crashrestart does&
          & not make much sense...", "there is something wrong with your model")
 
-    DO 
+    DO
        FNAME_NEXT = FNAME
        CALL INCRIMENT_FNAME(FNAME_NEXT)
        ! ADD A MORE DEFINIATIVE CHECK THAN EXISTANCE OF FILE!
@@ -1280,7 +1279,7 @@ CONTAINS
        IF(.not. FEXIST) THEN
           if(dbg_set(dbg_log))&
                & write(ipt,*) "FOUND LAST FILE: "//TRIM(FNAME)
-       
+
           RETURN
        ELSE
           FNAME = FNAME_NEXT
@@ -1288,7 +1287,7 @@ CONTAINS
     END DO
 
   END SUBROUTINE SEARCH_FOR_LAST_MATCHING_NAME
-!=============================================================  
+!=============================================================
   SUBROUTINE OPEN_COLDSTART
     USE CONTROL
     IMPLICIT NONE
@@ -1300,7 +1299,7 @@ CONTAINS
     character(len=2) :: cios
 
     back = .true.
-    
+
     ! TEST FILE NAME
     IF(OBC_ON) THEN
        charnum = index (OBC_NODE_LIST_FILE,".dat")
@@ -1324,7 +1323,7 @@ CONTAINS
 
     END IF
 
-        
+
     !Check Sigma File and open:
     ! TEST FILE NAME
     charnum = index (SIGMA_LEVELS_FILE,".dat")
@@ -1334,7 +1333,7 @@ CONTAINS
     ! OPEN FILE
     pathnfile = trim(INPUT_DIR)//trim(SIGMA_LEVELS_FILE)
     Call FOPEN(SIGMAUNIT,trim(pathnfile),'cfr')
-    
+
     !Check Grid File and open:
     ! TEST FILE NAME
     charnum = index (GRID_FILE,".dat")
@@ -1344,8 +1343,8 @@ CONTAINS
     ! OPEN FILE
     pathnfile = trim(INPUT_DIR)//trim(GRID_FILE)
     Call FOPEN(GRIDUNIT,trim(pathnfile),'cfr')
-    
-# if defined (PLBC) 
+
+# if defined (PLBC)
     !Check plbc_cell File and open:
     ! OPEN FILE
     pathnfile = trim(INPUT_DIR)//trim('plb_plbc_cell.dat')
@@ -1356,7 +1355,7 @@ CONTAINS
     pathnfile = trim(INPUT_DIR)//trim('plb_plbc_node.dat')
     Call FOPEN(INTNODE1,trim(pathnfile),'cfr')
 # endif
-    
+
     !Check Depth File and open:
     ! TEST FILE NAME
     charnum = index (DEPTH_FILE,".dat")
@@ -1366,7 +1365,7 @@ CONTAINS
     ! OPEN FILE
     pathnfile = trim(INPUT_DIR)//trim(DEPTH_FILE)
     Call FOPEN(DEPTHUNIT,trim(pathnfile),'cfr')
-    
+
     !Check Sponge File and open:
     ! TEST FILE NAME
     charnum = index (SPONGE_FILE,".dat")
@@ -1376,7 +1375,7 @@ CONTAINS
     ! OPEN FILE
     pathnfile = trim(INPUT_DIR)//trim(SPONGE_FILE)
     Call FOPEN(SPONGEUNIT,trim(pathnfile),'cfr')
-    
+
     IF (GRID_FILE_UNITS == 'meters') THEN
        !Check Coriolis File and open:
        ! TEST FILE NAME
@@ -1388,7 +1387,7 @@ CONTAINS
        pathnfile = trim(INPUT_DIR)//trim(CORIOLIS_FILE)
        Call FOPEN(CORIOLISUNIT,trim(pathnfile),'cfr')
     END IF
-    
+
   END SUBROUTINE OPEN_COLDSTART
 
  SUBROUTINE OPEN_NEW_OUTPUT
@@ -1420,7 +1419,7 @@ CONTAINS
        FILEHEAD => ADD(FILEHEAD,NCF)
 
     END IF
-    
+
      IF(NCSF_ON) THEN
        NCSF_FILE_NAME = trim(casename)//"_surface_0001.nc"
        pathnfile = trim(OUTPUT_DIR)//trim(NCSF_FILE_NAME)
@@ -1437,7 +1436,7 @@ CONTAINS
        FILEHEAD => ADD(FILEHEAD,NCF)
 
     END IF
-    
+
    IF(NCAV_ON) THEN
        NCAV_FILE_NAME = trim(casename)//"_avg_0001.nc"
        pathnfile = trim(OUTPUT_DIR)//trim(NCAV_FILE_NAME)
@@ -1453,8 +1452,8 @@ CONTAINS
 
        FILEHEAD => ADD(FILEHEAD,NCF)
     END IF
-    
-    
+
+
     if(RST_ON) then
        RESTART_FILE_NAME = trim(casename)//"_restart_0001.nc"
        pathnfile = trim(OUTPUT_DIR)//trim(RESTART_FILE_NAME)
@@ -1519,18 +1518,18 @@ CONTAINS
 
     ! Check wind stress file and open
     if (WIND_ON .and. Wind_KIND /= CNSTNT) then
-       
+
        ! TEST FILE NAME
        charnum = index (WIND_FILE,".nc",back)
        if (charnum /= len_trim(WIND_FILE)-2)&
             & CALL WARNING("WIND FILE does not end in .nc", &
             & trim(WIND_FILE))
-       
+
        ! INITIALIZE TYPE TO HOLD FILE METAData
        pathnfile = trim(INPUT_DIR)//trim(WIND_FILE)
        CALL NC_INIT(NCF,pathnfile)
 
-       ! OPEN THE FILE AND LOAD METADATA       
+       ! OPEN THE FILE AND LOAD METADATA
        If(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
           CALL NC_LOAD(NCF)
@@ -1552,7 +1551,7 @@ CONTAINS
        pathnfile = trim(INPUT_DIR)//trim(ICEIN_FILE)
        CALL NC_INIT(NCF,pathnfile)
 
-       ! OPEN THE FILE AND LOAD METADATA       
+       ! OPEN THE FILE AND LOAD METADATA
        If(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
           CALL NC_LOAD(NCF)
@@ -1585,7 +1584,7 @@ CONTAINS
        end if
 
     end if
-#   endif    
+#   endif
 
 #   if defined (HEATING_CALCULATED)
     if (HEATING_CALCULATE_ON .and. HEATING_CALCULATE_KIND /= CNSTNT) then
@@ -1609,7 +1608,7 @@ CONTAINS
        end if
 
     end if
-#   endif    
+#   endif
 
 #   if defined (HEATING_SOLAR)
     if (HEATING_SOLAR_ON .and. HEATING_SOLAR_KIND /= CNSTNT) then
@@ -1633,7 +1632,7 @@ CONTAINS
        end if
 
     end if
-#   endif    
+#   endif
 
     ! Check Precip file and open
     if (PRECIPITATION_ON .and. PRECIPITATION_KIND /= CNSTNT) then
@@ -1643,11 +1642,11 @@ CONTAINS
        if (charnum /= len_trim(PRECIPITATION_FILE)-2)&
             & CALL WARNING("PRECIPITATION FILE does not end in .nc", &
             & trim(PRECIPITATION_FILE))
-       
+
        ! INITIALIZE TYPE TO HOLD FILE METADATA
        pathnfile= trim(INPUT_DIR)//trim(PRECIPITATION_FILE)
        CALL  NC_INIT(NCF,pathnfile)
-       
+
        ! OPEN THE FILE AND LOAD METADATA
        if(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
@@ -1664,11 +1663,11 @@ CONTAINS
        if (charnum /= len_trim(WAVE_FILE)-2)&
             & CALL WARNING("WAVE FILE does not end in .nc", &
             & trim(WAVE_FILE))
-       
+
        ! INITIALIZE TYPE TO HOLD FILE METADATA
        pathnfile= trim(INPUT_DIR)//trim(WAVE_FILE)
        CALL  NC_INIT(NCF,pathnfile)
-       
+
        ! OPEN THE FILE AND LOAD METADATA
        if(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
@@ -1679,17 +1678,17 @@ CONTAINS
 
 # if defined (OFFLINE_SEDIMENT)
     ! Check Wave file and open
- 
+
        ! TEST FILE NAME
        charnum = index (OFFLINE_SEDIMENT_FILE,".nc",back)
        if (charnum /= len_trim(OFFLINE_SEDIMENT_FILE)-2)&
             & CALL WARNING("OFFLINE SEDIMENT FILE does not end in .nc", &
             & trim(OFFLINE_SEDIMENT_FILE))
-       
+
        ! INITIALIZE TYPE TO HOLD FILE METADATA
        pathnfile= trim(INPUT_DIR)//trim(OFFLINE_SEDIMENT_FILE)
        CALL  NC_INIT(NCF,pathnfile)
-       
+
        ! OPEN THE FILE AND LOAD METADATA
        if(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
@@ -1702,17 +1701,17 @@ CONTAINS
 
 # if defined (OFFLINE_BIOLOGY)
     ! Check Wave file and open
- 
+
        ! TEST FILE NAME
        charnum = index (OFFLINE_BIOLOGY_FILE,".nc",back)
        if (charnum /= len_trim(OFFLINE_BIOLOGY_FILE)-2)&
             & CALL WARNING("OFFLINE BIOLOGY FILE does not end in .nc", &
             & trim(OFFLINE_BIOLOGY_FILE))
-       
+
        ! INITIALIZE TYPE TO HOLD FILE METADATA
        pathnfile= trim(INPUT_DIR)//trim(OFFLINE_BIOLOGY_FILE)
        CALL  NC_INIT(NCF,pathnfile)
-       
+
        ! OPEN THE FILE AND LOAD METADATA
        if(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
@@ -1723,7 +1722,7 @@ CONTAINS
 # endif
 
     !Check RIVER files and open
-    
+
     do i =1, river_number
 
        ! TEST FILE NAME
@@ -1731,11 +1730,11 @@ CONTAINS
        if (charnum /= len_trim(RIVERS(i)%FILE)-2)&
             & CALL WARNING("RIVER FILE does not end in .nc", &
             & trim(RIVERS(i)%FILE))
-       
+
        ! INITIALIZE TYPE TO HOLD FILE METADATA
        pathnfile= trim(INPUT_DIR)//trim(RIVERS(i)%FILE)
        CALL  NC_INIT(NCF,pathnfile)
-       
+
        ! OPEN THE FILE AND LOAD METADATA IF NOT ALREADY DONE
        if(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
@@ -1745,7 +1744,7 @@ CONTAINS
 
     end do
 
-    
+
     !Check OBC files and open:
 
 # if !defined (EQUI_TIDE)
@@ -1756,11 +1755,11 @@ CONTAINS
 
           ! Determine file type:
           pathnfile= trim(INPUT_DIR)//trim(OBC_ELEVATION_FILE)
-          
+
 
           ! TRY opening file as a netcdf file
           IF(DBG_SET(DBG_LOG))write(ipt,*) "! Trying to open Boundary Forcing file: "//TRIM(OBC_ELEVATION_FILE)
-          
+
           status = nf90_open(trim(pathnfile), NF90_NOWRITE, fid)
           if(status == nf90_noerr) then
              status = nf90_close(fid)
@@ -1769,7 +1768,7 @@ CONTAINS
 
              ! INITIALIZE TYPE TO HOLD FILE METADATA
              CALL  NC_INIT(NCF,pathnfile)
-             
+
              ! OPEN THE FILE AND LOAD METADATA
              if(.not. NCF%OPEN) then
                 Call NC_OPEN(NCF)
@@ -1780,7 +1779,7 @@ CONTAINS
 
              IF(DBG_SET(DBG_LOG)) write(ipt,*) "! Open Boundary Forcing file is not a NETCDF file"
              IF(MSR) THEN
-                
+
                 Call FOPEN(JULOBCUNIT,trim(pathnfile),'cfr')
 
                 write(ipt,*) "! Open Boundary Forcing file is an ASCII file"
@@ -1790,48 +1789,48 @@ CONTAINS
              NCF => NEW_FILE(pathnfile)
              NCF => ADD(NCF,NC_MAKE_ATT("type","ASCII FILE DUMMY ATTRIBUTE"))
              FILEHEAD => ADD(FILEHEAD,NCF)
-             
+
           end if
-          
+
 # if !defined (EQUI_TIDE)
        END IF
 # else
    if (OBC_ON) then
-# endif      
-      
-      
+# endif
+
+
       if (OBC_TEMP_NUDGING) then
-         
+
          ! TEST FILE NAME
          charnum = index (OBC_TEMP_FILE,".nc",back)
          if (charnum /= len_trim(OBC_TEMP_FILE)-2)&
               & CALL WARNING("OBC TEMP FILE does not end in .nc", &
               & trim(OBC_TEMP_FILE))
-         
+
          ! INITIALIZE TYPE TO HOLD FILE METADATA
          pathnfile= trim(INPUT_DIR)//trim(OBC_TEMP_FILE)
          CALL  NC_INIT(NCF,pathnfile)
-         
+
          ! OPEN THE FILE AND LOAD METADATA
-         if(.not. NCF%OPEN)then 
+         if(.not. NCF%OPEN)then
             Call NC_OPEN(NCF)
             CALL NC_LOAD(NCF)
             FILEHEAD => ADD(FILEHEAD,NCF)
          end if
       end if
-      
+
       if (OBC_SALT_NUDGING) then
-         
+
          ! TEST FILE NAME
          charnum = index (OBC_SALT_FILE,".nc",back)
          if (charnum /= len_trim(OBC_SALT_FILE)-2)&
               & CALL WARNING("OBC SALT FILE does not end in .nc", &
               & trim(OBC_SALT_FILE))
-         
+
          ! INITIALIZE TYPE TO HOLD FILE METADATA
          pathnfile= trim(INPUT_DIR)//trim(OBC_SALT_FILE)
          CALL  NC_INIT(NCF,pathnfile)
-         
+
          ! OPEN THE FILE AND LOAD METADATA
          if(.not. NCF%OPEN) then
             Call NC_OPEN(NCF)
@@ -1839,19 +1838,19 @@ CONTAINS
             FILEHEAD => ADD(FILEHEAD,NCF)
          end if
       end if
-      
+
       if (OBC_MEANFLOW) then
-         
+
          ! TEST FILE NAME
          charnum = index (OBC_MEANFLOW_FILE,".nc",back)
          if (charnum /= len_trim(OBC_MEANFLOW_FILE)-2)&
               & CALL WARNING("OBC MEANFLOW FILE does not end in .nc", &
               & trim(OBC_MEANFLOW_FILE))
-         
+
          ! INITIALIZE TYPE TO HOLD FILE METADATA
          pathnfile= trim(INPUT_DIR)//trim(OBC_MEANFLOW_FILE)
          CALL  NC_INIT(NCF,pathnfile)
-         
+
          ! OPEN THE FILE AND LOAD METADATA
          if(.not. NCF%OPEN) then
             Call NC_OPEN(NCF)
@@ -1859,10 +1858,10 @@ CONTAINS
             FILEHEAD => ADD(FILEHEAD,NCF)
          end if
       end if
-      
-      
+
+
    end if
-   
+
 
     !Check Ground Water File and open:
     if (GROUNDWATER_ON .and. GROUNDWATER_KIND /= CNSTNT) then
@@ -1872,11 +1871,11 @@ CONTAINS
        if (charnum /= len_trim(GROUNDWATER_FILE)-2)&
             & CALL WARNING("GROUNDWATER FILE does not end in .nc", &
             & trim(GROUNDWATER_FILE))
-       
+
        ! INITIALIZE TYPE TO HOLD FILE METADATA
        pathnfile= trim(INPUT_DIR)//trim(GROUNDWATER_FILE)
        CALL  NC_INIT(NCF,pathnfile)
-       
+
        ! OPEN THE FILE AND LOAD METADATA
        if(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
@@ -1893,11 +1892,11 @@ CONTAINS
        if (charnum /= len_trim(ICING_FORCING_FILE)-2)&
             & CALL WARNING("ICING MODEL FILE does not end in .nc", &
             & trim(ICING_FORCING_FILE))
-       
+
        ! INITIALIZE TYPE TO HOLD FILE METADATA
        pathnfile= trim(INPUT_DIR)//trim(ICING_FORCING_FILE)
        CALL  NC_INIT(NCF,pathnfile)
-       
+
        ! OPEN THE FILE AND LOAD METADATA
        if(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
@@ -1914,18 +1913,18 @@ CONTAINS
        if (charnum /= len_trim(ICE_FORCING_FILE)-2)&
             & CALL WARNING("ICE MODEL FILE does not end in .nc", &
             & trim(ICE_FORCING_FILE))
-       
+
        ! INITIALIZE TYPE TO HOLD FILE METADATA
        pathnfile= trim(INPUT_DIR)//trim(ICE_FORCING_FILE)
        CALL  NC_INIT(NCF,pathnfile)
-       
+
        ! OPEN THE FILE AND LOAD METADATA
        if(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
           CALL NC_LOAD(NCF)
           FILEHEAD => ADD(FILEHEAD,NCF)
        end if
-       
+
     END IF
 
     ! LOAD HORIZONTAL MIXING FILE
@@ -1936,18 +1935,18 @@ CONTAINS
        if (charnum /= len_trim(HORIZONTAL_MIXING_FILE)-2)&
             & CALL WARNING("Horizontal Mixing File does not end in .nc", &
             & trim(HORIZONTAL_MIXING_FILE))
-       
+
        ! INITIALIZE TYPE TO HOLD FILE METADATA
        pathnfile= trim(INPUT_DIR)//trim(HORIZONTAL_MIXING_FILE)
        CALL  NC_INIT(NCF,pathnfile)
-       
+
        ! OPEN THE FILE AND LOAD METADATA
        if(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
           CALL NC_LOAD(NCF)
           FILEHEAD => ADD(FILEHEAD,NCF)
        end if
-       
+
     END IF
 
 
@@ -1959,18 +1958,18 @@ CONTAINS
        if (charnum /= len_trim(BOTTOM_ROUGHNESS_FILE)-2)&
             & CALL WARNING("Bottom Roughness File does not end in .nc", &
             & trim(BOTTOM_ROUGHNESS_FILE))
-       
+
        ! INITIALIZE TYPE TO HOLD FILE METADATA
        pathnfile= trim(INPUT_DIR)//trim(BOTTOM_ROUGHNESS_FILE)
        CALL  NC_INIT(NCF,pathnfile)
-       
+
        ! OPEN THE FILE AND LOAD METADATA
        if(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
           CALL NC_LOAD(NCF)
           FILEHEAD => ADD(FILEHEAD,NCF)
        end if
-       
+
     END IF
 
 # if defined (SEDIMENT)
@@ -1981,10 +1980,10 @@ CONTAINS
        charnum = index (BEDFLAG_FILE,".nc",back)
        if (charnum /= len_trim(BEDFLAG_FILE)-2)&
             & CALL WARNING("BedFlag file does not end in .nc", &
-            & trim(BEDFLAG_FILE)) 
+            & trim(BEDFLAG_FILE))
 
        ! INITIALIZE TYPE TO HOLD FILE METADATA
-       pathnfile= trim(INPUT_DIR)//trim(BEDFLAG_FILE) 
+       pathnfile= trim(INPUT_DIR)//trim(BEDFLAG_FILE)
        CALL  NC_INIT(NCF,pathnfile)
 
        ! OPEN THE FILE AND LOAD METADATA
@@ -2004,18 +2003,18 @@ CONTAINS
        if (charnum /= len_trim(SEDIMENT_PARAMETER_FILE)-2)&
             & CALL WARNING("Sediment parameter file does not end in .nc", &
             & trim(SEDIMENT_PARAMETER_FILE))
-       
+
        ! INITIALIZE TYPE TO HOLD FILE METADATA
        pathnfile= trim(INPUT_DIR)//trim(SEDIMENT_PARAMETER_FILE)
        CALL  NC_INIT(NCF,pathnfile)
-       
+
        ! OPEN THE FILE AND LOAD METADATA
        if(.not. NCF%OPEN) then
           Call NC_OPEN(NCF)
           CALL NC_LOAD(NCF)
           FILEHEAD => ADD(FILEHEAD,NCF)
        end if
-       
+
     END IF
 # endif
 
@@ -2030,7 +2029,7 @@ CONTAINS
     TYPE(NCDIM),  POINTER :: DIM1
     TYPE(NCDIM),  POINTER :: DIM2
     integer status,I,IERR
-    
+
     LOGICAL FOUND
 
     ! FIND THE HVC FILE OBJECT
@@ -2045,7 +2044,7 @@ CONTAINS
          & "FILE NAME: "//TRIM(HORIZONTAL_MIXING_FILE))
     IF (DIM1%DIM /= NGL)CALL FATAL_ERROR &
          & ("Dimension 'nele' in the HORIZONTAL_MIXING_FILE does not match NGL for this model?",&
-         & "FILE NAME: "//TRIM(HORIZONTAL_MIXING_FILE)) 
+         & "FILE NAME: "//TRIM(HORIZONTAL_MIXING_FILE))
 
     DIM2 => FIND_DIM(NCF,'node',FOUND)
     IF(.not. FOUND) CALL FATAL_ERROR &
@@ -2053,7 +2052,7 @@ CONTAINS
          & "FILE NAME: "//TRIM(HORIZONTAL_MIXING_FILE))
     IF (DIM2%DIM /= MGL)CALL FATAL_ERROR &
          & ("Dimension 'node' in the HORIZONTAL_MIXING_FILE does not match MGL for this model?",&
-         & "FILE NAME: "//TRIM(HORIZONTAL_MIXING_FILE)) 
+         & "FILE NAME: "//TRIM(HORIZONTAL_MIXING_FILE))
 
     ! FIND THE 'nn_hvc' variable
     VAR => FIND_VAR(NCF,'nn_hvc',FOUND)
@@ -2087,7 +2086,7 @@ CONTAINS
     TYPE(NCDIM),  POINTER :: DIM1
     TYPE(NCDIM),  POINTER :: DIM2
     integer status,I,IERR
-    
+
     LOGICAL FOUND
 
     ! FIND THE Bottom Roughness FILE OBJECT
@@ -2102,7 +2101,7 @@ CONTAINS
          & "FILE NAME: "//TRIM(BOTTOM_ROUGHNESS_FILE))
     IF (DIM1%DIM /= NGL)CALL FATAL_ERROR &
          & ("Dimension 'nele' in the BOTTOM_ROUGHNESS_FILE does not match NGL for this model?",&
-         & "FILE NAME: "//TRIM(BOTTOM_ROUGHNESS_FILE)) 
+         & "FILE NAME: "//TRIM(BOTTOM_ROUGHNESS_FILE))
 
 
     ! FIND THE 'z0B' variable
@@ -2115,7 +2114,7 @@ CONTAINS
     CALL NC_READ_VAR(VAR)
     CALL NC_DISCONNECT(VAR)
 
-    
+
   END SUBROUTINE LOAD_BOTTOM_ROUGHNESS
 ! Added by Siqi Li@2015/08/29
   SUBROUTINE LOAD_DRAG_COEFFICIENT(Cd_UD)
@@ -2176,7 +2175,7 @@ CONTAINS
     NCF => FIND_FILE(FILEHEAD,trim(BEDFLAG_FILE),FOUND)
     IF(.not. FOUND) CALL FATAL_ERROR &
          & ("COULD NOT FIND BEDFLAG FILE OBJECT",&
-         & "FILE NAME: "//TRIM(BEDFLAG_FILE)) 
+         & "FILE NAME: "//TRIM(BEDFLAG_FILE))
 
     DIM1 => FIND_DIM(NCF,'node',FOUND)
     IF(.not. FOUND) CALL FATAL_ERROR &
@@ -2210,7 +2209,7 @@ CONTAINS
     TYPE(NCDIM),  POINTER :: DIM1
     TYPE(NCDIM),  POINTER :: DIM2
     integer status,I,IERR
-    
+
     LOGICAL FOUND
 
     ! FIND THE Sediment Parameter FILE OBJECT
@@ -2225,7 +2224,7 @@ CONTAINS
          & "FILE NAME: "//TRIM(SEDIMENT_PARAMETER_FILE))
     IF (DIM1%DIM /= MGL)CALL FATAL_ERROR &
          & ("Dimension 'node' in the SEDIMENT_PARAMETER_FILE does not match MGL for this model?",&
-         & "FILE NAME: "//TRIM(SEDIMENT_PARAMETER_FILE)) 
+         & "FILE NAME: "//TRIM(SEDIMENT_PARAMETER_FILE))
 
 
     ! FIND THE 'tau_cd' variable
@@ -2258,7 +2257,7 @@ CONTAINS
     CALL NC_READ_VAR(VAR)
     CALL NC_DISCONNECT(VAR)
 
-    
+
   END SUBROUTINE LOAD_SEDIMENT_PARAMETER
 
 # endif
@@ -2269,23 +2268,23 @@ CONTAINS
 
     TYPE(NCFILE), POINTER :: NCF
     TYPE(GRID), POINTER :: G
-    
-    
+
+
     TYPE(NCVAR),  POINTER :: VAR
     TYPE(NCDIM),  POINTER :: DIM1
     TYPE(NCDIM),  POINTER :: DIM2
     integer status,I,IERR
-    
+
     LOGICAL FOUND
-    
+
     !==============================================================================|
-    
-    
+
+
     ! GET GLOBAL DIMENSION!
     DIM1 => FIND_DIM(NCF,"node",FOUND)
     IF(.not. FOUND) CALL FATAL_ERROR&
          &("COULD NOT FIND DIMENSION 'node' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-    
+
     IF(G%MGL==0) THEN
        G%MGL = DIM1%DIM
     ELSEIF(G%MGL/= DIM1%DIM)THEN
@@ -2307,7 +2306,7 @@ CONTAINS
     IF(G%MT == 0) G%MT = G%MGL
     IF(G%NT == 0) G%NT = G%NGL
 
-    
+
     ! CHECK TO MAKE SURE DIMENSION THREE IS THERE
     DIM1 => FIND_DIM(NCF,"three",FOUND)
     IF(.not. FOUND) CALL FATAL_ERROR&
@@ -2315,91 +2314,91 @@ CONTAINS
 
     IF(DIM1%DIM /=3) CALL FATAL_ERROR&
          &("DIMENSION 'three' IS NOT 3 IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-    
+
 
     ! SIGLEV/Z
     DIM1 => FIND_DIM(NCF,"siglev",FOUND)
     IF(.not. FOUND) CALL FATAL_ERROR&
          &("COULD NOT FIND DIMENSION 'siglev' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-    
+
     IF(G%KB==0) THEN
        G%KB = DIM1%DIM
     ELSEIF(G%KB/= DIM1%DIM)THEN
        CALL FATAL_ERROR &
             &("THE GRID TYPE DIMENSION KB DOES NOT MATCH THE FILE DIMENSION:"//TRIM(NCF%FNAME))
     END IF
-    
-    
+
+
     !SIGLAY/ZZ
     DIM1 => FIND_DIM(NCF,"siglay",FOUND)
     IF(.not. FOUND) CALL FATAL_ERROR&
          &("COULD NOT FIND DIMENSION 'siglay' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-    
+
     G%KBM1 = DIM1%DIM
     IF(G%KBM1 /= G%KB -1) CALL FATAL_ERROR&
          &("KB and KBM1 DO NOT MATCH IN THE FILE:"//TRIM(NCF%FNAME))
-    
+
     G%KBM2 = G%KB - 2
-    
+
 
     IF(.NOT. IOPROC)THEN
-       
+
        ! READ THE GRID DATA
        ALLOCATE(G%NV(0:G%NGL,4),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%NV WHILE READING:"//TRIM(NCF%FNAME))
        G%nv=0
-       
+
        VAR => FIND_VAR(NCF,'nv',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'nv' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        VAR%ARR_INT => G%nv(1:G%NGL,1:3)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
+
        G%NV(:,4)=G%NV(:,1)
-       
-       
+
+
        ! READ THE COORDINATES
        ! X - meters
        ALLOCATE(G%XM(0:G%MT),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%XM WHILE READING:"//TRIM(NCF%FNAME))
        G%XM=0.0_SP
-       
+
        VAR => FIND_VAR(NCF,'x',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'x' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        CALL NC_CONNECT_PVAR(VAR,G%XM)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
+
        ! Y - meters
        ALLOCATE(G%YM(0:G%MT),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%YM WHILE READING:"//TRIM(NCF%FNAME))
        G%YM=0.0_SP
-       
+
        VAR => FIND_VAR(NCF,'y',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'y' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        CALL NC_CONNECT_PVAR(VAR,G%YM)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
+
        ! X element - meters
        ALLOCATE(G%XMC(0:G%NT),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%XMC WHILE READING:"//TRIM(NCF%FNAME))
        G%XMC=0.0_SP
-       
+
        VAR => FIND_VAR(NCF,'xc',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'xc' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        CALL NC_CONNECT_PVAR(VAR,G%XMC)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
+
        ! Y element - meters
        ALLOCATE(G%YMC(0:G%NT),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%YMC WHILE READING:"//TRIM(NCF%FNAME))
@@ -2408,100 +2407,100 @@ CONTAINS
        VAR => FIND_VAR(NCF,'yc',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'yc' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        CALL NC_CONNECT_PVAR(VAR,G%YMC)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
-       
+
+
        ! Longitude
        ALLOCATE(G%LON(0:G%MT),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%LON WHILE READING:"//TRIM(NCF%FNAME))
        G%LON=0.0_SP
-       
+
        VAR => FIND_VAR(NCF,'lon',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'lon' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        CALL NC_CONNECT_PVAR(VAR,G%LON)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
+
        ! Latitude
        ALLOCATE(G%LAT(0:G%MT),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%LAT WHILE READING:"//TRIM(NCF%FNAME))
        G%LAT=0.0_SP
-       
+
        VAR => FIND_VAR(NCF,'lat',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'lat' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        CALL NC_CONNECT_PVAR(VAR,G%LAT)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
+
        ! Longitude - element
        ALLOCATE(G%LONC(0:G%NT),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%LONC WHILE READING:"//TRIM(NCF%FNAME))
        G%LONC=0.0_SP
-       
+
        VAR => FIND_VAR(NCF,'lonc',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'lonc' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        CALL NC_CONNECT_PVAR(VAR,G%LONC)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
+
        ! Latitude - element
        ALLOCATE(G%LATC(0:G%NT),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%LATC WHILE READING:"//TRIM(NCF%FNAME))
        G%LATC=0.0_SP
-       
+
        VAR => FIND_VAR(NCF,'latc',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'latc' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        CALL NC_CONNECT_PVAR(VAR,G%LATC)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
-       
+
+
        ! h
        ALLOCATE(G%H(0:G%MT),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%H WHILE READING:"//TRIM(NCF%FNAME))
        G%H=0.0_SP
-       
+
        VAR => FIND_VAR(NCF,'h',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'h' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        CALL NC_CONNECT_PVAR(VAR,G%H)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
+
        ! h1
        ALLOCATE(G%H1(0:G%NT),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%H1 WHILE READING:"//TRIM(NCF%FNAME))
        G%H1=0.0_SP
-       
+
        VAR => FIND_VAR(NCF,'h_center',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'h_center' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        CALL NC_CONNECT_PVAR(VAR,G%H1)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
+
        ! zz
        ALLOCATE(G%ZZ(0:G%MT,G%KBM1),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%ZZ WHILE READING:"//TRIM(NCF%FNAME))
        G%ZZ=0.0_SP
-       
+
        VAR => FIND_VAR(NCF,'siglay',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'siglay' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        CALL NC_CONNECT_PVAR(VAR,G%ZZ)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
@@ -2520,24 +2519,24 @@ CONTAINS
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
        !<--- Added by Dr. Lai 2021-01-15
-       
+
        ! zz1
        ALLOCATE(G%ZZ1(0:G%NT,G%KBM1),stat=status)
        IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE G%ZZ1 WHILE READING:"//TRIM(NCF%FNAME))
        G%ZZ1=0.0_SP
-       
+
        VAR => FIND_VAR(NCF,'siglay_center',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR&
             &("COULD NOT FIND VARIABLE 'siglay_center' IN THE FILE OBJECT:"//TRIM(NCF%FNAME))
-       
+
        CALL NC_CONNECT_PVAR(VAR,G%ZZ1)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
+
     END IF
-       
-       
-    
+
+
+
   END SUBROUTINE LOAD_GRID_TYPE
 
 
@@ -2546,52 +2545,52 @@ CONTAINS
     USE CONTROL
     IMPLICIT NONE
     INTEGER, ALLOCATABLE, TARGET, INTENT(OUT) :: NVG(:,:)
-    
+
     TYPE(NCVAR),  POINTER :: VAR
     TYPE(NCDIM),  POINTER :: DIM1
     TYPE(NCDIM),  POINTER :: DIM2
     integer status,I,IERR
-    
+
     LOGICAL FOUND
-    
+
     !==============================================================================|
-    
-    
+
+
     ! FIND THE RESTART FILE OBJECT
-    
-    
+
+
     ! GET GLOBAL DIMENSION!
     DIM1 => FIND_DIM(NC_START,"node",FOUND)
     IF(.not. FOUND) CALL FATAL_ERROR("COULD NOT FIND DIMENSION NODE&
          & IN THE HOTSTART FILE OBJECT")
-    
+
     MGL = DIM1%DIM
-    
+
     DIM1 => FIND_DIM(NC_START,"nele",FOUND)
     IF(.not. FOUND) CALL FATAL_ERROR("COULD NOT FIND DIMENSION NODE&
          & IN THE HOTSTART FILE OBJECT")
-    
+
     NGL= DIM1%DIM
-    
+
     ! CHECK TO MAKE SURE DIMENSION THREE IS THERE
     DIM1 => FIND_DIM(NC_START,"three",FOUND)
     IF(.not. FOUND) CALL FATAL_ERROR("COULD NOT FIND DIMENSION NODE&
          & IN THE HOTSTART FILE OBJECT")
-    
+
     DIM1 => FIND_DIM(NC_START,"siglev",FOUND)
     IF(.not. FOUND) CALL FATAL_ERROR("COULD NOT FIND DIMENSION SIGLEV&
          & IN THE HOTSTART FILE OBJECT")
-    
+
     KB = DIM1%DIM
 
     DIM1 => FIND_DIM(NC_START,"siglay",FOUND)
     IF(.not. FOUND) CALL FATAL_ERROR("COULD NOT FIND DIMENSION SIGLEV&
          & IN THE HOTSTART FILE OBJECT")
-    
+
     KBM1 = DIM1%DIM
 
     KBM2 = KB - 2
-    
+
 
     ALLOCATE(NVG(0:NGL,4),stat=status)
     IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE YG_GRD")
@@ -2606,9 +2605,9 @@ CONTAINS
 
     CALL NC_READ_VAR(VAR)
     CALL NC_DISCONNECT(VAR)
-    
+
     NVG(:,4)=NVG(:,1)
-    
+
     if(DBG_SET(dbg_log)) then
        WRITE(IPT,*)'!  Finished Reading Grid from HOTSTART'
        WRITE(IPT,*)'!  # OF NODES            :',MGL
@@ -2616,7 +2615,7 @@ CONTAINS
        WRITE(IPT,*)'!  # OF LEVELS           :',KB
        WRITE(IPT,*)'!'
     end if
-    
+
   END SUBROUTINE LOAD_RESTART_GRID
 
 
@@ -2637,8 +2636,8 @@ CONTAINS
       end if
       RETURN
    END IF
-   
-   
+
+
    DIM => FIND_DIM(NC_START,"nobc",FOUND)
    IF(.not. FOUND) CALL FATAL_ERROR("COULD NOT FIND DIMENSION 'nobc'&
          & IN THE HOTSTART FILE OBJECT")
@@ -2735,7 +2734,7 @@ CONTAINS
 
  END SUBROUTINE LOAD_RESTART_LSF_GRID
 
-  
+
   SUBROUTINE LOAD_RESTART_COORDS(X_LCL,Y_LCL)
     USE CONTROL
     IMPLICIT NONE
@@ -2747,7 +2746,7 @@ CONTAINS
 
     ! NEED LOGIC TO DECIDE WHICH TO LOAD LAT/LON or X/Y
     SELECT CASE(GRID_FILE_UNITS)
-    
+
     CASE('meters')
        ! CONNECT THE VARIABLE OBJECTS AND LOAD THE DATA
        VAR => FIND_VAR(NC_START,'x',FOUND)
@@ -2756,8 +2755,8 @@ CONTAINS
        CALL NC_CONNECT_AVAR(VAR, X_LCL)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-    
-       
+
+
        VAR => FIND_VAR(NC_START,'y',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR("COULD NOT FIND VARIABLE 'y'&
             & IN THE HOTSTART FILE OBJECT")
@@ -2773,22 +2772,22 @@ CONTAINS
        CALL NC_CONNECT_AVAR(VAR, X_LCL)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
-       
-       
+
+
        VAR => FIND_VAR(NC_START,'lat',FOUND)
        IF(.not. FOUND) CALL FATAL_ERROR("COULD NOT FIND VARIABLE 'lat'&
             & IN THE HOTSTART FILE OBJECT")
-       
+
        CALL NC_CONNECT_AVAR(VAR, Y_LCL)
        CALL NC_READ_VAR(VAR)
        CALL NC_DISCONNECT(VAR)
 
     CASE DEFAULT
-       
+
        CALL FATAL_ERROR("UNKNOWN GRID_FILE_UNITS: "//TRIM(GRID_FILE_UNITS))
-       
+
     END SELECT
-    
+
   END SUBROUTINE LOAD_RESTART_COORDS
 
 
@@ -2868,34 +2867,34 @@ CONTAINS
     IMPLICIT NONE
     INTEGER, ALLOCATABLE, INTENT(OUT) :: NVG(:,:)
     integer :: status,I,IERR, SENDER, nvals
-    
+
     IF(MSR) THEN
        CALL READ_COLDSTART_GRID(GRIDUNIT,MGL,NGL,NVG)
        ! DO NOT CLOSE THE GRID FILE HERE
        ! READ THE COORDS FIRST
     END IF
-    
+
     ! BROADCAST TO OTHER PROCS
     IF(PAR) THEN
-#  if defined (MULTIPROCESSOR) 
-       
+#  if defined (MULTIPROCESSOR)
+
        SENDER = 0 ! SEND FROM MASTER
        CALL MPI_BCAST(MGL,1,MPI_INTEGER,SENDER,MPI_COMM_FVCOM,IERR)
        CALL MPI_BCAST(NGL,1,MPI_INTEGER,SENDER,MPI_COMM_FVCOM,IERR)
-       
+
        if(.not. MSR) then
           ALLOCATE(NVG(0:NGL,4),STAT=STATUS)
           IF (STATUS /=0 ) CALL FATAL_ERROR("COULD NOT ALLOCATE CONNECTIVITY")
           NVG = 0
        end if
-       
+
        nvals= (NGL+1)*4
        CALL MPI_BCAST(NVG,nvals,MPI_INTEGER,SENDER,MPI_COMM_FVCOM,IERR)
 # endif
     END IF
-    
+
   END SUBROUTINE LOAD_COLDSTART_GRID
-  
+
 
   SUBROUTINE LOAD_COLDSTART_OBC_GRID(IOBCN_GL,I_OBC_GL, TYPE_OBC_GL)
     USE CONTROL
@@ -2911,7 +2910,7 @@ CONTAINS
        end if
        RETURN
     END IF
-    
+
     IF(MSR) THEN
        CALL READ_COLDSTART_OBC_GRID(OBCUNIT,MGL,IOBCN_GL,I_OBC_GL, TYPE_OBC_GL)
        CLOSE(OBCUNIT)
@@ -2921,21 +2920,21 @@ CONTAINS
 # if defined (MULTIPROCESSOR)
        SENDER = MSRID -1 ! SEND FROM MASTER
        CALL MPI_BCAST(IOBCN_GL,1,MPI_INTEGER,SENDER,MPI_COMM_FVCOM,IERR)
-       
+
        IF(IOBCN_GL == 0) RETURN
-       
+
        IF(.NOT. MSR)THEN
           ALLOCATE(I_OBC_GL(IOBCN_GL))
           ALLOCATE(TYPE_OBC_GL(IOBCN_GL))
        END IF
-       
+
        CALL MPI_BCAST(I_OBC_GL,IOBCN_GL,MPI_INTEGER,SENDER,MPI_COMM_FVCOM,IERR)
-       CALL MPI_BCAST(TYPE_OBC_GL,IOBCN_GL,MPI_INTEGER,SENDER,MPI_COMM_FVCOM,IERR)    
+       CALL MPI_BCAST(TYPE_OBC_GL,IOBCN_GL,MPI_INTEGER,SENDER,MPI_COMM_FVCOM,IERR)
 # endif
     END IF
-    
+
   END SUBROUTINE LOAD_COLDSTART_OBC_GRID
-  
+
     SUBROUTINE LOAD_COLDSTART_LSF(N_GL,I_GL, GEO_GL,WDF_GL)
     USE CONTROL
     IMPLICIT NONE
@@ -2951,7 +2950,7 @@ CONTAINS
        end if
        RETURN
     END IF
-    
+
     IF(MSR) THEN
        CALL READ_COLDSTART_LSF(LSFUNIT,N_GL,I_GL, GEO_GL,WDF_GL)
        CLOSE(OBCUNIT)
@@ -2961,21 +2960,21 @@ CONTAINS
 # if defined (MULTIPROCESSOR)
        SENDER = MSRID -1 ! SEND FROM MASTER
        CALL MPI_BCAST(N_GL,1,MPI_INTEGER,SENDER,MPI_COMM_FVCOM,IERR)
-       
+
        IF(N_GL == 0) RETURN
-       
+
        IF(.NOT. MSR)THEN
           ALLOCATE(I_GL(N_GL))
           ALLOCATE(WDF_GL(N_GL))
           ALLOCATE(GEO_GL(N_GL))
        END IF
-       
+
        CALL MPI_BCAST(I_GL,N_GL,MPI_INTEGER,SENDER,MPI_COMM_FVCOM,IERR)
-       CALL MPI_BCAST(GEO_GL,N_GL,MPI_F,SENDER,MPI_COMM_FVCOM,IERR)    
-       CALL MPI_BCAST(WDF_GL,N_GL,MPI_F,SENDER,MPI_COMM_FVCOM,IERR)    
+       CALL MPI_BCAST(GEO_GL,N_GL,MPI_F,SENDER,MPI_COMM_FVCOM,IERR)
+       CALL MPI_BCAST(WDF_GL,N_GL,MPI_F,SENDER,MPI_COMM_FVCOM,IERR)
 # endif
     END IF
-    
+
   END SUBROUTINE LOAD_COLDSTART_LSF
 
 
@@ -2995,12 +2994,12 @@ CONTAINS
     IF (SERIAL) THEN
        X_LCL = X_GBL
        Y_LCL = Y_GBL
-       
+
     ! BROADCAST TO OTHER PROCS
     ELSE
-#  if defined (MULTIPROCESSOR) 
-       
-       ! DEAL GLOBAL COORDINATES TO LOCAL PROCESSORS 
+#  if defined (MULTIPROCESSOR)
+
+       ! DEAL GLOBAL COORDINATES TO LOCAL PROCESSORS
        SENDID=MSRID
        CALL ADEAL(MYID,SENDID,NPROCS,NXMAP,X_GBL,X_LCL)
        CALL ADEAL(MYID,SENDID,NPROCS,NXMAP,Y_GBL,Y_LCL)
@@ -3028,8 +3027,8 @@ CONTAINS
        CLOSE(DEPTHUNIT)
     END IF
 
-# if defined (MULTIPROCESSOR) 
-    IF(PAR)THEN 
+# if defined (MULTIPROCESSOR)
+    IF(PAR)THEN
       IF(.NOT.ALLOCATED(HG))  ALLOCATE(HG(0:MGL))
       SENDER = MSRID - 1
       CALL MPI_BCAST(HG,MGL,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
@@ -3039,14 +3038,14 @@ CONTAINS
 
    IF (SERIAL) THEN
       H_LCL(0:MGL) = HG(0:MGL)
-      
+
    ELSE
 #  if defined (MULTIPROCESSOR)
       SENDID=MSRID
       CALL ADEAL(MYID,SENDID,NPROCS,NXMAP,HG,H_LCL)
 #  endif
     END IF
-    
+
 !    IF(MSR) DEALLOCATE(HG)
 
   END SUBROUTINE LOAD_COLDSTART_DEPTH
@@ -3058,16 +3057,16 @@ CONTAINS
     REAL(SP), ALLOCATABLE             :: C_LCL(:)
     REAL(SP), ALLOCATABLE, INTENT(IN) :: X_GBL(:),Y_GBL(:)
     REAL(SP), ALLOCATABLE :: C_GBL(:)
-    
+
     ! WE ONLY USE A CORIOLIS FILE IF THE GRID FILE UNITS ARE METERS
     IF (MSR) THEN
        ALLOCATE(C_GBL(0:MGL)); C_GBL= 0.0_SP
-       
+
        IF (GRID_FILE_UNITS == 'degrees') THEN
           C_GBL = Y_GBL
-          
+
        ELSE IF (GRID_FILE_UNITS == 'meters') THEN
-          
+
           CALL READ_COLDSTART_CORIOLIS(CORIOLISUNIT,MGL,X_GBL,Y_GBL,C_GBL)
           CLOSE (CORIOLISUNIT)
        END IF
@@ -3075,16 +3074,16 @@ CONTAINS
 
     IF (SERIAL) THEN
        C_LCL(0:MT) = C_GBL(0:MT)
-       
+
     ELSE
 #  if defined (MULTIPROCESSOR)
        SENDID=MSRID
        CALL ADEAL(MYID,SENDID,NPROCS,NXMAP,C_GBL,C_LCL)
 #  endif
     END IF
-    
+
     IF(MSR) DEALLOCATE(C_GBL)
-    
+
   END SUBROUTINE LOAD_COLDSTART_CORIOLIS
 
   SUBROUTINE LOAD_COLDSTART_SPONGE(X_GBL,Y_GBL,NSPONGE,N_SPG,R_SPG,C_SPG,X_SPG,Y_SPG)
@@ -3108,14 +3107,14 @@ CONTAINS
        CALL MPI_BCAST(NSPONGE,1,MPI_INTEGER,SENDER,MPI_FVCOM_GROUP,IERR)
     END IF
 # endif
-    
+
     IF(NSPONGE == 0) RETURN
-    
-    ALLOCATE(X_SPG(NSPONGE)); X_SPG = 0.0 
-    ALLOCATE(Y_SPG(NSPONGE)); Y_SPG = 0.0 
+
+    ALLOCATE(X_SPG(NSPONGE)); X_SPG = 0.0
+    ALLOCATE(Y_SPG(NSPONGE)); Y_SPG = 0.0
 
     IF(MSR) THEN
-       X_SPG= X_GBL(N_SPG) 
+       X_SPG= X_GBL(N_SPG)
        Y_SPG= Y_GBL(N_SPG)
     END IF
 
@@ -3124,11 +3123,11 @@ CONTAINS
     IF(PAR)THEN
 
        IF(.NOT. MSR)THEN
-          ALLOCATE(R_SPG(NSPONGE)); R_SPG = 0.0 
+          ALLOCATE(R_SPG(NSPONGE)); R_SPG = 0.0
           ALLOCATE(C_SPG(NSPONGE)); C_SPG = 0.0
-          ALLOCATE(N_SPG(NSPONGE)); N_SPG = 0 
+          ALLOCATE(N_SPG(NSPONGE)); N_SPG = 0
        END IF
-       
+
        SENDER = 0 ! SEND FROM MASTER
        CALL MPI_BCAST(X_SPG,NSPONGE,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
        CALL MPI_BCAST(Y_SPG,NSPONGE,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
@@ -3140,7 +3139,7 @@ CONTAINS
 
     END IF
 # endif
-    
+
   END SUBROUTINE LOAD_COLDSTART_SPONGE
 
   SUBROUTINE LOAD_COLDSTART_SIGMA
@@ -3169,17 +3168,15 @@ CONTAINS
 
        ! SELECT CASE BASED ON SIGMA COORDINATE TYPE
        select case(TRIM(STYPE))
-          
+
        case(STYPE_UNIFORM)
 
           CALL MPI_BCAST(P_SIGMA,1,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
-!JQI NOV2021
-          CALL MPI_BCAST(P_SIGMA_DISTRIBUTION,1,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
-!JQI NOV2021
 
        case(STYPE_GEOMETRIC)
 
           CALL MPI_BCAST(P_SIGMA,1,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
+
        case(STYPE_TANH)
 
           CALL MPI_BCAST(DL2,1,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
@@ -3194,7 +3191,7 @@ CONTAINS
 
           CALL MPI_BCAST(KU,1,MPI_INTEGER,SENDER,MPI_FVCOM_GROUP,IERR)
           CALL MPI_BCAST(KL,1,MPI_INTEGER,SENDER,MPI_FVCOM_GROUP,IERR)
-          
+
           IF (.NOT. MSR) THEN
              IF(KU>0) THEN
                 ALLOCATE(ZKU(KU),stat=status)
@@ -3207,7 +3204,7 @@ CONTAINS
                 ZKL=0.0_SP
              END IF
           END IF
-             
+
           IF(KU>0) CALL MPI_BCAST(ZKU,KU,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
           IF(KL>0) CALL MPI_BCAST(ZKL,KL,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
 
@@ -3222,7 +3219,7 @@ CONTAINS
     END IF
 # endif
 
-    KBM1 = KB -1 
+    KBM1 = KB -1
     KBM2 = KB -2
 
 
@@ -3257,11 +3254,11 @@ CONTAINS
        CALL READ_JULIAN_OBC(JULOBCUNIT,NTC,NAMES,PRD,EQ_AMP,EQ_BETA&
             &,EQ_TYPE,MPTD,PHS,RF,TORG)
        CLOSE(JULOBCUNIT)
-       
+
        IF(OBC_ELEVATION_FORCING_ON .and. SIZE(RF) /= IOBCN_GL) CALL FATAL_ERROR&
             &("LOAD_JULIAN_OBC: THE NUMBER OF  OBC NODES DOES NOT MATCH",&
             & "THE NON JULIAN ASCII FORCING FILE")
-       
+
     END IF
 
 
@@ -3272,66 +3269,66 @@ CONTAINS
           CALL READ_JULIAN_OBC(JULOBCUNIT,NTC,NAMES,PRD,EQ_AMP,EQ_BETA&
                &,EQ_TYPE,MPTD_GL,PHS_GL,RF_GL,TORG)
           CLOSE(JULOBCUNIT)
-          
+
           IF(OBC_ELEVATION_FORCING_ON .and. SIZE(RF_GL) /= IOBCN_GL) CALL FATAL_ERROR&
                &("LOAD_JULIAN_OBC: THE NUMBER OF  OBC NODES DOES NOT MATCH",&
                & "THE NON JULIAN ASCII FORCING FILE")
-          
+
        END IF
 
        ! SEND THE COMPONENT DATA
 
        SENDER = MSRID-1 ! SEND FROM MASTER
        CALL MPI_BCAST(NTC,1,MPI_INTEGER,SENDER,MPI_FVCOM_GROUP,IERR)
-       
+
        IF(.NOT. MSR) THEN
           ALLOCATE(PRD(NTC))
           ALLOCATE(NAMES(NTC))
-          
+
        END IF
 
        ! PERIOD
        CALL MPI_BCAST(PRD,NTC,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
-       
+
        ! NAMES
        DO I = 1, NTC
           CHAR_LEN = LEN_TRIM(NAMES(I))
           CALL MPI_BCAST(CHAR_LEN,1,MPI_INTEGER,SENDER,MPI_FVCOM_GROUP,IERR)
-          
+
           CALL MPI_BCAST(NAMES(I)(1:CHAR_LEN),CHAR_LEN,MPI_CHARACTER,SENDER,MPI_FVCOM_GROUP,IERR)
 
        END DO
-       
+
        ! TIME ORIGIN
        CALL MPI_BCAST(TORG,1,MPI_TIME,SENDER,MPI_FVCOM_GROUP,IERR)
 
-       
+
 # if !defined (EQUI_TIDE)
-       
+
        IF(.NOT. MSR)THEN
           ALLOCATE(EQ_AMP(0))
           ALLOCATE(EQ_BETA(0))
           ALLOCATE(EQ_TYPE(0))
        END IF
 # else
-       ! SEMD THE EQUILIBRIUM TIDE DATA  
+       ! SEMD THE EQUILIBRIUM TIDE DATA
        IF(.NOT. MSR)THEN
           ALLOCATE(EQ_AMP(NTC)); EQ_AMP= 0.0_SP
           ALLOCATE(EQ_BETA(NTC)); EQ_BETA= 0.0_SP
           ALLOCATE(EQ_TYPE(NTC)); EQ_TYPE= ""
        END IF
-       
+
        ! EQ_AMP
        CALL MPI_BCAST(EQ_AMP,NTC,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
-       
+
        ! EQ_BETA
        CALL MPI_BCAST(EQ_BETA,NTC,MPI_F,SENDER,MPI_FVCOM_GROUP,IERR)
-       
+
        ! NAMES
        DO I = 1, NTC
           CHAR_LEN = LEN_TRIM(EQ_TYPE(I))
           CALL MPI_BCAST(CHAR_LEN,1,MPI_INTEGER,SENDER,MPI_FVCOM_GROUP,IERR)
-          
+
           CALL MPI_BCAST(EQ_TYPE(I)(1:CHAR_LEN),CHAR_LEN,MPI_CHARACTER,SENDER,MPI_FVCOM_GROUP,IERR)
        END DO
 
@@ -3341,16 +3338,16 @@ CONTAINS
        IF(.not. OBC_ELEVATION_FORCING_ON) THEN
           RETURN
        END IF
-       
+
 
        ! ALLOCATE THE LOCAL ARRAY
-    
+
        ALLOCATE(MPTD(IOBCN,NTC)); MPTD= 0.0_SP
        ALLOCATE(PHS(IOBCN,NTC)); PHS= 0.0_SP
        ALLOCATE(RF(IOBCN)); RF= 0.0_SP
-    
-       ! SEND THE OBC DATA      
-   
+
+       ! SEND THE OBC DATA
+
        ! AMPLITUDE
        CALL ADEAL(MYID,MSRID,NPROCS,BCMAP,MPTD_GL,MPTD)
 
@@ -3364,7 +3361,7 @@ CONTAINS
     END IF
 # endif
 
-    
+
   END SUBROUTINE LOAD_JULIAN_OBC
 
 
@@ -3411,11 +3408,11 @@ CONTAINS
             & 'The header must contain: "Tidal Component Number = "', &
             & 'Followed by an integer number')
     END IF
-    
+
 
     if(DBG_SET(DBG_IO)) write(IPT,*) "Tidal Component Number", NTC
 
- 
+
 # if !defined (EQUI_TIDE)
     ALLOCATE(PRD(NTC))
     ALLOCATE(NAMES(NTC))
@@ -3443,15 +3440,15 @@ CONTAINS
                & 'The header must contain: "'//TRIM(COMPN)//' = "', &
                & 'Followed by: Name,Period,Eq. Amp.*, Eq. Beta*, Type*')
        END IF
-       
+
        CALL SPLIT_STRING(line," ",item)
 
 # if !defined (EQUI_TIDE)
        IF(SIZE(ITEM) >= 2) THEN
-          
+
           ! GET THE NAME OF THE COMPONENT
           Names(I) = TRIM(item(1))
-          
+
           ! GET THE PERIOD OF THE COMPONENT
           PRD(I) = READ_FLOAT(item(2), IOS)
           ! -------- new: Karsten Lettmann, 2016, march -------
@@ -3474,7 +3471,7 @@ CONTAINS
 
           ! GET THE NAME OF THE COMPONENT
           Names(I) = TRIM(item(1))
-          
+
           ! GET THE PERIOD OF THE COMPONENT
           PRD(I) = READ_FLOAT(item(2), IOS)
           ! -------- new: Karsten Lettmann, 2016, march -------
@@ -3517,7 +3514,7 @@ CONTAINS
                &  "Line :"//TRIM(LINE),&
                &  "The Tidal Component section must conatin:",&
                &  "Component# = Name, Period, Equilibrium Amp, Eq. Beta, Eq. Type")
-          
+
        END IF
 # endif
 
@@ -3534,7 +3531,7 @@ CONTAINS
             & 'The header must contain: "Time Origin = "', &
             & 'Followed by a data or time')
     END IF
-    
+
     IF (USE_REAL_WORLD_TIME) THEN
 
        TORG = READ_DATETIME(LINE,DATE_FORMAT,TIMEZONE,IOS)
@@ -3588,9 +3585,9 @@ CONTAINS
             & 'The header must contain: "OBC Node Number = "', &
             & 'Followed by and integer number of boundary nodes')
     END IF
-    
+
     if(DBG_SET(DBG_IO)) write(IPT,*) "OBC NODE NUMBER =",MYOBC
-    
+
     ALLOCATE(MPTD(MYOBC,NTC))
     ALLOCATE(PHS(MYOBC,NTC))
     ALLOCATE(RFTMP(MYOBC,1))
@@ -3609,9 +3606,9 @@ CONTAINS
        READ(JULOBCUNIT_TEMP,*,IOSTAT=IOS) line
        if (IOS /= 0) CALL FATAL_ERROR&
             &("Could not read Non Julian Tidal Forcing file. no keyword: 'Amplitude'")
-       
+
        IF(Line == Line_amp) Exit
-       
+
     END DO
 
     CNT = 0
@@ -3649,9 +3646,9 @@ CONTAINS
        READ(JULOBCUNIT_TEMP,*,IOSTAT=IOS) line
        if (IOS /= 0) CALL FATAL_ERROR&
             &("Could not read Non Julian Tidal Forcing file. no keyword: 'Phase'")
-       
+
        IF(Line == Line_PHA) Exit
-       
+
     END DO
 
     CNT = 0
@@ -3689,9 +3686,9 @@ CONTAINS
        READ(JULOBCUNIT_TEMP,*,IOSTAT=IOS) line
        if (IOS /= 0) CALL FATAL_ERROR&
             &("Could not read Non Julian Tidal Forcing file. no keyword: 'Eref'")
-       
+
        IF(Line == Line_ref) Exit
-       
+
     END DO
 
     CNT = 0
@@ -3732,11 +3729,11 @@ CONTAINS
 
   SUBROUTINE Parse_tide(line,cnt,ntc,data,ierr)
     implicit none
-    
+
     CHARACTER(LEN=*) :: line
     Integer :: cnt, ntc, ierr
-    Real(sp), allocatable :: data(:,:) 
-    
+    Real(sp), allocatable :: data(:,:)
+
     CHARACTER(LEN=20), allocatable :: item(:) !Automatically deallocate on exit!
     CHARACTER(LEN=80) :: TEST
     INTEGER :: I, VAL, J
@@ -3750,7 +3747,7 @@ CONTAINS
 
     VAL = READ_INT(item(1),IERR)
     IF(IERR /= 0) RETURN
-       
+
 
     CNT = CNT + 1
 
@@ -3780,11 +3777,11 @@ CONTAINS
             &ne: "//TRIM(LINE))
 
     END DO
-    
-    
+
+
     ! SUCCESS
     IERR = 0
-    
+
   END SUBROUTINE Parse_tide
 
 
@@ -3808,7 +3805,7 @@ CONTAINS
             & 'Followed by an integer number of Nodes')
     END IF
     !----------------Determine Number of Elements -------------------------------!
-    
+
     ISCAN = SCAN_FILE(GRIDUNIT,"Cell Number",ISCAL = NGL)
     IF(ISCAN /= 0)then
        write(temp,'(I2)') ISCAN
@@ -3816,7 +3813,7 @@ CONTAINS
             &#'//trim(temp),&
             & 'The header must contain: "Cell Number = "', &
             & 'Followed by an integer number of Cells.')
-       
+
     END IF
 !----------------Read Connectivity Array----------------------------------!
 !
@@ -3831,11 +3828,11 @@ CONTAINS
        end if
 
        CYCLE
-       
+
 99 Call FATAL_ERROR('Improper formatting of GRID FILE:',&
            &'Reached end of file with out finding CONNECTIVITY data?',&
            &'FORMAT: CELL# NODE# NODE# NODE# (ALL INTEGERS)')
-          
+
     END DO
 
     ! READ IN CONNECTIVITY
@@ -3849,7 +3846,7 @@ CONTAINS
        READ(GRIDUNIT,*,IOSTAT=IOS)J,N1,N2,N3
        IF(IOS < 0) CALL FATAL_ERROR('ERROR READING GRID FILE CONNECTIV&
             &ITY LIST')
-       
+
 
        IF(J == 1 .AND. LM1 /= 1)THEN
           CellCount = LM1
@@ -3863,12 +3860,12 @@ CONTAINS
              EXIT
           ELSE
              CALL WARNING('Trouble reading grid file!')
-             
+
              EXIT
           END IF
        END IF
 
-       
+
        IF(I > NGL) CALL FATAL_ERROR &
             &('Number of rows of data in the grid file CONNECTIVITY data exceeds the stated number of Cells ?')
 
@@ -3877,7 +3874,7 @@ CONTAINS
        NVG(I,2)=N3
        NVG(I,3)=N2
        NVG(I,4)=N1
-       
+
 
        I = I + 1
        LM1 = J
@@ -3890,7 +3887,7 @@ CONTAINS
     if ( NODECOUNT .NE. MGL) &
          & CALL FATAL_ERROR('The number of nodes in the grid file CONNECTIVITY does not equal the stated number ?')
 
-    
+
    if(DBG_SET(dbg_log)) then
       WRITE(IPT,*)'!  Finished Reading Grid File'
       WRITE(IPT,*)'!  # OF NODES            :',MGL
@@ -3946,22 +3943,22 @@ CONTAINS
        end if
 
        CYCLE
-       
+
 99 Call FATAL_ERROR('Improper formatting of OBC FILE:',&
            &'Reached end of file with out finding OBC data?',&
            &'FORMAT: OBCNODE# GLNODE# TYPE# (ALL INTEGERS)')
-          
+
     END DO
     ALLOCATE(I_OBC_GL(IOBCN_GL))
     ALLOCATE(TYPE_OBC_GL(IOBCN_GL))
 
-    
+
     I = 0
     DO WHILE(.TRUE.)
 
        READ(OBCUNIT,*,IOSTAT=IOS) N1,N2,N3
        IF(IOS < 0) exit
-       
+
        I = I + 1
        IF(I > IOBCN_GL) CALL FATAL_ERROR('Number of rows of data in the OBC file &
             &exceeds the stated number of boundary nodes in the header ?')
@@ -3991,15 +3988,15 @@ CONTAINS
     if ( I .NE. IOBCN_GL) &
          & CALL FATAL_ERROR('The number of rows of data in the OBC file does&
          & not equal the number of nodes in the header?')
-   
+
 
    if(DBG_SET(dbg_log)) then
       WRITE(IPT,*)'!  Finished Reading OBC File'
       WRITE(IPT,*)'!  OBC NODES  =           :',IOBCN_GL
       WRITE(IPT,*)'!'
    end if
-   
-    
+
+
  END SUBROUTINE READ_COLDSTART_OBC_GRID
 
  SUBROUTINE READ_COLDSTART_LSF(LSFUNIT,N_GL,I_GL,GEO_GL,WDF_GL)
@@ -4049,23 +4046,23 @@ CONTAINS
        end if
 
        CYCLE
-       
+
 99 Call FATAL_ERROR('Improper formatting of LongShore Flow FILE:',&
            &'Reached end of file with out finding LSF data?',&
            &'FORMAT: LSFNODE# GLNODE# GEO WND (last two are real 0<=X<=1)')
-          
+
     END DO
     ALLOCATE(I_GL(N_GL))
     ALLOCATE(GEO_GL(N_GL))
     ALLOCATE(WDF_GL(N_GL))
 
-    
+
     I = 0
     DO WHILE(.TRUE.)
 
        READ(LSFUNIT,*,IOSTAT=IOS) N1,N2,R1,R2
        IF(IOS < 0) exit
-       
+
        I = I + 1
        IF(I > N_GL) CALL FATAL_ERROR('Number of rows of data in the LongShore Flow file &
             &exceeds the stated number of boundary nodes in the header ?')
@@ -4080,15 +4077,15 @@ CONTAINS
     if ( I .NE. N_GL) &
          & CALL FATAL_ERROR('The number of rows of data in the LONGSHORE FLOW file does&
          & not equal the number of nodes in the header?')
-   
+
 
    if(DBG_SET(dbg_log)) then
       WRITE(IPT,*)'!  Finished Reading LSF File'
       WRITE(IPT,*)'!  LSF NODES  =           :',N_GL
       WRITE(IPT,*)'!'
    end if
-   
-    
+
+
  END SUBROUTINE READ_COLDSTART_LSF
 
 
@@ -4111,14 +4108,14 @@ CONTAINS
     REAL(SP)               :: X_CW(3),Y_CW(3)
     INTEGER                :: IS_CW
     !==============================================================================|
-    
+
     ! DO NOT REWIND - SAVED LOCATION FROM READING CONNECTIVITY
     I =0
     DO WHILE (.TRUE.)
-       
+
        READ(GRIDUNIT,*,IOSTAT=IOS)J,X1,Y1
        IF(IOS<0) exit
-       
+
        I = I + 1
        IF(I > MGL) THEN
           write(ipt,*) "Read ", I, "; lines of coordiante data with out reaching EOF?"
@@ -4128,16 +4125,16 @@ CONTAINS
 #  if defined (SPHERICAL)
        IF(X1 < 0.0) X1 = X1 + 360.0_sp
 #  endif
-       
+
        XG2(I) = X1
        YG2(I) = Y1
     END DO
-    
+
     if( I .NE. MGL) THEN
-       write(ipt,*) "Read, ", I, "rows of data but mgl= ",mgl 
+       write(ipt,*) "Read, ", I, "rows of data but mgl= ",mgl
        CALL FATAL_ERROR('Number of rows of data in the grid file coordinates does not equal the stated number of nodes ?')
     END if
-    
+
     IF(MSR)THEN
       X_CW(1:3)=XG2(NVG(1,1:3))
       Y_CW(1:3)=YG2(NVG(1,1:3))
@@ -4152,10 +4149,10 @@ CONTAINS
       WRITE(IPT,*)'!  Max/Min(Y)  =          :',maxval(YG2(1:MGL)),minval(YG2(1:MGL))
       WRITE(IPT,*)'!'
    end if
-    
+
   END SUBROUTINE READ_COLDSTART_COORDS
-  
-  
+
+
   SUBROUTINE READ_COLDSTART_DEPTH(DEPTHUNIT,MGL,XG2,YG2,HG2)
 !    USE ALL_VARS !Jadon Ge
     IMPLICIT NONE
@@ -4172,7 +4169,7 @@ CONTAINS
     DIFFYMAX=0.0_SP
     !
     !----------------Determine Number of Nodes -------------------------------!
-    
+
     ISCAN = SCAN_FILE(DEPTHUNIT,"Node Number",ISCAL = NODECOUNT)
     IF(ISCAN /= 0) then
        write(temp,'(I2)') ISCAN
@@ -4201,11 +4198,11 @@ CONTAINS
        end if
 
        CYCLE
-       
+
 99 Call FATAL_ERROR('Improper formatting of DEPTH FILE:',&
            &'Reached end of file with out finding DEPTH data?',&
            &'FORMAT: X Y H (ALL REALS)')
-          
+
     END DO
 
     I = 0
@@ -4213,7 +4210,7 @@ CONTAINS
 
        READ(DEPTHUNIT,*,IOSTAT=IOS) X1,Y1,HDEP
        IF(IOS < 0) exit
-       
+
        I = I + 1
        IF(I > MGL) CALL FATAL_ERROR('Number of rows of data in the depth file &
             &exceeds the number of nodes ?')
@@ -4225,10 +4222,10 @@ CONTAINS
        ! THIS SHOULD SCREEN OUT MOST ROUNDOFF ERRORS
        IF (XG2(I) .NE. X1 .or. YG2(I) .NE. Y1) then
           test = .true.
-          
+
           DIFFXMAX=max(diffxmax,abs(XG2(I)-X1))
           DIFFYMAX=max(diffymax,abs(YG2(I)-Y1))
-          
+
 !!$  UNCOMMNET FOR STRICT MATCHING
 !!$             write(temp,'(I8)') I
 !!$             Call FATAL_ERROR('Grid Coordinates do not match between the&
@@ -4277,12 +4274,12 @@ CONTAINS
     Real(sp)             :: X1, Y1, C1,DiffxMax,DiffyMax
     logical              :: test
     !==============================================================================|
-    test=.false.  
+    test=.false.
     DIFFXMAX=0.0_SP
     DIFFYMAX=0.0_SP
     !
     !----------------Determine Number of Nodes -------------------------------!
-    
+
     ISCAN = SCAN_FILE(CORIOLISUNIT,"Node Number",ISCAL = NODECOUNT)
     IF(ISCAN /= 0) then
        write(temp,'(I2)') ISCAN
@@ -4321,7 +4318,7 @@ CONTAINS
 
        READ(CORIOLISUNIT,*,IOSTAT=IOS) X1,Y1,C1
        IF(IOS < 0) exit
-       
+
        I = I + 1
        IF(I > MGL) CALL FATAL_ERROR('Number of rows of data in the Coriolis file &
             &exceeds the number of nodes ?')
@@ -4337,7 +4334,7 @@ CONTAINS
           DIFFXMAX=max(diffxmax,abs(XG(I)-X1))
           DIFFYMAX=max(diffymax,abs(YG(I)-Y1))
 
-!!$  UNCOMMNET FOR STRICT MATCHING 
+!!$  UNCOMMNET FOR STRICT MATCHING
 !!$             write(temp,'(I8)') I
 !!$             Call FATAL_ERROR('Grid Coordinates do not match between the&
 !!$                  & grid file and the coriolis file','The bad value occurs&
@@ -4367,14 +4364,14 @@ CONTAINS
       WRITE(IPT,*)'!'
    end if
 
-    
+
  END SUBROUTINE READ_COLDSTART_CORIOLIS
- 
+
 
 
  SUBROUTINE READ_COLDSTART_SPONGE(SPONGEUNIT,MGL,NSPONGE, N_SPG,R_SPG,C_SPG)
     IMPLICIT NONE
-    REAL(SP), INTENT(OUT), ALLOCATABLE :: R_SPG(:),C_SPG(:) 
+    REAL(SP), INTENT(OUT), ALLOCATABLE :: R_SPG(:),C_SPG(:)
     INTEGER, INTENT(OUT), ALLOCATABLE  :: N_SPG(:)
     INTEGER, INTENT(IN)   :: SPONGEUNIT,MGL
     INTEGER, INTENT(OUT)  :: NSPONGE
@@ -4421,11 +4418,11 @@ CONTAINS
        end if
 
        CYCLE
-       
+
 99 Call FATAL_ERROR('Improper formatting of SPONGE FILE:',&
            &'Reached end of file with out finding sponge data?',&
            &'FORMAT: GLBNODE#  RADIUS SPGVAL (INT, REAL, REAL)')
-          
+
     END DO
 
     ALLOCATE(N_SPG(NSPONGE)); N_SPG = 0
@@ -4433,13 +4430,13 @@ CONTAINS
     ALLOCATE(C_SPG(NSPONGE)); C_SPG = 0.0
 
 
-    
+
     I = 0
     DO WHILE(.TRUE.)
 
        READ(SPONGEUNIT,*,IOSTAT=IOS) N1,R1,R2
        IF(IOS < 0) exit
-       
+
        I = I + 1
        IF(I > NSPONGE) CALL FATAL_ERROR('Number of rows of data in the SPONGE file &
             &exceeds the stated number in the header ?')
@@ -4468,7 +4465,7 @@ CONTAINS
    end if
 
 
-    
+
  END SUBROUTINE READ_COLDSTART_SPONGE
 
 
@@ -4480,7 +4477,7 @@ CONTAINS
     INTEGER              :: N1, N2, N3
 
     !==============================================================================|
-    
+
     ! Get data from Sigma file for the following variables - depends
     ! on coordinate type, some may not exist!
 
@@ -4509,14 +4506,8 @@ CONTAINS
     ! SELECT CASE BASED ON SIGMA COORDINATE TYPE
     select case(TRIM(STYPE))
 ! DEGENERATE CASE OF GEOMETRIC SIGMA COORDINATES - UNIFROM DISTRIBUTION
-    case(TRIM(STYPE_UNIFORM))  
+    case(TRIM(STYPE_UNIFORM))
        P_SIGMA = 1.0
-!JQI NOV2021
-       ISCAN = SCAN_FILE(SIGMAUNIT,"P_SIGMA_DISTRIBUTION",FSCAL = P_SIGMA_DISTRIBUTION)
-       IF(ISCAN /= 0) then
-         P_SIGMA_DISTRIBUTION = 1
-       END IF
-!JQI NOV2021
        if(DBG_SET(dbg_log)) then
           WRITE(IPT,*)'!  Finished Reading SIGMA File'
           WRITE(IPT,*)'!  SIGMA COORDINATE TYPE = : '//trim(STYPE)
@@ -4537,21 +4528,19 @@ CONTAINS
                & 'The header must conatain "SIGMA POWER"',&
                & 'Followed by a real value (1.0 is uniform sigma coordinates)')
        END IF
-       
+
+
        if(DBG_SET(dbg_log)) then
           WRITE(IPT,*)'!  Finished Reading SIGMA File'
           WRITE(IPT,*)'!  SIGMA COORDINATE TYPE = : '//trim(STYPE)
           WRITE(IPT,*)'!  P_SIGMA               = : ',P_SIGMA
-!JQI NOV2021
-          WRITE(IPT,*)'!  P_SIGMA_DISTRIBUTION  = : ',P_SIGMA_DISTRIBUTION
-!JQI NOV2021
           WRITE(IPT,*)'!  # OF SIGMA LEVELS(KB) = : ',KB
           WRITE(IPT,*)'!'
        end if
-              
+
 ! HYPERBOLIC TANGENT DISTRIBUTION OF SURFACE AND BOTTOM INTESIFIED LAYERS
     case(TRIM(STYPE_TANH))
-       
+
        ISCAN = SCAN_FILE(SIGMAUNIT,"DU",FSCAL = DU2)
        IF(ISCAN /= 0) then
           write(temp,'(I2)') ISCAN
@@ -4571,7 +4560,7 @@ CONTAINS
                & 'The header must conatain "DL"',&
                & 'Followed by a real value (See set_sigma.F')
        END IF
-       
+
        if(DBG_SET(dbg_log)) then
           WRITE(IPT,*)'!  Finished Reading SIGMA File'
           WRITE(IPT,*)'!  SIGMA COORDINATE TYPE = : '//trim(STYPE)
@@ -4635,7 +4624,7 @@ CONTAINS
        END IF
 
 !------------------------------------------------------------------------------|
-!     "ZKU"   !! 
+!     "ZKU"   !!
 !------------------------------------------------------------------------------|
    IF(KU .ge. 1 .and. KU .LE. 150)THEN
 
@@ -4649,24 +4638,24 @@ CONTAINS
              & 'The header must conatain "ZKU"',&
              & 'Followed by a real values (See set_sigma.F')
      END IF
-     
-     
+
+
      IF(N1 /= KU)THEN
         call fatal_error('Improper formatting of SIGMA FILE:',&
              & 'For GENERALIZED SIGMA COORDINATE TYPE', &
-             & 'THE NUMBER OF SPECIFIED DEPTHS IN ZKU IS NOT EQUAL TO KU') 
+             & 'THE NUMBER OF SPECIFIED DEPTHS IN ZKU IS NOT EQUAL TO KU')
      END IF
-     
+
 
 
   ELSE IF( KU .NE. 0) THEN
      call fatal_error('Improper formatting of SIGMA FILE:',&
           & 'For GENERALIZED SIGMA COORDINATE TYPE', &
-          & 'Requirement: 1<= KL <= 150;') 
-     
+          & 'Requirement: 1<= KL <= 150;')
+
   END IF
 !------------------------------------------------------------------------------|
-!     "ZKL"   !! 
+!     "ZKL"   !!
 !--------------------------------------------------------------------
    IF(KL .ge. 1 .and. KL .LE. 150)THEN
 
@@ -4680,23 +4669,23 @@ CONTAINS
              & 'The header must conatain "ZKL"',&
              & 'Followed by a real values (See set_sigma.F')
      END IF
-     
-     
+
+
      IF(N1 /= KL)THEN
         call fatal_error('Improper formatting of SIGMA FILE:',&
              & 'For GENERALIZED SIGMA COORDINATE TYPE', &
-             & 'THE NUMBER OF SPECIFIED DEPTHS IN ZKL IS NOT EQUAL TO KL') 
+             & 'THE NUMBER OF SPECIFIED DEPTHS IN ZKL IS NOT EQUAL TO KL')
      END IF
-     
+
   ELSE IF (KL .NE. 0) THEN
      call fatal_error('Improper formatting of SIGMA FILE:',&
           & 'For GENERALIZED SIGMA COORDINATE TYPE', &
-          & 'Requirement: 1<= KL <= 150;') 
-     
+          & 'Requirement: 1<= KL <= 150;')
+
   END IF
 
    ! END GET VARIABLES
-  
+
   if(DBG_SET(dbg_log)) then
      WRITE(IPT,*)'!  Finished Reading SIGMA File'
      WRITE(IPT,*)'!  SIGMA COORDINATE TYPE = : '//trim(STYPE)
@@ -4708,17 +4697,17 @@ CONTAINS
      WRITE(IPT,*)'!  KL                    = : ',KL
      WRITE(IPT,*)'!'
   end if
-  
-  
-  
+
+
+
 case default
    call fatal_error('Improper formatting of SIGMA FILE',&
         & 'Allowed SIGMA COORDINATE TYPEs are:',&
          & '"UNIFORM" or "GEOMETRIC" or "TANH" or "GENERALIZED"',&
          & 'See Set_Sigma.F for a description')
     end select
-    
-    
+
+
  END SUBROUTINE READ_COLDSTART_SIGMA
 
   SUBROUTINE HelpTxt(IPT)
@@ -4753,13 +4742,13 @@ case default
 
   !===================================================
   ! Subroutine to check if a triangle is clockwise.
-  ! Input  : x(3), the x-coordinate 
+  ! Input  : x(3), the x-coordinate
   !          y(3), the y-coordinate
   ! Output : is_cw, integer result. 1, clockwise
   !                                -1, anti-clockwise
   !                                 0, line
   ! Siqi Li, SMAST.
-  ! 
+  !
   !===================================================
     implicit none
     !
@@ -4798,9 +4787,9 @@ case default
   END SUBROUTINE IS_TRI_CW
 
   !===================================================
-  ! Function to calculate the power of a number in 
+  ! Function to calculate the power of a number in
   ! scientific notation
-  !           
+  !
   ! Siqi Li, SMAST.
   ! 2021-02-16
   !===================================================
@@ -4826,6 +4815,6 @@ case default
     END DO
 
 END FUNCTION power10
- 
+
 
 END MODULE MOD_INPUT

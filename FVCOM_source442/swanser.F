@@ -265,53 +265,25 @@
    LENTXT = LEN (TEXT)
    IF = 1
    FOUND = .FALSE.
-
-!JQIGOTO100 IF(IF <= LENTXT .AND. .NOT. FOUND)THEN
-!JQIGOTO     IF(.NOT. (TEXT(IF:IF) ==  ' ' .OR.                   &
-!JQIGOTO       ICHAR(TEXT(IF:IF)) == ITABVL))THEN
-!JQIGOTO       FOUND = .TRUE.
-!JQIGOTO     ELSE
-!JQIGOTO       IF = IF + 1
-!JQIGOTO     ENDIF
-!JQIGOTO     GOTO 100
-!JQIGOTO   ENDIF
-
-   IFLOOP: DO WHILE(.TRUE.)                             !JQIGOTO
-     IF(IF <= LENTXT .AND. .NOT. FOUND)THEN             !JQIGOTO
-       IF(.NOT. (TEXT(IF:IF) ==  ' ' .OR.         &     !JQIGOTO
-          ICHAR(TEXT(IF:IF)) == ITABVL))THEN            !JQIGOTO
-         FOUND = .TRUE.                                 !JQIGOTO
-       ELSE                                             !JQIGOTO
-         IF = IF + 1                                    !JQIGOTO
-       ENDIF                                            !JQIGOTO
-       CYCLE IFLOOP                                     !JQIGOTO
-     ENDIF                                              !JQIGOTO
-     EXIT IFLOOP                                        !JQIGOTO
-   END DO IFLOOP                                        !JQIGOTO
-   
+100 IF(IF <= LENTXT .AND. .NOT. FOUND)THEN
+     IF(.NOT. (TEXT(IF:IF) ==  ' ' .OR.                   &
+       ICHAR(TEXT(IF:IF)) == ITABVL))THEN
+       FOUND = .TRUE.
+     ELSE
+       IF = IF + 1
+     ENDIF
+     GOTO 100
+   ENDIF
    IL = LENTXT + 1
    FOUND = .FALSE.
-
-!JQIGOTO200 IF(IL > 1 .AND. .NOT. FOUND)THEN
-!JQIGOTO    IL = IL - 1
-!JQIGOTO     IF(.NOT. (TEXT(IL:IL) ==  ' ' .OR.           &
-!JQIGOTO       ICHAR(TEXT(IL:IL)) == ITABVL))THEN
-!JQIGOTO       FOUND = .TRUE.
-!JQIGOTO     ENDIF
-!JQIGOTO     GOTO 200
-!JQIGOTO   ENDIF
-
-   ILLOOP: DO WHILE(.TRUE.)                             !JQIGOTO
-     IF(IL > 1 .AND. .NOT. FOUND)THEN                   !JQIGOTO
-       IL = IL - 1                                      !JQIGOTO
-       IF(.NOT. (TEXT(IL:IL) ==  ' ' .OR.           &   !JQIGOTO
-          ICHAR(TEXT(IL:IL)) == ITABVL))THEN            !JQIGOTO
-         FOUND = .TRUE.                                 !JQIGOTO
-       ENDIF                                            !JQIGOTO
-       CYCLE ILLOOP                                     !JQIGOTO
-     ENDIF                                              !JQIGOTO
-     EXIT ILLOOP                                        !JQIGOTO
-   END DO ILLOOP                                        !JQIGOTO
+200 IF(IL > 1 .AND. .NOT. FOUND)THEN
+    IL = IL - 1
+     IF(.NOT. (TEXT(IL:IL) ==  ' ' .OR.                   &
+       ICHAR(TEXT(IL:IL)) == ITABVL))THEN
+       FOUND = .TRUE.
+     ENDIF
+     GOTO 200
+   ENDIF
 
    RETURN
    END SUBROUTINE TXPBLA
@@ -1064,10 +1036,7 @@
 !     compute spectral shape using peak period PKPER                      
 !
       FAC  = 1.
-!JQIGOTO 100  FPK  = (1./PKPER)                                                   
-      OUT: DO WHILE(.TRUE.)          !JQIGOTO
-      
-      FPK  = (1./PKPER)              !JQIGOTO                                                  
+ 100  FPK  = (1./PKPER)                                                   
       FPK4 = FPK**4
       IF(LSHAPE == 1)THEN
         SALPHA = ((SPPARM(1) ** 2) * (FPK4)) * 5. / 16.
@@ -1187,13 +1156,9 @@
         IF(ABS(MPER-SPPARM(2)) > 0.01*SPPARM(2))THEN
 !         modification suggested by Mauro Sclavo
           PKPER = (SPPARM(2) / MPER) * PKPER                              
-          CYCLE OUT                      !JQIGOTO
-!JQIGOTO          GOTO 100
+          GOTO 100
         ENDIF
       ENDIF
-      EXIT OUT                           !JQIGOTO
-      
-      END DO OUT                         !JQIGOTO
 !
       IF (ITPER >= 10)THEN
         CALL MSGERR(3, 'No convergence calculating the spectrum')         
@@ -1745,31 +1710,16 @@
            CETAIL = 1. / (PPTAIL * (1. + PPTAIL * (FRINTH-1.)))        
            PPTAIL = PWTAIL(1) - 1. - 2.                      
 !           PPTAIL = PWTAIL(1) - 1. - 2.*OUTPAR(3)                      
-           
-!JQIGOTO	   IF (PPTAIL.LE.0.) THEN
-!JQIGOTO             CALL MSGERR (2,'error tail computation')
-!JQIGOTO             GOTO 480
-!JQIGOTO           END IF
-!JQIGOTO           CKTAIL = 1. / (PPTAIL * (1. + PPTAIL * (FRINTH-1.)))        
-!JQIGOTO           DO ID=1,MDC
-!JQIGOTO             ETOT   = ETOT + CETAIL * SIG2 * AC2(ID,MSC,IG)             
-!JQIGOTO             EKTOT  = EKTOT + CKTAIL * SKK * AC2(ID,MSC,IG)             
-!JQIGOTO           END DO
-!JQIGOTO 480       CONTINUE
-
-	   IFLOOP: DO WHILE(.TRUE.)                                !JQIGOTO
-             IF (PPTAIL.LE.0.) THEN                                !JQIGOTO
-               CALL MSGERR (2,'error tail computation')            !JQIGOTO
-               EXIT IFLOOP                                         !JQIGOTO
-             END IF                                                !JQIGOTO
-             CKTAIL = 1. / (PPTAIL * (1. + PPTAIL * (FRINTH-1.)))  !JQIGOTO 
-             DO ID=1,MDC                                           !JQIGOTO
-               ETOT   = ETOT + CETAIL * SIG2 * AC2(ID,MSC,IG)      !JQIGOTO     
-               EKTOT  = EKTOT + CKTAIL * SKK * AC2(ID,MSC,IG)      !JQIGOTO     
-             END DO                                                !JQIGOTO
-	     EXIT IFLOOP                                           !JQIGOTO
-           END DO IFLOOP                                           !JQIGOTO
-
+           IF (PPTAIL.LE.0.) THEN
+             CALL MSGERR (2,'error tail computation')
+             GOTO 480
+           END IF
+           CKTAIL = 1. / (PPTAIL * (1. + PPTAIL * (FRINTH-1.)))        
+           DO ID=1,MDC
+             ETOT   = ETOT + CETAIL * SIG2 * AC2(ID,MSC,IG)             
+             EKTOT  = EKTOT + CKTAIL * SKK * AC2(ID,MSC,IG)             
+           END DO
+ 480       CONTINUE
          END IF
          IF (ETOT > 0.)THEN
 !           WLMEAN = PI2 * (ETOT / EKTOT) ** (1./OUTPAR(3))           
