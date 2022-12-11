@@ -1604,7 +1604,8 @@ MODULE MOD_ETKF
    CHARACTER(LEN=24) HEADINFO
    INTEGER STLTMP(ETKF_NOBSMAX)
    INTEGER LAY(ETKF_NOBSMAX)
-
+   INTEGER IERR
+   
    NUM     = 0 
    IDUMMY  = 0
    NLOC    = 0
@@ -1617,22 +1618,21 @@ MODULE MOD_ETKF
 
    IF(ICYC == ETKF_START/DELTA_ASS) SWITCH  = 0 
 
-100 READ(INOOB,*,END=200) HEADINFO
-    IF(SWITCH/=1) THEN
-      IF(HEADINFO=='!===READ') THEN
-        SWITCH = 1
-        GOTO 100
-      ELSE
-        GOTO 100
-      ENDIF
-    ENDIF 
-    IF(TRIM(HEADINFO)=='!STEP=') THEN
-      PNT = PNT + 1
-    ENDIF
-    IF(PNT==2) THEN
+   DO WHILE ( .TRUE. )
+     READ(INOOB,*,IOSTAT=ierr) HEADINFO
+     IF (IERR /=0) EXIT
+     IF (SWITCH /=1) THEN
+       IF(HEADINFO=='!===READ') SWITCH = 1
+       CYCLE  
+     ENDIF
+
+     IF(TRIM(HEADINFO)=='!STEP=') THEN
+       PNT = PNT + 1
+     ENDIF
+     IF(PNT==2) THEN
        BACKSPACE(INOOB)
-       GOTO 200
-    ELSE
+       EXIT 
+     ELSE
        IF(TRIM(HEADINFO)=='!EL') THEN
          IF(EL_OBS) THEN
            READ(INOOB,*) NUM
@@ -1644,10 +1644,9 @@ MODULE MOD_ETKF
            READ(INOOB,*) (STLTMP(K), K=1,NLOC) 
            READ(INOOB,*) (STTR(STLTMP(K)), K=1,NLOC)
            DO K=1, NLOC
-              STLOC(K) = STLTMP(K)     
-              WKTMP(STLOC(K)) = OBSERR_EL      ! VALUE SHOULD PUT TO RUN FILE 
+             STLOC(K) = STLTMP(K)     
+             WKTMP(STLOC(K)) = OBSERR_EL      ! VALUE SHOULD PUT TO RUN FILE 
            ENDDO 
-
          ENDIF
   
          IF(EL_ASSIM) THEN
@@ -1666,22 +1665,22 @@ MODULE MOD_ETKF
            READ(INOOB,*)  (STLTMP(K), K=NLOC-NUM+1,NLOC)
            READ(INOOB,*)  (LAY(K),    K=NLOC-NUM+1,NLOC)
            DO K=NLOC-NUM+1, NLOC
-              STLOC(K) = STLTMP(K) + IDUMMY + NGL*(LAY(K)-1)
+             STLOC(K) = STLTMP(K) + IDUMMY + NGL*(LAY(K)-1)
            ENDDO   
            DO K=NLOC-NUM+1, NLOC
-              WKTMP(STLOC(K)) = OBSERR_UV      ! VALUE SHOULD PUT TO RUN FILE
+             WKTMP(STLOC(K)) = OBSERR_UV      ! VALUE SHOULD PUT TO RUN FILE
            ENDDO 
   
            NLOC = NLOC + NUM
            DO K=NLOC-NUM+1, NLOC
-              STLOC(K) = STLTMP(K-NUM) + IDUMMY + NGL*KBM1 + NGL*(LAY(K-NUM)-1)
+             STLOC(K) = STLTMP(K-NUM) + IDUMMY + NGL*KBM1 + NGL*(LAY(K-NUM)-1)
            ENDDO
            DO K=NLOC-NUM+1, NLOC
-              WKTMP(STLOC(K)) = OBSERR_UV      ! VALUE SHOULD PUT TO RUN FILE
+             WKTMP(STLOC(K)) = OBSERR_UV      ! VALUE SHOULD PUT TO RUN FILE
            ENDDO          
            READ(INOOB,*) (STTR(STLOC(K)),STTR(STLOC(K+NUM)), K=NLOC-2*NUM+1,NLOC-NUM) 
-  
          ENDIF
+         
          IF(UV_ASSIM) THEN
            IDUMMY = IDUMMY + 2*NGL*KBM1
          ENDIF
@@ -1704,8 +1703,8 @@ MODULE MOD_ETKF
               WKTMP(STLOC(K)) = OBSERR_T      ! FIND THE NAME OF VARIABLE
            ENDDO 
            READ(INOOB,*) (STTR(STLOC(K)), K=NLOC-NUM+1,NLOC) 
-
          ENDIF   
+         
          IF(T_ASSIM) THEN
             IDUMMY = IDUMMY + MGL*KBM1
          ENDIF
@@ -1728,33 +1727,30 @@ MODULE MOD_ETKF
               WKTMP(STLOC(K)) = OBSERR_S      ! FIND THE NAME OF VARIABLE
            ENDDO 
            READ(INOOB,*) (STTR(STLOC(K)), K=NLOC-NUM+1,NLOC) 
-
          ENDIF
+         
          IF(S_ASSIM) THEN
             IDUMMY = IDUMMY + MGL*KBM1
          ENDIF
        ENDIF    
-    
-    ENDIF
-    
-    GOTO 100
-200 CONTINUE
+      ENDIF
+    ENDDO
 
     IF(NLOC==0) THEN 
-       WRITE(IPT,*) "!WARNING, NOT OBSERVATION DATA FOUND!"
-       CALL PSTOP
+      WRITE(IPT,*) "!WARNING, NOT OBSERVATION DATA FOUND!"
+      CALL PSTOP
     ELSE   
-       IF(NLOC>1) THEN
-         DO J=1, NLOC-1
-           DO K=J+1, NLOC
-             IF(STLOC(K)<STLOC(J)) THEN
-               TMP = STLOC(J)
-               STLOC(J) = STLOC(K)
-               STLOC(K) = TMP 
-             ENDIF
-           ENDDO
-         ENDDO
-       ENDIF
+      IF(NLOC>1) THEN
+        DO J=1, NLOC-1
+          DO K=J+1, NLOC
+            IF(STLOC(K)<STLOC(J)) THEN
+              TMP = STLOC(J)
+              STLOC(J) = STLOC(K)
+              STLOC(K) = TMP 
+            ENDIF
+          ENDDO
+        ENDDO
+      ENDIF
     ENDIF
 
     RETURN
@@ -1901,10 +1897,13 @@ MODULE MOD_ETKF
    DATA iset/0/
 
    if (iset.eq.0) then
-1     v1=2.*ran2(idum)-1.
+  rsq=2 !xing 20210604 remove goto
+  DO WHILE (rsq >=1. .or. rsq == 0.) !xing 20210604 remove goto
+     v1=2.*ran2(idum)-1.
       v2=2.*ran2(idum)-1.
       rsq=v1**2+v2**2
-      if(rsq.ge.1..or.rsq.eq.0.)goto 1
+  END DO  !xing 20210604 remove goto
+  !  if(rsq.ge.1..or.rsq.eq.0.)goto 1
          fac=sqrt(-2.*log(rsq)/rsq)
          gset=v1*fac
          gasdev=v2*fac
