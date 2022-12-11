@@ -562,6 +562,7 @@
           u(i,k)=0.0_SP
           v(i,k)=0.0_SP
           end if
+
           if(isbce(i).eq.1) then
           alpha1=alpha(i)
           if(numqbc.ge.1) then
@@ -576,7 +577,6 @@
                untmp=max(untmp,0.0_SP)
                u(i,k)=untmp*cos(angleq(j))-vntmp*sin(angleq(j))
                v(i,k)=untmp*sin(angleq(j))+vntmp*cos(angleq(j))
-
                cycle e5loop      !JQIGOTO
 !JQIGOTO                 goto 51
               end if
