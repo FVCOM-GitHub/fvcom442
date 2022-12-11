@@ -202,28 +202,26 @@
    SAVE IENT
    DATA  IENT/0/
    CALL STRACE (IENT,'NWLINE')
-5  IF((ELTYPE == 'USED').OR.(ELTYPE == 'EOR')) CALL LEESEL
-!   print*,'after calling LEESEL. ***********',ELTYPE
-   IF(ELTYPE == 'EOF') GOTO 90
-   IF(ELTYPE == 'KEY' .AND. KEYWRD /= '        ') GOTO 50
-   IF(ELTYPE == 'INT') GOTO 50
-   IF(ELTYPE == 'REAL') GOTO 50
-   IF(ELTYPE == 'CHAR') GOTO 50
-   IF(KARNR <= LINELN) GOTO 50                                        
-!  The end of the previous line is reached, there are no more
-!  unprocessed data items on that line.
-!  Jump to new line can take place.
-   WRITE (PRINTF,9) '    '
-9  FORMAT (A4)
-   KARNR=0
-   KAR=' '
-   ELTYPE='USED'
-   GOTO 5
-90 IF(ITEST >= 10)THEN
-     INQUIRE (UNIT=INPUTF, NAME=FILENM)                                
-     WRITE (PRINTF, *) ' end of input file '//FILENM                   
-   ENDIF
-50 RETURN
+
+   DO WHILE (.TRUE.)
+     IF((ELTYPE == 'USED').OR.(ELTYPE == 'EOR')) CALL LEESEL
+     IF(ELTYPE == 'EOF') THEN
+       IF(ITEST >= 10)THEN
+         INQUIRE (UNIT=INPUTF, NAME=FILENM)                                
+         WRITE (PRINTF, *) ' end of input file '//FILENM                   
+       ENDIF
+       EXIT
+     ELSEIF((ELTYPE == 'KEY' .AND. KEYWRD /= '        ') .OR. (ELTYPE == 'INT') .OR. (ELTYPE == 'REAL') &
+            .OR. (ELTYPE == 'CHAR') .OR. (KARNR <= LINELN)) THEN
+       EXIT
+     ENDIF
+     WRITE (PRINTF,9) '    '
+9    FORMAT (A4)
+     KARNR=0
+     KAR=' '
+     ELTYPE='USED'
+   ENDDO
+   RETURN
    END SUBROUTINE NWLINE
  
 !****************************************************************
@@ -305,6 +303,7 @@
 !     LENS   : length of default string (CSTA)
 !
    INTEGER   IENT, LENS
+   LOGICAL   runstate
 !
 !  8. SUBROUTINE USED
 !
@@ -324,57 +323,57 @@
 !
 !     if necessary, a new data item is read.
 !
-   IF(ELTYPE == 'KEY' .AND. KEYWRD == '        ') GOTO 510
-   IF(ELTYPE == 'KEY') GOTO 900
-   IF(ELTYPE == 'EOR') GOTO 510
-   IF(ELTYPE == 'USED') GOTO 510
-   GOTO 520
-510 CALL LEESEL
-520 IF(ELTYPE == 'KEY') GOTO 900
-!  KEYWORD IS READ
-   IF((KONT == 'STA').OR.(KONT == 'NSKP'))THEN
-     LENS = LEN(CSTA)
-     IF(LENS >= 8)THEN
-       KEYWRD = CSTA(1:8)
-     ELSE
-       KEYWRD = '        '
-       KEYWRD(1:LENS) = CSTA
+   runstate=.TRUE.
+   IF(ELTYPE == 'KEY' .AND. KEYWRD == '        ') THEN
+     CALL LEESEL
+   ELSEIF (ELTYPE == 'KEY') THEN
+     runstate= .FALSE.
+   ELSEIF ((ELTYPE == 'EOR') .OR. (ELTYPE == 'USED')) THEN
+     CALL LEESEL
+   ENDIF
+   
+   DO WHILE( runstate )   
+     IF(ELTYPE == 'KEY') EXIT
+     !  KEYWORD IS READ
+     IF((KONT == 'STA').OR.(KONT == 'NSKP'))THEN
+       LENS = LEN(CSTA)
+       IF(LENS >= 8)THEN
+         KEYWRD = CSTA(1:8)
+       ELSE
+         KEYWRD = '        '
+         KEYWRD(1:LENS) = CSTA
+       ENDIF
+       EXIT
      ENDIF
-     GOTO 900
-   ENDIF
-!  at the end of the input 'STOP' is generated.
-   IF(ELTYPE == 'EOF')THEN
-     KEYWRD='STOP'
-     CALL MSGERR (2, 'STOP statement is missing')
-     GOTO 900
-   ENDIF
-!  ----------------------------------------------------------
-!  Data appear where a keyword is expected.
-!  The user must be informed.
-!  ----------------------------------------------------------
-   IF(ELTYPE == 'EOR')THEN
-     KEYWRD = '        '
-     GOTO 900
-   ENDIF
-   IF(ELTYPE == 'INT')THEN
-     CALL MSGERR (2, 'Data field skipped:'//ELTEXT)
-     GOTO 510
-   ENDIF
-   IF(ELTYPE == 'REAL')THEN
-     CALL MSGERR (2, 'Data field skipped:'//ELTEXT)
-     GOTO 510
-   ENDIF
-   IF(ELTYPE == 'CHAR' .OR. ELTYPE == 'OTHR')THEN                    
-     CALL MSGERR (2, 'Data field skipped:'//ELTEXT)
-     GOTO 510
-   ENDIF
-   IF(ELTYPE == 'EMPT')THEN
-     CALL MSGERR (2, 'Empty data field skipped')
-     GOTO 510
-   ENDIF
-   CALL MSGERR (3, 'Error subr. INKEYW')
-!  ----------------------------------------------------------
-900 IF(ITEST >= 10) WRITE (PRINTF,910) KEYWRD
+     !  at the end of the input 'STOP' is generated.
+     IF(ELTYPE == 'EOF')THEN
+       KEYWRD='STOP'
+       CALL MSGERR (2, 'STOP statement is missing')
+       EXIT
+     ENDIF
+     !  ----------------------------------------------------------
+     !  Data appear where a keyword is expected.
+     !  The user must be informed.
+     !  ----------------------------------------------------------
+     IF(ELTYPE == 'EOR')THEN
+       KEYWRD = '        '
+       EXIT
+     ENDIF
+     IF (ELTYPE == 'INT') THEN
+       CALL MSGERR (2, 'Data field skipped:'//ELTEXT)
+     ELSEIF (ELTYPE == 'REAL') THEN
+       CALL MSGERR (2, 'Data field skipped:'//ELTEXT)
+     ELSEIF (ELTYPE == 'CHAR' .OR. ELTYPE == 'OTHR') THEN                    
+       CALL MSGERR (2, 'Data field skipped:'//ELTEXT)
+     ELSEIF (ELTYPE == 'EMPT')THEN
+       CALL MSGERR (2, 'Empty data field skipped')
+     ELSE
+       CALL MSGERR (3, 'Error subr. INKEYW')
+       EXIT
+     ENDIF
+     CALL LEESEL
+   ENDDO
+   IF(ITEST >= 10) WRITE (PRINTF,910) KEYWRD
 910 FORMAT (' KEYWORD: ',A8)
    RETURN
    END SUBROUTINE INKEYW
@@ -1297,6 +1296,7 @@
 !
 !     QUOTE  : the quote character
 !
+   INTEGER state_num
    CHARACTER QUOTE *1
 !
 !  8. SUBROUTINE USED
@@ -1315,304 +1315,430 @@
    DATA  QUOTE/''''/ , IENT/0/, NREP/1/
    CALL  STRACE ( IENT, 'LEESEL')
 !
+   state_num = 0
    IF(NREP > 1)THEN
      NREP = NREP - 1
-     GOTO 190
+     state_num = 190
    ENDIF
 !
 !  initialisations
 !
-2  NREP = 1
-   DO J=1,LINELN,4                                                  
-     ELTEXT(J:J+3) = '    '
-   END DO  
-   JKAR = 1
-   ELINT=0
-   ELREAL=0.
+   IF (state_num == 0) THEN 
+     NREP = 1
+     DO J=1,LINELN,4                                                  
+       ELTEXT(J:J+3) = '    '
+     END DO  
+     JKAR = 1
+     ELINT=0
+     ELREAL=0.
 !
-!  start processing data item
+!    start processing data item
 !
-   IF(KARNR == 0) GOTO 12
-!  process a new character
-10 IF(KAR == '!' .OR. KARNR > LINELN)THEN                           
-!    end of the line is reached, if repetition factor is >1
-!    the data item is assumed to be empty
-     IF(NREP > 1) GOTO 28
-!    end of the line is reached, if no repetition factor appears
-!    the data item is assumed to be of type 'EOR'
-     ELTYPE='EOR'
-     IF(KAR == '!') KARNR = LINELN+1                                  
-     GOTO 190
-   ENDIF
-!  skip leading blanks or Tab characters
-11 IF(KAR /= ' ' .AND. KAR /= TABC) GOTO 20
-  
+     IF(KARNR == 0) THEN
 !      print*,'before getkar 1'
-12 CALL GETKAR
+       CALL GETKAR
 !      print*,'after getkar 1'
-!     end of input file was reached
-   IF(ELTYPE == 'EOF')THEN
-!       generate keyword STOP
-     ELTEXT='STOP'
-     GOTO 190
+!      end of input file was reached
+       IF(ELTYPE == 'EOF')THEN
+!        generate keyword STOP
+         ELTEXT='STOP'
+         state_num = 190
+       ENDIF   
+     ENDIF 
    ENDIF
-   GOTO 10
-!  if character is comma, empty data field
-20 IF(KAR /= ',') GOTO 30
-!      print*,'before getkar 2'
-   CALL GETKAR
-!      print*,'after getkar 2'
-28 ELTYPE='EMPT'
-   GOTO 190
-!  Notice: jump to label 28 (empty data field)
-!  if after repetition a comment, a keyword, end of record etc. is found.
-!  --------------------------------------------------------
-!  see whether end of repeat (; or /) is marked
-30 IF(INDEX(';/',KAR) > 0)THEN                                      
-     IF(NREP > 1) GOTO 28
-     ELTYPE='EOR'
-!      print*,'before getkar 3'
-     CALL GETKAR
-!      print*,'after getkar 3'
-     GOTO 190
-   ENDIF
-!  ( marks the beginning of a data item group; is ignored
-38 IF(KAR == '(') GOTO 12
-!  --------------------------------------------------------
-!  comment; data enclosed in comment identifiers is interpreted as comment
-!   print*,'KAR=',KAR,'COMID=',COMID,NREP
-40 IF(KAR == COMID)THEN
-     IF(NREP > 1) GOTO 28
-!      print*,'before getkar 4'
-41   CALL  GETKAR
-!      print*,'after getkar 4'
-     IF(KARNR > LINELN) GOTO 10                                      
-     IF(KAR /= COMID) GOTO 41
-     GOTO 12
-   ENDIF
-!  -------------------------------------------------------
-!  if item is a number, read this integer or real number
-!
-!  integer number:  SIGN1]NUM1
-!  real:            SIGN1]NUM1].]MANT]E]SIGN2]NUM2
-!     ISTATE =    10     9    8 7    6 5     4    3
-!  SIGN1, SIGN2:     + OR -
-!  NUM1, NUM2, MANT: series of digits
-!     -------------------------------------------------------
-50 IF(INDEX('+-.0123456789',KAR) == 0) GOTO 80
-   NUM1=0
-   NUM2=0
-   ISIGN1=1
-   ISIGN2=1
-   ISTATE=10
-   IRK=0
-   RMANT=0.
-   ELTYPE='INT'
-   IF(INDEX('+-',KAR) == 0) GOTO 52
-   ISTATE=9
-   IF(KAR == '-') ISIGN1=-1
-   CALL PUTKAR (ELTEXT, KAR, JKAR)
-!      print*,'before getkar 5'
-   CALL GETKAR
-!      print*,'after getkar 5'
-!     ****  part before decimal point  ****
-52 IF(INDEX('0123456789',KAR) == 0) GOTO 54
-   IRK=1
-   ISTATE=8
-   NUM1=10*NUM1+INDEX('123456789',KAR)
-   CALL PUTKAR (ELTEXT, KAR, JKAR)
-!      print*,'before getkar 6'
-   CALL GETKAR
-!      print*,'after getkar 6'
-   GOTO 52
-54 IF(KAR /= '.') GOTO 56
-   ISTATE=7
-   ELTYPE='REAL'
-   CALL PUTKAR (ELTEXT, KAR, JKAR)
-!      print*,'before getkar 7'
-   CALL GETKAR
-!      print*,'after getkar 7'
-56 JJ=-1
-!     ****  part after decimal point  ****
-57 IF(INDEX('0123456789',KAR) == 0) GOTO 58
-   IRK=1
-   ISTATE=6
-   RMANT = RMANT + DBLE(INDEX('123456789',KAR))*1.D1**JJ               
-   JJ=JJ-1
-   CALL PUTKAR (ELTEXT, KAR, JKAR)
-!      print*,'before getkar 8'
-   CALL GETKAR
-!      print*,'after getkar 8'
-   GOTO 57
-58 IF(ISTATE >= 9 .OR. IRK == 0) GOTO 120
-!     ****  exponent part  ****
-   IF(INDEX('DdEe^',KAR) == 0) GOTO 66
-   ISTATE=5
-   IRK=0
-   IF(ELTYPE == 'INT') ELTYPE='REAL'
-   CALL PUTKAR (ELTEXT, KAR, JKAR)
-!      print*,'before getkar 9'
-   CALL GETKAR
-!      print*,'after getkar 9'
-   IF(INDEX('+-',KAR) == 0) GOTO 62
-   IF(KAR == '-') ISIGN2=-1
-   ISTATE=4
-   CALL PUTKAR (ELTEXT, KAR, JKAR)
-!      print*,'before getkar 10'
-   CALL GETKAR
-!      print*,'after getkar 10'
-62 IF(INDEX('0123456789',KAR) == 0) GOTO 66
-   IRK=1
-   ISTATE=3
-   NUM2=10*NUM2+INDEX('123456789',KAR)
-   CALL PUTKAR (ELTEXT, KAR, JKAR)
-!      print*,'before getkar 11'
-   CALL GETKAR
-!      print*,'after getkar 11'
-   GOTO 62
-!     ****  a number is put together  ****
-66 IF(IRK == 0) GOTO 120
-   IF(INDEX('+-.',KAR) >= 1) ELTYPE='OTHR'
-   ISTATE=2
-   IF(ITEST >= 330) WRITE (PRINTF,699) ELTYPE, ISIGN1, NUM1,            &
-                                       RMANT, ISIGN2, NUM2
-699 FORMAT (1X, A4, 2I6, F12.9, 2I6)
-   IF(ELTYPE == 'REAL') ELREAL =                                        &
-             ISIGN1*(DBLE(NUM1)+RMANT) * 1.D1**(ISIGN2*NUM2)            
-   IF(ELTYPE == 'INT') ELINT = ISIGN1*NUM1
-   LENCST = JKAR - 1                                                   
-!     skip trailing blanks
-67 IF(KAR /= ' ' .AND. KAR /= TABC) GOTO 68
-   ISTATE=1
-!      print*,'before getkar 12'
-   CALL GETKAR
-!      print*,'after getkar 12'
-   GOTO 67
-!     If a * is encountered now, it is interpreted as a repetition factor.
-68 IF(KAR == '*')THEN
-     IF(ELTYPE == 'INT' .AND. ELINT > 0)THEN
-       NREP = ELINT
-       ELINT = 0
-!      print*,'before getkar 13'
-       CALL GETKAR
-!      print*,'after getkar 13'
-       GOTO 10
-     ELSE
-       CALL MSGERR (2, 'Wrong repetition factor')
-!      print*,'before getkar 14'
-       CALL GETKAR
-!       print*,'after getkar 14'
-       GOTO 190
+!  process a new character
+floop: DO WHILE( state_num == 0)
+     IF(KAR == '!' .OR. KARNR > LINELN)THEN                           
+!      end of the line is reached, if repetition factor is >1
+!      the data item is assumed to be empty
+       IF(NREP > 1) THEN
+         ELTYPE='EMPT'
+       EXIT floop
+       ENDIF
+!      end of the line is reached, if no repetition factor appears
+!      the data item is assumed to be of type 'EOR'
+       ELTYPE='EOR'
+       IF(KAR == '!') KARNR = LINELN+1                                  
+       EXIT floop
      ENDIF
-   ENDIF
-69 IF(KAR == ',')THEN
-!      print*,'before getkar 15'
-     CALL GETKAR
-!       print*,'after getkar 15'
-     GOTO 190
-   ENDIF
-   IF(ISTATE == 1) GOTO 190
-   IF(INDEX(' ;',KAR) /= 0 .OR. KAR == TABC)THEN
-     GOTO 190
-   ENDIF
-!     number is not followed by , blank or tab; type is made OTHR:
-   GOTO 120
+!    skip leading blanks or Tab characters
+     IF(KAR == ' ' .OR. KAR == TABC) THEN
+!      print*,'before getkar 1'
+       CALL GETKAR
+!      print*,'after getkar 1'
+!      end of input file was reached
+       IF(ELTYPE == 'EOF')THEN
+!        generate keyword STOP
+         ELTEXT='STOP'
+         EXIT floop
+       ENDIF
+       CYCLE floop
+     ENDIF 
+!    if character is comma, empty data field
+     IF(KAR /= ',') THEN 
+!      print*,'before getkar 2'
+       CALL GETKAR
+!      print*,'after getkar 2'
+       ELTYPE='EMPT'
+       EXIT floop
+     ENDIF 
+!    Notice: jump to label 28 (empty data field)
+!    if after repetition a comment, a keyword, end of record etc. is found.
+!    --------------------------------------------------------
+!    see whether end of repeat (; or /) is marked
+     IF(INDEX(';/',KAR) > 0)THEN                                      
+       IF(NREP > 1) THEN
+         ELTYPE='EMPT'
+         EXIT floop
+       ENDIF 
+       ELTYPE='EOR'
+!      print*,'before getkar 3'
+       CALL GETKAR
+!      print*,'after getkar 3'
+       EXIT floop
+     ENDIF
+!    ( marks the beginning of a data item group; is ignored
+     IF(KAR == '(') THEN
+!      print*,'before getkar 1'
+       CALL GETKAR
+!      print*,'after getkar 1'
+!      end of input file was reached
+       IF(ELTYPE == 'EOF')THEN
+!      generate keyword STOP
+         ELTEXT='STOP'
+         EXIT floop
+       ENDIF
+       CYCLE floop
+     ENDIF
+
+!    --------------------------------------------------------
+!    comment; data enclosed in comment identifiers is interpreted as comment
+!    print*,'KAR=',KAR,'COMID=',COMID,NREP
+     IF(KAR == COMID)THEN
+       IF(NREP > 1) THEN
+         ELTYPE='EMPT'
+         EXIT floop
+       ENDIF 
+       DO WHILE(.TRUE.)
+!        print*,'before getkar 4'
+         CALL GETKAR ! 41
+!        print*,'after getkar 4'
+         IF(KARNR > LINELN) CYCLE floop
+         IF(KAR == COMID) EXIT 
+       ENDDO
+!      print*,'before getkar 1'
+       CALL GETKAR
+!      print*,'after getkar 1'
+!      end of input file was reached
+       IF(ELTYPE == 'EOF')THEN
+!      generate keyword STOP
+         ELTEXT='STOP'
+         EXIT floop
+       ENDIF
+       CYCLE floop 
+     ENDIF
+!    -------------------------------------------------------
+!    if item is a number, read this integer or real number
+!  
+!    integer number:  SIGN1]NUM1
+!    real:            SIGN1]NUM1].]MANT]E]SIGN2]NUM2
+!       ISTATE =    10     9    8 7    6 5     4    3
+!    SIGN1, SIGN2:     + OR -
+!    NUM1, NUM2, MANT: series of digits
+!    -------------------------------------------------------
+     IF(INDEX('+-.0123456789',KAR) /= 0) THEN 
+       NUM1=0
+       NUM2=0
+       ISIGN1=1
+       ISIGN2=1
+       ISTATE=10
+       IRK=0
+       RMANT=0.
+       ELTYPE='INT'
+       IF(INDEX('+-',KAR) /= 0) THEN 
+         ISTATE=9
+         IF(KAR == '-') ISIGN1=-1
+         CALL PUTKAR (ELTEXT, KAR, JKAR)
+!        print*,'before getkar 5'
+         CALL GETKAR
+!        print*,'after getkar 5'
+       ENDIF
+!       ****  part before decimal point  ****
+       DO WHILE (INDEX('0123456789',KAR) /= 0)
+         IRK=1
+         ISTATE=8
+         NUM1=10*NUM1+INDEX('123456789',KAR)
+         CALL PUTKAR (ELTEXT, KAR, JKAR)
+!        print*,'before getkar 6'
+         CALL GETKAR
+!        print*,'after getkar 6'
+       ENDDO
+       IF(KAR == '.') THEN 
+         ISTATE=7
+         ELTYPE='REAL'
+         CALL PUTKAR (ELTEXT, KAR, JKAR)
+!        print*,'before getkar 7'
+         CALL GETKAR
+!        print*,'after getkar 7'
+       ENDIF
+       JJ=-1
+!     ****  part after decimal point  ****
+       DO WHILE (INDEX('0123456789',KAR) /= 0)
+         IRK=1
+         ISTATE=6
+         RMANT = RMANT + DBLE(INDEX('123456789',KAR))*1.D1**JJ               
+         JJ=JJ-1
+         CALL PUTKAR (ELTEXT, KAR, JKAR)
+!        print*,'before getkar 8'
+         CALL GETKAR
+! rr     print*,'after getkar 8'   
+       ENDDO
+       IF(ISTATE >= 9 .OR. IRK == 0) THEN
+!--------120 START--------
+         ELTYPE='OTHR'
+         DO WHILE (.TRUE.)
+           ELTEXT(JKAR:JKAR) = KAR                                             
+           LENCST = JKAR                                                       
+           JKAR=JKAR+1
+!          print*,'before getkar 23'
+           CALL GETKAR
+!          print*,'after getkar 23'
+           IF(INDEX(' ,;', KAR) >= 1 .OR. KAR == TABC) EXIT
+         ENDDO
+!        print*,'before getkar 24'
+         CALL GETKAR
+!        print*,'after getkar 24'
+         EXIT floop
+!--------120 END--------
+       ENDIF 
+!     ****  exponent part  ****
+       IF(.NOT. (INDEX('DdEe^',KAR) == 0)) THEN 
+         ISTATE=5
+         IRK=0
+         IF(ELTYPE == 'INT') ELTYPE='REAL'
+         CALL PUTKAR (ELTEXT, KAR, JKAR)
+!        print*,'before getkar 9'
+         CALL GETKAR
+!        print*,'after getkar 9'
+         IF( .NOT. (INDEX('+-',KAR) == 0)) THEN
+           IF(KAR == '-') ISIGN2=-1
+           ISTATE=4
+           CALL PUTKAR (ELTEXT, KAR, JKAR)
+!          print*,'before getkar 10'
+           CALL GETKAR
+!          print*,'after getkar 10'
+         ENDIF
+         DO WHILE (.NOT. (INDEX('0123456789',KAR) == 0))
+           IRK=1
+           ISTATE=3
+           NUM2=10*NUM2+INDEX('123456789',KAR)
+           CALL PUTKAR (ELTEXT, KAR, JKAR)
+!          print*,'before getkar 11'
+           CALL GETKAR
+!          print*,'after getkar 11'   
+         ENDDO
+       ENDIF 
+!     ****  a number is put together  ****
+       IF(IRK == 0) THEN
+!--------120 START--------
+         ELTYPE='OTHR'
+         DO WHILE (.TRUE.)
+           ELTEXT(JKAR:JKAR) = KAR                                             
+           LENCST = JKAR                                                       
+           JKAR=JKAR+1
+!          print*,'before getkar 23'
+           CALL GETKAR
+!          print*,'after getkar 23'
+           IF(INDEX(' ,;', KAR) >= 1 .OR. KAR == TABC) EXIT
+         ENDDO
+!        print*,'before getkar 24'
+         CALL GETKAR
+!        print*,'after getkar 24'
+         EXIT floop
+!--------120 END--------
+       ENDIF   
+       IF(INDEX('+-.',KAR) >= 1) ELTYPE='OTHR'
+       ISTATE=2
+       IF(ITEST >= 330) WRITE (PRINTF,699) ELTYPE, ISIGN1, NUM1,            &
+                                           RMANT, ISIGN2, NUM2
+  699  FORMAT (1X, A4, 2I6, F12.9, 2I6)
+       IF(ELTYPE == 'REAL') ELREAL =                                        &
+                 ISIGN1*(DBLE(NUM1)+RMANT) * 1.D1**(ISIGN2*NUM2)            
+       IF(ELTYPE == 'INT') ELINT = ISIGN1*NUM1
+       LENCST = JKAR - 1                                                   
+!      skip trailing blanks
+       DO WHILE (.not. (KAR /= ' ' .AND. KAR /= TABC))
+         ISTATE=1
+!        print*,'before getkar 12'
+         CALL GETKAR
+!        print*,'after getkar 12'
+       ENDDO
+!      If a * is encountered now, it is interpreted as a repetition factor.
+       IF(KAR == '*')THEN
+         IF(ELTYPE == 'INT' .AND. ELINT > 0)THEN
+           NREP = ELINT
+           ELINT = 0
+!          print*,'before getkar 13'
+           CALL GETKAR
+!          print*,'after getkar 13'
+           CYCLE floop
+         ELSE
+           CALL MSGERR (2, 'Wrong repetition factor')
+!          print*,'before getkar 14'
+           CALL GETKAR
+!          print*,'after getkar 14'
+           EXIT floop
+         ENDIF
+       ENDIF
+       IF(KAR == ',')THEN
+!        print*,'before getkar 15'
+         CALL GETKAR
+!        print*,'after getkar 15'
+         EXIT floop
+       ENDIF
+       IF(ISTATE == 1) EXIT floop
+       IF(INDEX(' ;',KAR) /= 0 .OR. KAR == TABC)THEN
+         EXIT floop
+       ENDIF
+!      number is not followed by , blank or tab; type is made OTHR:
+!--------120 START--------
+       ELTYPE='OTHR'
+       DO WHILE (.TRUE.)
+         ELTEXT(JKAR:JKAR) = KAR                                             
+         LENCST = JKAR                                                       
+         JKAR=JKAR+1
+!        print*,'before getkar 23'
+         CALL GETKAR
+!        print*,'after getkar 23'
+         IF(INDEX(' ,;', KAR) >= 1 .OR. KAR == TABC) EXIT
+       ENDDO
+!      print*,'before getkar 24'
+       CALL GETKAR
+!      print*,'after getkar 24'
+       EXIT floop
+!--------120 END---------
+     ENDIF
 !     ----------------------------------------------------------
 !     a character string is read; it start and ends with a quote
 !     ----------------------------------------------------------
-80 IF(KAR == QUOTE)THEN                                              
-     ELTYPE='CHAR'
-     LENCST = 0                                                          
-     JJ=1
+     IF(KAR == QUOTE)THEN                                              
+       ELTYPE='CHAR'
+       LENCST = 0                                                          
+       JJ=1
 !      print*,'before getkar 16'
-82   CALL GETKAR
-!       print*,'after getkar 16'
-!       end of the string: end of record or closing quote
-     IF(KARNR > LINELN) GOTO 190                                     
-     IF(KAR == QUOTE)THEN
-!      print*,'before getkar 17'
-       CALL GETKAR
-!      print*,'after getkar 17'
-!         new character is not a quote; end of the string
-       IF(KAR /= QUOTE) GOTO 88
-!         double quote is read as a single quote; continue
-     ENDIF
-!       put the character into ELTEXT
-84   ELTEXT(JJ:JJ) = KAR
-     LENCST = JJ
-     JJ=JJ+1
-     GOTO 82
-!       process characters behind the string
-!      print*,'before getkar 18'
-87   CALL GETKAR
-!      print*,'after getkar 18'
-!       skip trailing blanks
-88   IF(KAR == ' ' .OR. KAR == TABC) GOTO 87
-     IF(KAR /= ',') GOTO 190
+       DO WHILE (.TRUE.)
+         CALL GETKAR
+!        print*,'after getkar 16'
+!        end of the string: end of record or closing quote
+         IF(KARNR > LINELN) EXIT floop                                     
+         IF(KAR == QUOTE)THEN
+!          print*,'before getkar 17'
+           CALL GETKAR
+!          print*,'after getkar 17'
+!          new character is not a quote; end of the string
+           IF(KAR /= QUOTE) EXIT
+!          double quote is read as a single quote; continue
+         ENDIF
+!        put the character into ELTEXT
+         ELTEXT(JJ:JJ) = KAR
+         LENCST = JJ
+         JJ=JJ+1
+!        process characters behind the string
+!        skip trailing blanks
+       ENDDO
+       IF(KAR == ' ' .OR. KAR == TABC) THEN
+!        print*,'before getkar 18'
+         CALL GETKAR 
+!        print*,'after getkar 18'
+       ENDIF 
+       IF(KAR /= ',') EXIT floop
 !      print*,'before getkar 19'
-     CALL GETKAR
+       CALL GETKAR
 !      print*,'after getkar 19'
-     GOTO 190
-   ENDIF
+       EXIT floop
+     ENDIF
 !     -------------------------------------------------------
 !     a keyword is read
 !     a keyword starts with a letter (upper or lower case)
 !     -------------------------------------------------------
-90 CALL UPCASE (KAR)
-!   print*,'KAR= ',KAR,'QUOTE= ',QUOTE
-   IF(INDEX('ABCDEFGHIJKLMNOPQRSTUVWXYZ',KAR) > 0)THEN              
-     IF(NREP > 1) GOTO 28
-     ELTYPE='KEY'
-     ISTATE=2
-     JJ=1
-92   ELTEXT(JJ:JJ) = KAR
-     LENCST = JJ                                                       
-!      print*,'before getkar 20'
-     CALL GETKAR
-!      print*,'after getkar 20'
      CALL UPCASE (KAR)
-     JJ=JJ+1
-!       next characters: letters, digits or - _ .
-     IF(INDEX('ABCDEFGHIJKLMNOPQRSTUVWXYZ',KAR) >= 1) GOTO 92
-     IF(INDEX('0123456789-_.',KAR) >= 1) GOTO 92
-!       keyword is read
-     KEYWRD = ELTEXT(1:8)
-!     print*,'KEYWRD= ',KEYWRD
-!       trailing blanks or tab char are skipped
-94   IF(KAR /= ' ' .AND. KAR /= TABC) GOTO  96
+!    print*,'KAR= ',KAR,'QUOTE= ',QUOTE
+     IF(INDEX('ABCDEFGHIJKLMNOPQRSTUVWXYZ',KAR) > 0)THEN              
+       IF(NREP > 1) THEN
+         ELTYPE='EMPT'
+         EXIT floop
+       ENDIF 
+       ELTYPE='KEY'
+       ISTATE=2
+       JJ=1
+       DO WHILE(.TRUE.)
+         ELTEXT(JJ:JJ) = KAR
+         LENCST = JJ                                                       
+!        print*,'before getkar 20'
+         CALL GETKAR
+!        print*,'after getkar 20'
+         CALL UPCASE (KAR)
+         JJ=JJ+1
+!        next characters: letters, digits or - _ .
+         IF((INDEX('ABCDEFGHIJKLMNOPQRSTUVWXYZ',KAR) < 1) .AND. (INDEX('0123456789-_.',KAR) < 1))EXIT
+       ENDDO 
+       
+!      keyword is read
+       KEYWRD = ELTEXT(1:8)
+!      print*,'KEYWRD= ',KEYWRD
+!      trailing blanks or tab char are skipped
+       DO WHILE(.NOT. (KAR /= ' ' .AND. KAR /= TABC))
 !      print*,'before getkar 21'
-     CALL GETKAR
+         CALL GETKAR
 !      print*,'after getkar 21'
-     GOTO 94
-!       closure character  : or = is processed
-96   IF(INDEX('=:',KAR) == 0) GOTO 190
-!      print*,'before getkar 22'
-     CALL GETKAR
-!      print*,'after getkar 22'
-     GOTO 190
-   ENDIF
+       ENDDO     
+!      closure character  : or = is processed
+       IF(.NOT. INDEX('=:',KAR) == 0) THEN
+!        print*,'before getkar 22'
+         CALL GETKAR
+!        print*,'after getkar 22'
+       ENDIF 
+       EXIT floop
+     ENDIF
 !     --------------------------------------------------
 !     continuation symbol is read
 !     --------------------------------------------------
-100 IF(INDEX('_&',KAR) == 0) GOTO 120
-   IF(NREP > 1) GOTO 28
-110 KARNR=0
-   GOTO 12
+     IF(INDEX('_&',KAR) == 0) THEN
+!--------120 START--------
+       ELTYPE='OTHR'
+       DO WHILE (.TRUE.)
+         ELTEXT(JKAR:JKAR) = KAR                                             
+         LENCST = JKAR                                                       
+         JKAR=JKAR+1
+!        print*,'before getkar 23'
+         CALL GETKAR
+!        print*,'after getkar 23'
+         IF(INDEX(' ,;', KAR) >= 1 .OR. KAR == TABC) EXIT
+       ENDDO
+!      print*,'before getkar 24'
+       CALL GETKAR
+!      print*,'after getkar 24'
+       EXIT floop
+!--------120 END--------
+     ENDIF
+     IF(NREP > 1) THEN
+       ELTYPE='EMPT'
+       EXIT floop
+     ENDIF 
+     KARNR=0
+!    print*,'before getkar 1'
+     CALL GETKAR
+!    print*,'after getkar 1'
+!    end of input file was reached
+     IF(ELTYPE == 'EOF')THEN
+!      generate keyword STOP
+       ELTEXT='STOP'
+       EXIT floop
+     ENDIF
+     CYCLE floop
 !     --------------------------------------------------
 !     other type of data
 !     --------------------------------------------------
-120 ELTYPE='OTHR'
-122 ELTEXT(JKAR:JKAR) = KAR                                             
-   LENCST = JKAR                                                       
-   JKAR=JKAR+1
-!      print*,'before getkar 23'
-   CALL GETKAR
-!       print*,'after getkar 23'
-   IF(INDEX(' ,;', KAR) >= 1 .OR. KAR == TABC) GOTO 126
-   GOTO 122
-!      print*,'before getkar 24'
-126 CALL GETKAR
-!       print*,'after getkar 24'
 ! 127  CALL MSGERR (3, 'Read error in: ')
 !      WRITE (PRINTF,129) ELTEXT
 ! 129  FORMAT (A)                                                         
@@ -1620,9 +1746,10 @@
 !     --------------------------------------------------
 !     test output and return to calling program
 !     --------------------------------------------------
-190 IF(ITEST >= 120) WRITE (PRTEST, 199) KAR, KARNR, ELTYPE, ELREAL,   &
-                                         ELINT, NREP, ELTEXT(1:LENCST)
-199 FORMAT (' test LEESEL: ', A1, 1X, I4, 1X, A4, D12.4, 2I6, 2X, A)    
+   ENDDO floop
+   IF(ITEST >= 120) WRITE (PRTEST, 199) KAR, KARNR, ELTYPE, ELREAL,   &
+                                           ELINT, NREP, ELTEXT(1:LENCST)
+199 FORMAT (' test LEESEL: ', A1, 1X, I4, 1X, A4, D12.4, 2I6, 2X, A) 
    RETURN
    END SUBROUTINE LEESEL
 
@@ -1700,6 +1827,7 @@
 !     IENT   : Number of entries into this subroutine
 !
    INTEGER   IENT
+   INTEGER   ierr
 !
 !  8. SUBROUTINE USED
 !
@@ -1717,27 +1845,30 @@
    DATA  IENT /0/
    CALL STRACE (IENT, 'GETKAR')
    
+   ierr=0
    IF(KARNR == 0)THEN
-     READ(INPUTF, '(A)', END=20) KAART
-     
-!     print*,'KAART=',trim(KAART),lineln
-     IF(ITEST >= -10) WRITE (PRINTF, '(1X,A)') TRIM(KAART)                   
-     KARNR=1
+     READ(INPUTF, '(A)', IOSTAT=ierr ) KAART
+     IF ( ierr /= 0) THEN
+       ELTYPE='EOF'
+       KAR='@'    
+     ELSE
+!      print*,'KAART=',trim(KAART),lineln
+       IF(ITEST >= -10) WRITE (PRINTF, '(1X,A)') TRIM(KAART)                   
+       KARNR=1
+     ENDIF
    ENDIF
-   IF(KARNR > LINELN)THEN                                           
-     KAR=';'
-     GOTO 90
+   IF (ierr == 0 ) THEN
+     IF(KARNR > LINELN)THEN                                           
+       KAR=';'
+     ELSE 
+       KAR = KAART(KARNR:KARNR)
+!      print*,'KAR=',trim(KAR)
+       KARNR=KARNR+1
+     ENDIF
    ENDIF
-   KAR = KAART(KARNR:KARNR)
-!   print*,'KAR=',trim(KAR)
-   KARNR=KARNR+1
-   GOTO 90
 !     end of file is encountered
-20 ELTYPE='EOF'
-   KAR='@'
-90 IF(ITEST >= 320) WRITE (PRINTF, '(" Test GETKAR", 2X, A4, 2X, A1, I4)')  &
-                    ELTYPE, KAR, KARNR
-
+   IF(ITEST >= 320) WRITE (PRINTF, '(" Test GETKAR", 2X, A4, 2X, A1, I4)')  &
+                    ELTYPE, KAR, KARNR                    
    RETURN
    END SUBROUTINE GETKAR
  
@@ -2059,19 +2190,20 @@
    CALL STRACE (IENT, 'KEYWIS')
 !
    KEYWIS = .FALSE.
-   IF(ELTYPE == 'USED') GOTO 30
+   IF(ELTYPE /= 'USED') THEN
 !
-   KEYWIS=.TRUE.
-   LENSS = LEN (STRING)
-   DO  J=1, LENSS
-     KAR1 = KEYWRD(J:J)
-     KAR2 = STRING(J:J)
-     IF(KAR1 /= KAR2 .AND. KAR2 /= ' ')THEN                          
-       KEYWIS=.FALSE.
-       GOTO 30
-     ENDIF
-   END DO
-   IF(ELTYPE == 'KEY') ELTYPE = 'USED'
+     KEYWIS=.TRUE.
+     LENSS = LEN (STRING)
+     DO  J=1, LENSS
+       KAR1 = KEYWRD(J:J)
+       KAR2 = STRING(J:J)
+       IF(KAR1 /= KAR2 .AND. KAR2 /= ' ')THEN                          
+         KEYWIS=.FALSE.
+         EXIT
+       ENDIF
+     END DO
+     IF(ELTYPE == 'KEY' .AND. KEYWIS==.TRUE.) ELTYPE = 'USED'
+   ENDIF 
 30 RETURN
    END FUNCTION KEYWIS
 
