@@ -288,6 +288,10 @@ CONTAINS
     ! MPI_ABORT SHOULD CLEAR ALL COMMUNICATION
     ! I RECOMMEND USING '-kill' in mpiexec to force PBS to kill jobs
     ! where one processor hits a mpi_abort or mpi_finalize.
+    
+!JQI NOV2021
+    FLUSH(IPT)
+!JQI NOV2021
 
     ecode = -1
 !    CALL MPI_ABORT(MPI_COMM_WORLD,ecode,IERR)
@@ -1939,9 +1943,10 @@ CONTAINS
      Do I=1,NT
         if(abs(yloc-yc(i))<1.0) &
         CALL ARC(xloc,yloc,XC(I),YC(I),radlist(i,1))
-        if(radlist(i,1)<1.0E-6) goto 10
+!JQIGOTO        if(radlist(i,1)<1.0E-6) goto 10
+        if(radlist(i,1)<1.0E-6) exit      !JQIGOTO
      END Do
-10 continue
+!JQIGOTO10 continue
 # else
      radlist(1:nt,1) = abs(xc(1:nt)-xloc) + abs(yc(1:nt)-yloc)
 # endif
@@ -3154,21 +3159,27 @@ END SUBROUTINE GET_VALUE
      TLINE(1:80) = INPLINE(1:80)
 
 !----PROCESS LINE CONTINUATIONS------------------------------------------------!
- 110 CONTINUE
-     I = LEN_TRIM(INPLINE)
-     IF(I /= 0)THEN
-#    if defined (COMPAQ) || defined (INTEL) || defined (IRIX)
-     IF( INPLINE(I-1:I) == '\\')THEN
-#    else
-     IF( INPLINE(I-1:I) == '\\\\')THEN
-#    endif
-       NREP = NREP + 1
-       READ(INPUTF,'(a)',END=20) INPLINE
-       NLINE = NLINE + 1
-       TLINE( NREP*80 + 1 : NREP*80 +80) = INPLINE(1:80)
-       GOTO 110
-     END IF
-     END IF
+!JQIGOTO 110 CONTINUE
+     IN: DO WHILE(.TRUE.)      !JQIGOTO
+       I = LEN_TRIM(INPLINE)
+       IF(I /= 0)THEN
+#        if defined (COMPAQ) || defined (INTEL) || defined (IRIX)
+         IF( INPLINE(I-1:I) == '\\')THEN
+#        else
+         IF( INPLINE(I-1:I) == '\\\\')THEN
+#        endif
+           NREP = NREP + 1
+           READ(INPUTF,'(a)',END=20) INPLINE
+           NLINE = NLINE + 1
+           TLINE( NREP*80 + 1 : NREP*80 +80) = INPLINE(1:80)
+           CYCLE IN     !JQIGOTO
+!JQIGOTO           GOTO 110
+         ELSE           !JQIGOTO
+	   EXIT IN      !JQIGOTO
+         END IF
+       END IF
+       EXIT IN
+     END DO IN          !JQIGOTO 
      IF(NREP > 4)CALL Fatal_Error("CANNOT HAVE > 4 LINE CONTINUATIONS")
 
 !----REMOVE LINE CONTINUATION CHARACTER \\-------------------------------------!
@@ -3346,21 +3357,27 @@ END SUBROUTINE GET_VALUE
      TLINE(1:80) = INPLINE(1:80)
 
 !----PROCESS LINE CONTINUATIONS------------------------------------------------!
- 110 CONTINUE
-     I = LEN_TRIM(INPLINE)
-     IF(I > 2)THEN
-#    if defined (COMPAQ) || defined (INTEL) || defined (IRIX)
-     IF( INPLINE(I-1:I) == '\\')THEN
-#    else
-     IF( INPLINE(I-1:I) == '\\')THEN
-#    endif
-       NREP = NREP + 1
-       READ(INPUTF,'(a)',END=20) INPLINE
-       NLINE = NLINE + 1
-       TLINE( NREP*80 + 1 : NREP*80 +80) = INPLINE(1:80)
-       GOTO 110
-     END IF
-     END IF
+!JQIGOTO 110 CONTINUE
+     IN: DO WHILE(.TRUE.)      !JQIGOTO
+       I = LEN_TRIM(INPLINE)
+       IF(I > 2)THEN
+#        if defined (COMPAQ) || defined (INTEL) || defined (IRIX)
+         IF( INPLINE(I-1:I) == '\\')THEN
+#        else
+         IF( INPLINE(I-1:I) == '\\')THEN
+#        endif
+           NREP = NREP + 1
+           READ(INPUTF,'(a)',END=20) INPLINE
+           NLINE = NLINE + 1
+           TLINE( NREP*80 + 1 : NREP*80 +80) = INPLINE(1:80)
+           CYCLE IN     !JQIGOTO
+!JQIGOTO           GOTO 110
+         ELSE           !JQIGOTO
+	   EXIT IN      !JQIGOTO
+         END IF
+       END IF
+       EXIT
+     END DO IN          !JQIGOTO  
      IF(NREP > 4)CALL Fatal_Error("CANNOT HAVE > 4 LINE CONTINUATIONS")
 
 !----REMOVE LINE CONTINUATION CHARACTER \\-------------------------------------!
@@ -3470,4 +3487,3 @@ END SUBROUTINE GET_VALUE
 
 
 END module mod_utils
-
