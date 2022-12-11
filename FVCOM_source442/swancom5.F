@@ -134,10 +134,12 @@
 ! jsasaki 2019.11.12
     KWAVEL(1) = -1.
     CGOL(1)   = 0.
+! jsasaki
   ELSE
 !   *** call KSCIP1 to compute KWAVE and CGO ***
 ! jsasaki 2019.11.12
     SPCSIGL(1) = SPCSIG(IS)
+! jsasaki
     CALL KSCIP1(1,SPCSIGL,DEPLOC,KWAVEL,CGOL,NN,ND)
   END IF
 
