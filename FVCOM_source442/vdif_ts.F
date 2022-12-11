@@ -54,8 +54,9 @@ SUBROUTINE VDIF_TS(NCON1,F)
   USE MOD_DAM,only : NODE_DAM1_N,NODE_DAM2_N,NODE_DAM3_N&
                       &,I_NODE_DAM1_N,I_NODE_DAM2_N,I_NODE_DAM3_N,KDAM
 # endif
-  USE MOD_HEATFLUX_SEDIMENT
-
+! jsasaki NML_HEATFLUX_SEDIMENT not prepared
+!  USE MOD_HEATFLUX_SEDIMENT
+! jsasaki
   IMPLICIT NONE
   INTEGER :: I,K,NCON1,J,KI,hutemp
   !   REAL(SP) :: TMP,TMP1,TMP2,TMP3,QTMP,GW,ZDEP,FKH,UMOLPR,WETFAC
@@ -127,11 +128,13 @@ SUBROUTINE VDIF_TS(NCON1,F)
 
      WFSURF(1:M)=WTSURF(1:M)
 
-     IF(HEATFLUX_SEDIMENT_ON)THEN
-! =============== Added code (heat flux at tidal flat) ykcho===================|
-       WTHEAT(1:M)=WHEAT1(1:M)
+! jsasaki NML_HEATFLUX_SEDIMENT not prepared
+!     IF(HEATFLUX_SEDIMENT_ON)THEN
+!! =============== Added code (heat flux at tidal flat) ykcho===================|
+!       WTHEAT(1:M)=WHEAT1(1:M)
 ! =============================================================================|
-     END IF
+!     END IF
+! jsasaki
 
 #    if !defined (ICE)
 !
