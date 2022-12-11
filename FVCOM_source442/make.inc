@@ -569,14 +569,14 @@ dashL= $(empty) -L
          CXX      = mpiicpc
          CFLAGS   = -O3 
          FC       = mpiifort
-         DEBFLGS  = -traceback -check all -warn -stand -fpe0 -ftrapuv
+         DEBFLGS  = -traceback #-check all -warn -stand -fpe0 -ftrapuv
 
 # Use 'OPT = -O0 -g'  for fast compile to test the make 
 # Use 'OPT = -xP' for fast run on em64t (Hydra and Guppy)
 # Use 'OPT = -xN' for fast run on ia32 (Salmon and Minke)
 #         OPT      = -O0 -g
 #         OPT      = -axN -xN
-         OPT      = -O2
+         OPT      = -O3
 
 # Do not set static for use with visit!
 #         VISOPT   = -Wl,--export-dynamic

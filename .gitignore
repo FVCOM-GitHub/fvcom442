@@ -20,6 +20,7 @@
 *.mod
 *.smod
 *.i
+fvcom
 
 # Compiled Static libraries
 *.lai
