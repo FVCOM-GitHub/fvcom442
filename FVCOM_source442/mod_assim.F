@@ -386,7 +386,11 @@ MODULE MOD_ASSIM
   INTEGER                             N_TIMES_SSH !!NUMBER OF SST OBSERVATIONS TIMES
 
   INTEGER    :: SSH_SAVE_INDEX
-  TYPE(TIME) :: SSH_SAVE_TIME
+!qxu{for SSH assimilation by 04/01/2022
+ !TYPE(TIME) :: SSH_SAVE_TIME
+  TYPE(TIME) :: SSH_SAVE_TIME,SSH_SAVE_TIME0
+!qxu}
+
   TYPE(TIME)  :: SSH_SAVE_INTERVAL
   TYPE(NCVAR), POINTER :: VAR_SSH
 
@@ -1964,7 +1968,8 @@ CONTAINS !------------------------------------------------------------------!
    DO J= 1,N_ASSIM_CUR 
      X0 = CUR_OBS(J)%X
      Y0 = CUR_OBS(J)%Y
-     DO I=1,NGL
+!JQIGOTO     DO I=1,NGL
+     INLOOP: DO I=1,NGL   !JQIGOTO
 #    if !defined (SPHERICAL)
        Rtmp = SQRT((XCG(I)-X0)*(XCG(I)-X0)+(YCG(I)-Y0)*(YCG(I)-Y0))
 #    else
@@ -1996,15 +2001,17 @@ CONTAINS !------------------------------------------------------------------!
          S33 = X11_TMP*(YG(NVG(I,2))-Y0)-X22_TMP*(YG(NVG(I,1))-Y0)
          IF(S11 <= 0._SP .AND. S22 <= 0._SP .AND. S33<= 0._SP) THEN
            CUR_OBS(J)%N_CELL = I
-           GOTO 300
+           EXIT INLOOP      !JQIGOTO
+!JQIGOTO           GOTO 300
          ELSE
            CUR_OBS(J)%N_CELL = 0
          ENDIF
        ELSE
          CUR_OBS(J)%N_CELL = -1
        ENDIF
-     ENDDO
-300  CONTINUE
+     END DO INLOOP      !JQIGOTO
+!JQIGOTO     ENDDO
+!JQIGOTO300  CONTINUE
 !     IF(MSR) WRITE(200,*) j,X0,Y0,CUR_OBS(J)%N_CELL
      IF(CUR_OBS(J)%N_CELL <= 0) THEN
        IF(MSR) WRITE(IPT,*)'ERROR--CURRENT OBS SITE:',J,' OUT OF DOMAN',&
@@ -2871,7 +2878,8 @@ in:  DO WHILE(.TRUE.)
    DO J= 1,N_ASSIM_TS 
      X0 = TS_OBS(J)%X
      Y0 = TS_OBS(J)%Y
-     DO I=1,NGL
+!JQIGOTO     DO I=1,NGL
+     INLOOP: DO I=1,NGL   !JQIGOTO
 #    if !defined (SPHERICAL)
        Rtmp = SQRT((XCG(I)-X0)*(XCG(I)-X0)+(YCG(I)-Y0)*(YCG(I)-Y0))
 #    else
@@ -2903,15 +2911,17 @@ in:  DO WHILE(.TRUE.)
          S33 = X11_TMP*(YG(NVG(I,2))-Y0)-X22_TMP*(YG(NVG(I,1))-Y0)
          IF(S11 <= 0._SP .AND. S22 <= 0._SP .AND. S33 <= 0._SP) THEN
            TS_OBS(J)%N_CELL = I
-           GOTO 300
+           EXIT INLOOP      !JQIGOTO 
+!JQIGOTO           GOTO 300
          ELSE
            TS_OBS(J)%N_CELL = 0
          ENDIF
        ELSE
          TS_OBS(J)%N_CELL = -1
        ENDIF
-     ENDDO
-300  CONTINUE
+     END DO INLOOP      !JQIGOTO
+!JQIGOTO     ENDDO
+!JQIGOTO300  CONTINUE
      IF(TS_OBS(J)%N_CELL <= 0) THEN
        IF(MSR) WRITE(IPT,*)'ERROR--T/S OBS SITE:',J,' OUT OF DOMAN',&
                             TS_OBS(J)%N_CELL 
@@ -2968,6 +2978,44 @@ in:  DO WHILE(.TRUE.)
 
 !JQI   CLOSE(1)
      TS_PARAM = TS_OI_RADIUS        !30000.0_SP
+! lwang added for gom5
+     DO I=1,N_ASSIM_TS
+        if(TS_OBS(I)%DEPTH<=20.0)then
+          TS_PARAM(:,I)=200.0*TS_OBS(I)%DEPTH
+        else if (TS_OBS(I)%DEPTH>20.0 .and. TS_OBS(I)%DEPTH<=50.0)then
+          TS_PARAM(:,I)=250.0*TS_OBS(I)%DEPTH
+        endif
+        ! added for gom5 201701
+        if(TS_OBS(I)%X+VXMIN>=161300.0 .and. TS_OBS(I)%X+VXMIN<=326400.0 .and. &
+           TS_OBS(I)%Y+VYMIN>=-1079800.0 .and. TS_OBS(I)%Y+VYMIN<=-868600.0 &
+           .and. TS_OBS(I)%DEPTH<=20.0)then
+          TS_PARAM(:,I)=5000.0
+        endif
+        ! added for gom5 201704
+        if(TS_OBS(I)%X+VXMIN>=626550.0 .and. TS_OBS(I)%X+VXMIN<=736590.0 .and. &
+           TS_OBS(I)%Y+VYMIN>=-245030.0 .and. TS_OBS(I)%Y+VYMIN<=-215910.0 &
+           .and. TS_OBS(I)%DEPTH<=20.0)then
+          TS_PARAM(:,I)=5000.0
+        endif
+        ! added for gom5 201706
+        if(TS_OBS(I)%X+VXMIN>=1007800.0 .and. TS_OBS(I)%X+VXMIN<=1165900.0 .and. &
+           TS_OBS(I)%Y+VYMIN>=-657800.0 .and. TS_OBS(I)%Y+VYMIN<=-607600.0) then
+          TS_PARAM(:,I)=30000.0
+        endif
+        ! added for gom5 201711
+        if(TS_OBS(I)%X+VXMIN>=1456700.0 .and. TS_OBS(I)%X+VXMIN<=1603500.0 .and. &
+           TS_OBS(I)%Y+VYMIN>=-357400.0 .and. TS_OBS(I)%Y+VYMIN<=-215800.0) then
+          TS_PARAM(:,I)=30000.0
+        endif
+        ! added for gom5 201712
+        if(TS_OBS(I)%X+VXMIN>=1573200.0 .and. TS_OBS(I)%X+VXMIN<=1754800.0 .and. &
+           TS_OBS(I)%Y+VYMIN>=-351500.0 .and. TS_OBS(I)%Y+VYMIN<=-226100.0) then
+          TS_PARAM(:,I)=30000.0
+        endif
+
+     END DO
+! lwang
+
    END IF
    
 !------------------------------------------------------------------------------!
@@ -3098,6 +3146,48 @@ in:  DO WHILE(.TRUE.)
          WRITE(IPT,*) 'HALTING.....'       
          CALL PSTOP
        END IF 
+
+! added by lwang for gom5
+       if(TS_OBS(I)%DEPTH<=20.0)then
+          TS_RADIUS=200.0*TS_OBS(I)%DEPTH
+       else if (TS_OBS(I)%DEPTH>20.0 .and. TS_OBS(I)%DEPTH<=50.0)then
+          TS_RADIUS=250.0*TS_OBS(I)%DEPTH
+       endif
+        ! added for gom5 201701
+       if(X0+VXMIN>= 161300.0 .and. X0+VXMIN<= 326400.0 .and. &
+          Y0+VYMIN>= -1079800.0 .and. Y0+VYMIN<=-868600.0 .and. &
+          TS_OBS(I)%DEPTH<=20.0)then
+          TS_RADIUS=5000.0
+       endif
+        ! added for gom5 201704
+       if(X0+VXMIN>=626550.0 .and. X0+VXMIN<=736590.0 .and. &
+          Y0+VYMIN>=-245030.0 .and. Y0+VYMIN<=-215910.0 .and. &
+          TS_OBS(I)%DEPTH<=20.0)then
+          TS_RADIUS=5000.0
+       endif
+        ! added for gom5 201706
+        if(X0+VXMIN>=1007800.0 .and. X0+VXMIN<=1165900.0 .and. &
+           Y0+VYMIN>=-657800.0 .and. Y0+VYMIN<=-607600.0)then
+          TS_RADIUS=30000.0
+        endif
+        ! added for gom5 201711
+        if(X0+VXMIN>=1456700.0 .and. X0+VXMIN<=1603500.0 .and. &
+           Y0+VYMIN>=-357400.0 .and. Y0+VYMIN<=-215800.0)then
+          TS_RADIUS=30000.0
+        endif
+        ! added for gom5 201712
+        if(X0+VXMIN>=1573200.0 .and. X0+VXMIN<=1754800.0 .and. &
+           Y0+VYMIN>=-351500.0 .and. Y0+VYMIN<=-226100.0)then
+          TS_RADIUS=30000.0
+        endif
+        ! added for great bay
+        if(X0+VXMIN>=850410.0 .and. X0+VXMIN<=876770.0 .and. &
+           Y0+VYMIN>=10950.0 .and. Y0+VYMIN<=31490.0 .and. &
+           TS_OBS(I)%DEPTH>=50.0)then
+          TS_RADIUS=11000.0
+        endif
+
+! lwang
          
        IF(RD <= TS_RADIUS)THEN
          DA_TS(J)   = 1
@@ -3353,6 +3443,10 @@ in:  DO WHILE(.TRUE.)
 #  if defined (PWP)
    USE MOD_PWP, only : MLD
 #  endif
+! lwang added for searching temp at real depth
+   USE SINTER
+! lwang
+
    IMPLICIT NONE
    REAL(SP), ALLOCATABLE, DIMENSION(:,:) :: TINT,TCORR,TG,TCORR1
    REAL(SP), ALLOCATABLE, DIMENSION(:,:) :: TWGHT_T
@@ -3365,13 +3459,16 @@ in:  DO WHILE(.TRUE.)
    INTEGER ID
    INTEGER IP,JN1,JN2,JN3
    REAL(SP) XSC,YSC,COFT0,COFTX,COFTY
+! lwang added for searching temp at real depth
+   REAL(SP), ALLOCATABLE, DIMENSION(:) :: UU
+! lwang
 
 #  if defined (PWP)
    INTEGER, ALLOCATABLE, DIMENSION(:) :: MLD_GLB
 #  endif
 
    ! lwang added for OI-TS_limit_control  20190423
-   integer, allocatable, dimension(:,:) :: T_FLAG1 
+   integer, allocatable, dimension(:,:) :: T_FLAG1, T_FLAG2
    ! lwang
 
 !==============================================================================|
@@ -3457,10 +3554,17 @@ in:  DO WHILE(.TRUE.)
 !   IF(TS_NGASSIM)THEN
    DO I=1,N_ASSIM_TS_w
        ID = ID_STATION(I) 
+! lwang modified for real depth
+       ALLOCATE(UU(TS_OBS(Id)%N_LAYERS))
+! lwang
      DO J=1,TS_OBS(Id)%N_INTPTS
        J1        = TS_OBS(Id)%INTPTS(J)
        WGHT      = TS_OBS(Id)%X_WEIGHT(J)
        NLAY      = TS_OBS(Id)%N_LAYERS
+! lwang modified for real depth
+!       CALL
+!       SINTER_EXTRP_NONE(-ZZ(J1,1:KBM1)*D(J1),TG(J1,1:KBM1),TS_OBS(Id)%ODEPTH(K),UU,KBM1,NLAY)
+!       TINT(I,1:NLAY) = TINT(I,1:NLAY) + UU(1:NLAY)*WGHT
        DO K=1,NLAY
          U1 = TG(J1,TS_OBS(Id)%S_INT(K,1))
          U2 = TG(J1,TS_OBS(Id)%S_INT(K,2))
@@ -3468,9 +3572,13 @@ in:  DO WHILE(.TRUE.)
          W2 = TS_OBS(Id)%S_WEIGHT(K,2)
          TINT(I,K) = TINT(I,K) + (U1*W1 + U2*W2)*WGHT 
        END DO
+! lwang
      END DO
      TOT_WGHT = SUM(TS_OBS(Id)%X_WEIGHT(1:TS_OBS(Id)%N_INTPTS))
      TINT(I,1:NLAY) = TINT(I,1:NLAY)/TOT_WGHT
+! lwang modified for real depth
+     DEALLOCATE(UU)
+! lwang
    END DO
 
 !   ELSE IF(TS_OIASSIM)THEN
@@ -3509,8 +3617,9 @@ in:  DO WHILE(.TRUE.)
 
    ALLOCATE(TWGHT_T(MGL,KBM1))   ; TWGHT_T = 0.
    ALLOCATE(TCORR(MGL,KBM1))     ; TCORR   = 0.
-   ! lwang added for OI-TS_limit_control  20190423
+   ! lwang added for OI-TS_limit_control  20190423 20211014 t_flay1=0
    ALLOCATE(T_FLAG1(0:MGL,KB)) ; T_FLAG1 = 1
+   ALLOCATE(T_FLAG2(0:MGL,KB)) ; T_FLAG2 = 1
    ! lwang
 
    IF(TS_NGASSIM)THEN
@@ -3540,7 +3649,7 @@ in:  DO WHILE(.TRUE.)
            endif
            ! lwang
 
-           IF(ABS(DEFECT) < 20.0_SP)THEN     !quality control
+           IF(ABS(DEFECT) < 70.0_SP)THEN     !quality control lwang from 20 to 70
              WEIGHT1        = TS_OBS(Id)%T_WEIGHT*TS_OBS(Id)%X_WEIGHT(J)*W1
              WEIGHT2        = TS_OBS(Id)%T_WEIGHT*TS_OBS(Id)%X_WEIGHT(J)*W2
              TWGHT_T(J1,K1) = TWGHT_T(J1,K1) + WEIGHT1   
@@ -3609,10 +3718,17 @@ in:  DO WHILE(.TRUE.)
              if (U1<=TS_OBS(Id)%TEMP(ITIMEA,K)) T_FLAG1(J1,TS_OBS(Id)%S_INT(K,1))=0
              if (U2<=TS_OBS(Id)%TEMP(ITIMEA,K)) T_FLAG1(J1,TS_OBS(Id)%S_INT(K,2))=0
            endif
+           ! if the difference between model depth and obserbation depth is big
+           ! then T_FLAG2 =0  20211208
+           if (HG(J1)/TS_OBS(Id)%DEPTH>1.5 .or. HG(J1)/TS_OBS(Id)%DEPTH<0.67) then
+              T_FLAG2(J1,TS_OBS(Id)%S_INT(K,1))=0
+              T_FLAG2(J1,TS_OBS(Id)%S_INT(K,2))=0
+           endif
+
          END DO
 ! lwang
 
-         IF(ABS(DEFECT) < 20.0)THEN     !quality control
+         IF(ABS(DEFECT) < 70.0)THEN     !quality control lwang from 20 to 70
            WEIGHT1        = TS_OBS(Id)%T_WEIGHT*W1
            WEIGHT2        = TS_OBS(Id)%T_WEIGHT*W2
            TWGHT_T(I,K1) = TWGHT_T(I,K1) + WEIGHT1   
@@ -3664,7 +3780,7 @@ in:  DO WHILE(.TRUE.)
 
            ! lwang added for OI-TS_limit_control  20190423
            !  TG(I,K) = TG(I,K) + TS_OIGALPHA*TCORR1(I,K)
-           TG(I,K) = TG(I,K) + TS_OIGALPHA*TCORR1(I,K)*T_FLAG1(I,K)
+           TG(I,K) = TG(I,K) + TS_OIGALPHA*TCORR1(I,K)*T_FLAG1(I,K)*T_FLAG2(I,K)
            ! lwang
          END IF
        END DO
@@ -3673,6 +3789,7 @@ in:  DO WHILE(.TRUE.)
      DEALLOCATE(TWGHT_T,TCORR,TINT,TCORR1)
      ! lwang added for OI-TS_limit_control  20190423
      DEALLOCATE(T_FLAG1)
+     DEALLOCATE(T_FLAG2)
      ! lwang
    ELSE
      WRITE(IPT,*)'EITHER TS_NGASSIM OR TS_OIASSIM SHOULD BE TRUE'
@@ -3735,6 +3852,11 @@ in:  DO WHILE(.TRUE.)
 #  if defined (PWP)
    INTEGER, ALLOCATABLE, DIMENSION(:) :: MLD_GLB
 #  endif
+
+   ! lwang added for OI-TS_limit_control  20190423 add for salt 20211007
+   integer, allocatable, dimension(:,:) :: S_FLAG1, S_FLAG2
+   ! lwang
+
 !==============================================================================|
 
    IF (DBG_SET(DBG_SBR)) WRITE(IPT,*) "START: SALT_ASSIMILATION" 
@@ -3859,6 +3981,10 @@ in:  DO WHILE(.TRUE.)
 
    ALLOCATE(TWGHT_S(MGL,KBM1))   ; TWGHT_S   = 0.
    ALLOCATE(SCORR(MGL,KBM1))   ; SCORR   = 0.
+   ! lwang added for OI-TS_limit_control  20190423 add for salt 20211006
+   ALLOCATE(S_FLAG1(0:MGL,KB)) ; S_FLAG1 = 1
+   ALLOCATE(S_FLAG2(0:MGL,KB)) ; S_FLAG2 = 1
+   ! lwang
 
    IF(TS_NGASSIM)THEN
      DO I=1,N_ASSIM_TS_w
@@ -3874,7 +4000,19 @@ in:  DO WHILE(.TRUE.)
            W2             = TS_OBS(Id)%S_WEIGHT(K,2)
 
            DEFECT         = TS_OBS(Id)%SAL(ITIMEA,K) - SINT(I,K)
-           IF(ABS(DEFECT) < 20.0_SP) THEN             !quality control
+           ! lwang added for OI-TS_limit_control  20190423 add for salt 20211007
+           U1 = SG(J1,TS_OBS(Id)%S_INT(K,1))
+           U2 = SG(J1,TS_OBS(Id)%S_INT(K,2))
+           if (DEFECT>0.) then
+             if (U1>=TS_OBS(Id)%SAL(ITIMEA,K)) S_FLAG1(J1,TS_OBS(Id)%S_INT(K,1))=0
+             if (U2>=TS_OBS(Id)%SAL(ITIMEA,K)) S_FLAG1(J1,TS_OBS(Id)%S_INT(K,2))=0
+           elseif (DEFECT<0.) then
+             if (U1<=TS_OBS(Id)%SAL(ITIMEA,K)) S_FLAG1(J1,TS_OBS(Id)%S_INT(K,1))=0
+             if (U2<=TS_OBS(Id)%SAL(ITIMEA,K)) S_FLAG1(J1,TS_OBS(Id)%S_INT(K,2))=0
+           endif
+           ! lwang
+
+           IF(ABS(DEFECT) < 70.0_SP) THEN             !quality control lwang from 20 to 70
              WEIGHT1        = TS_OBS(Id)%T_WEIGHT*TS_OBS(Id)%X_WEIGHT(J)*W1
              WEIGHT2        = TS_OBS(Id)%T_WEIGHT*TS_OBS(Id)%X_WEIGHT(J)*W2
              TWGHT_S(J1,K1) = TWGHT_S(J1,K1) + WEIGHT1   
@@ -3931,7 +4069,38 @@ in:  DO WHILE(.TRUE.)
          W2             = TS_OBS(Id)%S_WEIGHT(K,2)
 
          DEFECT         = TS_OBS(Id)%SAL(ITIMEA,K) - SINT(I,K)
-         IF(ABS(DEFECT) < 20.0_SP) THEN             !quality control
+! lwang added for OI-TS_limit_control add for salt 20211007
+         DO J=1,TS_OBS(Id)%N_INTPTS
+           J1 = TS_OBS(Id)%INTPTS(J)
+           U1 = SG(J1,TS_OBS(Id)%S_INT(K,1))
+           U2 = SG(J1,TS_OBS(Id)%S_INT(K,2))
+           if (DEFECT>0.) then
+             if (U1>=TS_OBS(Id)%SAL(ITIMEA,K)) S_FLAG1(J1,TS_OBS(Id)%S_INT(K,1))=0
+             if (U2>=TS_OBS(Id)%SAL(ITIMEA,K)) S_FLAG1(J1,TS_OBS(Id)%S_INT(K,2))=0
+           elseif (DEFECT<0.) then
+             if (U1<=TS_OBS(Id)%SAL(ITIMEA,K)) S_FLAG1(J1,TS_OBS(Id)%S_INT(K,1))=0
+             if (U2<=TS_OBS(Id)%SAL(ITIMEA,K)) S_FLAG1(J1,TS_OBS(Id)%S_INT(K,2))=0
+           endif
+           ! if the difference between model depth and obserbation depth is big
+           ! then S_FLAG2 =0 20211208
+           if (HG(J1)/TS_OBS(Id)%DEPTH>1.5 .or. HG(J1)/TS_OBS(Id)%DEPTH<0.67) then
+              S_FLAG2(J1,TS_OBS(Id)%S_INT(K,1))=0
+              S_FLAG2(J1,TS_OBS(Id)%S_INT(K,2))=0
+           endif
+         END DO
+! lwang
+
+!lwang modified for Great Bay
+!         IF(ABS(DEFECT) < 10.0_SP) THEN             !quality control lwang from
+!         20 to 70
+!           WEIGHT1        = TS_OBS(Id)%T_WEIGHT*W1
+!           WEIGHT2        = TS_OBS(Id)%T_WEIGHT*W2
+!           TWGHT_S(I,K1) = TWGHT_S(I,K1) + WEIGHT1
+!           TWGHT_S(I,K2) = TWGHT_S(I,K2) + WEIGHT2
+!           CORRECTION     = DEFECT
+!           SCORR(I,K1)   = SCORR(I,K1) + CORRECTION*WEIGHT1
+!           SCORR(I,K2)   = SCORR(I,K2) + CORRECTION*WEIGHT2
+         IF(ABS(DEFECT) < 10.0_SP) THEN             !quality control lwang from 20 to 70
            WEIGHT1        = TS_OBS(Id)%T_WEIGHT*W1
            WEIGHT2        = TS_OBS(Id)%T_WEIGHT*W2
            TWGHT_S(I,K1) = TWGHT_S(I,K1) + WEIGHT1   
@@ -3939,6 +4108,18 @@ in:  DO WHILE(.TRUE.)
            CORRECTION     = DEFECT
            SCORR(I,K1)   = SCORR(I,K1) + CORRECTION*WEIGHT1
            SCORR(I,K2)   = SCORR(I,K2) + CORRECTION*WEIGHT2
+         ELSE IF(TS_OBS(Id)%X+VXMIN>=850410.0 .and. TS_OBS(Id)%X+VXMIN<=876770.0 .and. &
+            TS_OBS(Id)%Y+VYMIN>=10950.0 .and. TS_OBS(Id)%Y+VYMIN<=31490.0 .and. &
+            ABS(DEFECT) < 30.0_SP) THEN
+           WEIGHT1        = TS_OBS(Id)%T_WEIGHT*W1
+           WEIGHT2        = TS_OBS(Id)%T_WEIGHT*W2
+           TWGHT_S(I,K1) = TWGHT_S(I,K1) + WEIGHT1
+           TWGHT_S(I,K2) = TWGHT_S(I,K2) + WEIGHT2
+           CORRECTION     = DEFECT
+           SCORR(I,K1)   = SCORR(I,K1) + CORRECTION*WEIGHT1
+           SCORR(I,K2)   = SCORR(I,K2) + CORRECTION*WEIGHT2
+!lwang
+
          ENDIF
        END DO
      END DO
@@ -3979,12 +4160,21 @@ in:  DO WHILE(.TRUE.)
        DO K=K1,KBM1
          IF(DA_TS(I) == 1)THEN
 !QXU       SG(I,K)= SG(I,K) + SCORR1(I,K)
-           SG(I,K) = SG(I,K) + TS_OIGALPHA*SCORR1(I,K)
+           ! lwang added for OI-TS_limit_control  20190423 add for salt 20211007
+           ! SG(I,K) = SG(I,K) + TS_OIGALPHA*SCORR1(I,K)
+            SG(I,K) = SG(I,K) + TS_OIGALPHA*SCORR1(I,K)*S_FLAG1(I,K)*S_FLAG2(I,K)
+           ! lwang
+
          END IF
        END DO
      END DO
 
      DEALLOCATE(TWGHT_S,SCORR,SINT,SCORR1)
+     ! lwang added for OI-TS_limit_control  20190423 add salt 20211007
+     DEALLOCATE(S_FLAG1)
+     DEALLOCATE(S_FLAG2)
+     ! lwang
+
    ELSE
      WRITE(IPT,*)'EITHER TS_NGASSIM OR TS_OIASSIM SHOULD BE TRUE'
      CALL PSTOP
@@ -4042,7 +4232,9 @@ in:  DO WHILE(.TRUE.)
 !------------------------------------------------------------------------------|
 ! param: inverse of the correlation length                                     |
 !------------------------------------------------------------------------------|
-   REAL(SP) :: PARAM(2,N_ASSIM_TS)
+! lwang 20211018
+!   REAL(SP) :: PARAM(2,N_ASSIM_TS)
+   REAL(SP) :: PARAM(2,N_ASSIM_TS_W)
 
    INTEGER  :: I,J,MM   
    INTEGER ID
@@ -4057,7 +4249,9 @@ in:  DO WHILE(.TRUE.)
 !------------------------------------------------------------------------------|   
 ! param is the inverse of the correlation length                               |
 !------------------------------------------------------------------------------|
-   PARAM = 1.0_SP/TS_PARAM             
+! lwang 20211018 TS_PARAM is for all obs during the whole runing period
+! but here we need PARAM(2,N_ASSIM_TS_W) 
+!   PARAM = 1.0_SP/TS_PARAM             
  
    MM = TS_N_INFLU
 
@@ -4073,6 +4267,8 @@ in:  DO WHILE(.TRUE.)
      ID = ID_STATION(I)
      X(1,I) = TS_OBS(Id)%X
      X(2,I) = TS_OBS(Id)%Y
+     !lwang 20211018
+     PARAM(:,I) = 1.0_SP/TS_PARAM(:,ID)
    END DO  
 
 !------------------------------------------------------------------------------|
@@ -4101,6 +4297,9 @@ in:  DO WHILE(.TRUE.)
    SST_SAVE_INDEX = 1
    SST_SAVE_TIME = IntTime_BUF + SST_SAVE_INTERVAL
    
+!lwang sst assimilation 20220428
+!   SST_SAVE_TIME0 = SST_SAVE_TIME
+!lwang
 
    END SUBROUTINE SSTGRD_OBSERVATION_UPDATE
 !==============================================================================|
@@ -4118,6 +4317,9 @@ in:  DO WHILE(.TRUE.)
    ! RESET THE INDEX AND THE TIME FOR USE IN THE ASSIMILATION CYCLE
    SSH_SAVE_INDEX = 1
    SSH_SAVE_TIME = IntTime_BUF + SSH_SAVE_INTERVAL
+!qxu{for SSH assimilation by 04/01/2022
+   SSH_SAVE_TIME0 = SSH_SAVE_TIME
+!qxu
    
 
    END SUBROUTINE SSHGRD_OBSERVATION_UPDATE
@@ -4195,7 +4397,7 @@ in:  DO WHILE(.TRUE.)
 !            T1(I,K)=T1(I,1)
             TF1(I,K)=TF1(I,1)
 ! lwang Jan 2, 220
-!            MLD_Nsiglay(I)=K  ! Siqi Li for MLD_output @ 2019-05-01 ! @20210809
+            !MLD_Nsiglay(I)=K  ! Siqi Li for MLD_output @ 2019-05-01 ! @20210809
           ELSE
             EXIT
           END IF
@@ -4247,7 +4449,11 @@ in:  DO WHILE(.TRUE.)
    REAL(SP) :: TDIFF,T_WEIGHT,TRUTH,ADJUSTMENT
    INTEGER I,K
    REAL(SP) :: F_SPATIAL, SSH_SAVED_R
-   REAL(SP) :: R0, R1, R2, VX_TMP
+   REAL(SP) :: VX_TMP
+!qxu{for SSH assimilation by 04/01/2022
+   !REAL(SP) ::R0,R1,R2
+   REAL(DP) ::R0,R1,R2
+!qxu}
 
 !==============================================================================|
 
@@ -4260,7 +4466,10 @@ in:  DO WHILE(.TRUE.)
 !------------------------------------------------------------------------------!
 !  Calculate Temporal Weight of Measurement (I) at Time(TIME)                  ! 
 !------------------------------------------------------------------------------!
-   IF(IntTime > SSH_SAVE_TIME + SSH_SAVE_INTERVAL/2) THEN
+!qxu{for SSH assimilation by 04/01/2022
+!   IF(IntTime > SSH_SAVE_TIME + SSH_SAVE_INTERVAL/2) THEN  !org
+    IF(IntTime > SSH_SAVE_TIME ) THEN
+!qxu}
    
       SSH_SAVE_INDEX = SSH_SAVE_INDEX + 1
 
@@ -4272,9 +4481,18 @@ in:  DO WHILE(.TRUE.)
       END IF
 
    END IF
+!qxu{for SSH assimilation by 04/01/2022
+   IF(SSH_SAVE_INDEX.eq.1) SSH_SAVE_TIME0=SSH_SAVE_TIME
+!qxu
 
    ! GET TIME DIFFERENCE IN SECONDS
-   TDIFF = SECONDS(IntTime - SSH_SAVE_TIME)
+!qxu{for SSH assimilation by 04/01/2022
+!   TDIFF = SECONDS(IntTime - SSH_SAVE_TIME )       !org
+!   TDIFF = SECONDS(IntTime - SSH_SAVE_TIME + SSH_SAVE_INTERVAL/2.0)   !case7_1: shift 0.5 hours
+   TDIFF = SECONDS(IntTime - SSH_SAVE_TIME0 + SSH_SAVE_INTERVAL ) - SSHGRD_TIME_WINDOW
+
+!qxu}
+
    TDIFF = ABS(TDIFF)
 
    IF(TDIFF < 0.5*SSHGRD_TIME_WINDOW) THEN
@@ -4284,8 +4502,10 @@ in:  DO WHILE(.TRUE.)
    ELSE
      T_WEIGHT = 0.0
    END IF
-  
-   IF(T_WEIGHT == 0.0) RETURN
+!qxu{for SSH assimilation t_weight, by 04/07/2022
+!   IF(SSH_SAVE_INDEX.ge.2.and.SSH_SAVE_INDEX.le.23) T_WEIGHT=1.0
+!qxu}  
+   !IF(T_WEIGHT == 0.0) RETURN
 
    R0 = SECONDS(IntTime)
    R1 = SECONDS(SSH_SAVE_TIME)
@@ -4295,6 +4515,32 @@ in:  DO WHILE(.TRUE.)
 #     if defined (SPHERICAL)
       F_SPATIAL = 1.0_SP
 #     endif
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ysun DEC 20 2010
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1ysun MAY 10 2010 modified by lwang from Dr. Qi
+!          IF(H(I)<=1000.0_SP) THEN
+!            F_SPATIAL = 0.0_SP
+!!          ELSEIF(H(I)>=500.0_SP) THEN
+!!            F_SPATIAL = 1.0_SP
+!          ELSE
+!            F_SPATIAL = 1.0_SP
+!          ENDIF
+!qxu{change by 02/08/2022
+!          IF(H(I)<=1000.0_SP) THEN
+!            F_SPATIAL = 0.0_SP
+!          ELSE IF (H(I)>1000.0_SP .AND. H(I)<=2500.0_SP) THEN
+!            F_SPATIAL = (H(I)-1000.0_SP)/1500.0_SP
+!          ELSE
+!            F_SPATIAL = 1.0_SP
+!          ENDIF
+
+          IF(H(I)<=200.0_SP) THEN
+            F_SPATIAL = 0.0_SP
+          ELSE IF (H(I)>200.0_SP .AND. H(I)<=1000.0_SP) THEN
+            F_SPATIAL = (H(I)-200.0_SP)/800.0_SP
+          ELSE
+            F_SPATIAL = 1.0_SP
+          ENDIF
+!qxu}
 
       IF(IntTime>SSH_SAVE_TIME .AND. IntTime<= SSH_SAVE_TIME + SSH_SAVE_INTERVAL/2 ) THEN
         SSH_SAVED_R = ( SSH_SAVED(I,SSH_SAVE_INDEX)*(R1+R2-R0)+SSH_SAVED(I,SSH_SAVE_INDEX+1)*(R0-R1) )/R2
@@ -4540,27 +4786,31 @@ in:  DO WHILE(.TRUE.)
       IF  (inttime<SST_SAVE_INTERVAL*I+TEMP_TIME) THEN
            SST_SAVE_TIME=SST_SAVE_INTERVAL*I+TEMP_TIME
            SST_SAVE_INDEX=I
-           GOTO 386
+	   RETURN     !JQIGOTO
+!JQIGOTO           GOTO 386
       END IF
    END DO 
    PRINT *, "FAILED TO FIND THE RIGHT SST SAVE TIME INDEX , STOP"
    PRINT *, 'CURRERNT INTTIME IS: ', INTTIME
    CALL PSTOP
-386 RETURN
+   RETURN     !JQIGOTO
+!JQIGOTO386 RETURN
   ELSEIF (FLAG==1) THEN
     TEMP_TIME%MJD=Inttime%mjd
     TEMP_TIME%musod=0.0
-   DO I=1,SSTGRD_N_PER_INTERVAL
+    DO I=1,SSTGRD_N_PER_INTERVAL
       IF  (inttime<=SST_SAVE_INTERVAL*I+TEMP_TIME+SST_SAVE_INTERVAL/2.0) THEN
            SST_SAVE_TIME=SST_SAVE_INTERVAL*I+TEMP_TIME
            SST_SAVE_INDEX=I
-           GOTO 387
+	   RETURN     !JQIGOTO
+!JQIGOTO           GOTO 387
       END IF
    END DO
    PRINT *, "FAILED TO FIND THE RIGHT SST SAVE TIME INDEX , STOP"
    PRINT *, 'CURRERNT INTTIME IS: ', INTTIME
    CALL PSTOP
-387 RETURN
+   RETURN     !JQIGOTO
+!JQIGOTO387 RETURN
   ELSE
      PRINT *, 'FLAG IN SET_SST_SAVE_TIME_INDEX CANNOT BE :',FLAG
      CALL PSTOP
@@ -4689,27 +4939,35 @@ USE EQS_OF_STATE
       IF  (inttime<SSH_SAVE_INTERVAL*I+TEMP_TIME) THEN
            SSH_SAVE_TIME=SSH_SAVE_INTERVAL*I+TEMP_TIME
            SSH_SAVE_INDEX=I
-           GOTO 386
+           RETURN   !JQIGOTO
+!JQIGOTO           GOTO 386
       END IF
    END DO
    PRINT *, "FAILED TO FIND THE RIGHT SSH SAVE TIME INDEX , STOP"
    PRINT *, 'CURRERNT INTTIME IS: ', INTTIME
    CALL PSTOP
-386 RETURN
+   RETURN   !JQIGOTO
+!JQIGOTO386 RETURN
   ELSEIF (FLAG==1) THEN
         TEMP_TIME%MJD=Inttime%mjd
     TEMP_TIME%musod=0.0
    DO I=1,SSHGRD_N_PER_INTERVAL
-      IF  (inttime<=SSH_SAVE_INTERVAL*I+TEMP_TIME+SSH_SAVE_INTERVAL/2.0) THEN
+!qxu{for SSH assimilation by 04/01/2022
+      !IF  (inttime<=SSH_SAVE_INTERVAL*I+TEMP_TIME+SSH_SAVE_INTERVAL/2.0) THEN
+       IF  (inttime<=SSH_SAVE_INTERVAL*I+TEMP_TIME) then
+!qxu}
+
            SSH_SAVE_TIME=SSH_SAVE_INTERVAL*I+TEMP_TIME
            SSH_SAVE_INDEX=I
-           GOTO 387
+           RETURN   !JQIGOTO
+!JQIGOTO           GOTO 387
       END IF
    END DO
    PRINT *, "FAILED TO FIND THE RIGHT SSH SAVE TIME INDEX , STOP"
    PRINT *, 'CURRERNT INTTIME IS: ', INTTIME
    CALL PSTOP
-387 RETURN
+   RETURN   !JQIGOTO
+!JQIGOTO387 RETURN
   ELSE
     PRINT *, 'FLAG IN SET_SSH_SAVE_TIME_INDEX CANNOT BE: ',FLAG
     CALL PSTOP
@@ -4736,6 +4994,31 @@ USE EQS_OF_STATE
 !  Save Hourly SSH on grid in Simulation running                               ! 
 !------------------------------------------------------------------------------!
       SSH_SAVED(1:M,SSH_SAVE_INDEX) = EL(1:M)
+!qxu{for SSH assimilation by 04/01/2022
+      if (SSH_SAVE_INDEX.eq.1) then
+         if(FIRST_DAY) then
+           SSH_SAVED(1:M,0) = EL_INITIAL(1:M)
+           !SSH_SAVED(1:M,SSH_SAVE_INDEX) = EL_INITIAL(1:M)
+           FIRST_DAY = .FALSE.
+           IF(DBG_SET(DBG_LOG)) THEN
+              WRITE(IPT,*) "Saving first_day ssh state # ",0
+           END IF
+         else
+           SSH_SAVED(1:M,0) = SSH_SAVED(1:M,24)
+           IF(DBG_SET(DBG_LOG)) THEN
+              WRITE(IPT,*) "Saving after 1 day ssh state # ",0
+           END IF
+         endif
+         !if(MSR) write(600,'(i5,f15.2,5f12.4)') 0,SECONDS(IntTime)-3600,
+         !SSH_SAVED(1:5,0)
+
+      endif
+      if (FIRST_DAY.and.SSH_SAVE_INDEX.eq.2) then
+         SSH_SAVED(1:M,1) = (SSH_SAVED(1:M,0) + SSH_SAVED(1:M,2))/2.0
+      endif
+      !if(MSR) write(600,'(i5,f15.2,5f12.4)') SSH_SAVE_INDEX,SECONDS(IntTime),SSH_SAVED(1:5,SSH_SAVE_INDEX)
+!qxu}
+
 # if defined (ENKF)
      SSH_SAVED_ENKF(1:M,SSH_SAVE_INDEX,ENKF_memberCONTR)=SSH_SAVED(1:M,SSH_SAVE_INDEX)
 # endif
