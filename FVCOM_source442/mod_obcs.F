@@ -309,13 +309,15 @@ CONTAINS
 !JQIGOTO                 goto 901
 !JQIGOTO  903            equi_rr = equi_astr(equi_id(j))%ee(k)*2.59808D0*slat
 !JQIGOTO  901            continue
+
                  if(equi_l == 2)then                                                             !JQIGOTO
                    equi_rr = equi_astr(equi_id(j))%ee(k)*0.36309D0*(1.0D0-5.0D0*slat*slat)/slat  !JQIGOTO
                  else if(equi_l == 3)then                                                        !JQIGOTO
                    equi_rr = equi_astr(equi_id(j))%ee(k)*2.59808D0*slat                          !JQIGOTO
 		 end if                                                                          !JQIGOTO
+
                  equi_uudbl = equi_astr(equi_id(j))%ldel(k)*equi_p+equi_astr(equi_id(j))%mdel(k)*equi_enp+    &
-		              equi_astr(equi_id(j))%ndel(k)*equi_pp+equi_astr(equi_id(j))%ph(k)                 
+                 equi_astr(equi_id(j))%ndel(k)*equi_pp+equi_astr(equi_id(j))%ph(k)                 
                  equi_iuu = int(equi_uudbl)
                  equi_uu  = equi_uudbl - equi_iuu
                  
