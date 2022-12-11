@@ -634,12 +634,12 @@
 !
 ! Error message
 !
-!* jsasaki start '(I1)' only valid for integer and error in case of real
+!  jsasaki start '(I1)' only valid for integer and error in case of real
 !     CHARS = NUMSTR(MXWCP+1,RNAN,'(I1)')
      if (MXWCP+1 /= INAN) then
        WRITE(CHARS,'(I1)') MXWCP+1
      end if
-!* jsasaki end '(I1)' only valid for integer and error in case of real
+!  jsasaki end '(I1)' only valid for integer and error in case of real
      CALL TXPBLA(CHARS,IF,IL)
      MSGSTR = 'Value for IWCAP should be less than '// CHARS(IF:IL)
      CALL MSGERR ( 4, MSGSTR )
