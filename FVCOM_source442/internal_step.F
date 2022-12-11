@@ -101,6 +101,7 @@ SUBROUTINE INTERNAL_STEP
 # if defined (PROJ) && !defined (SPHERICAL)
   USE MOD_VECTOR_PROJECTION  ! Siqi Li, 20221005
 # endif
+
   IMPLICIT NONE
   INTEGER :: I,J,K
   REAL(SP) :: UTMP,VTMP
@@ -489,8 +490,7 @@ SUBROUTINE INTERNAL_STEP
 # endif
 # if defined (DATA_ASSIM)
   END IF
-# endif     
-
+# endif
 
 # endif
 
