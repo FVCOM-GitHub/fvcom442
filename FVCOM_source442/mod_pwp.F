@@ -499,8 +499,10 @@
 
     J1 = 1
     J2 = NZ(I)-1
- 10 CONTINUE
 
+!JQIGOTO 10 CONTINUE
+    DO WHILE(.TRUE.)      !JQIGOTO
+    
     DO J=J1, J2
       DDENSITY = DENSITY(J+1) - DENSITY(J)
       IF(DDENSITY<1.0E-3) DDENSITY = 1.0E-3
@@ -528,7 +530,8 @@
     IF(J1<1) J1 = 1
     J2 = JS + 2
     IF(J2>NZ(I)-1) J2 = NZ(I)-1
-    GOTO 10
+    END DO       !JQIGOTO
+!JQIGOTO    GOTO 10
 
     END SUBROUTINE GRADIENT_MIXING
 
