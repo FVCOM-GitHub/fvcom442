@@ -140,15 +140,17 @@ CONTAINS
     ALLOCATE(NEXT_OBC2(IOBCN))       ;NEXT_OBC2  = 0
     ALLOCATE(FLUXOBN(1:NT))          ;FLUXOBN    = ZERO
     ALLOCATE(IUCP(0:NT))             ;IUCP       = 1
-    ALLOCATE(XFLUX_OBCN(IOBCN+1))    ;XFLUX_OBCN = ZERO
-    ALLOCATE(UARD_OBCN(IOBCN+1))     ;UARD_OBCN  = ZERO
-    ALLOCATE(XFLUX_OBC(IOBCN+1,KBM1));XFLUX_OBC  = ZERO
+!JQI NOV2021
+    ALLOCATE(XFLUX_OBCN(IOBCN))    ;XFLUX_OBCN = ZERO ! KURT GLAESEMANN remove +1 from dimension IOBCN
+    ALLOCATE(UARD_OBCN(IOBCN))     ;UARD_OBCN  = ZERO ! KURT GLAESEMANN remove +1 from dimension IOBCN
+    ALLOCATE(XFLUX_OBC(IOBCN,KBM1));XFLUX_OBC  = ZERO ! KURT GLAESEMANN remove +1 from dimension IOBCN
 #   if defined (ICE)
 ! - begin afm 20171113 for ice open boundary -------------
-    ALLOCATE(UIARD_OBCN(IOBCN+1))     ;UIARD_OBCN  = ZERO
-    ALLOCATE(XFLUX_ICE_OBC(IOBCN+1))     ;XFLUX_ICE_OBC  = ZERO
+    ALLOCATE(UIARD_OBCN(IOBCN))     ;UIARD_OBCN  = ZERO ! KURT GLAESEMANN remove +1 from dimension IOBCN
+    ALLOCATE(XFLUX_ICE_OBC(IOBCN))     ;XFLUX_ICE_OBC  = ZERO ! KURT GLAESEMANN remove +1 from dimension IOBCN
 ! - end afm 20171113 for ice open boundary -------------
 #   endif
+!JQI NOV2021
 
     ALLOCATE(TEMP_OBC(IOBCN,KBM1))   ;TEMP_OBC   = ZERO
     ALLOCATE(SALT_OBC(IOBCN,KBM1))   ;SALT_OBC   = ZERO
@@ -301,12 +303,19 @@ CONTAINS
                do k=1, equi_astr(equi_id(j))%nj
                  equi_rr = equi_astr(equi_id(j))%ee(k) 
                  equi_l  = equi_astr(equi_id(j))%ir(k)+1                    
-                 goto (901, 902, 903) equi_l
-  902            equi_rr = equi_astr(equi_id(j))%ee(k)*0.36309D0*(1.0D0-5.0D0*slat*slat)/slat
-                 goto 901
-  903            equi_rr = equi_astr(equi_id(j))%ee(k)*2.59808D0*slat
-  901            continue
-                 equi_uudbl = equi_astr(equi_id(j))%ldel(k)*equi_p+equi_astr(equi_id(j))%mdel(k)*equi_enp+equi_astr(equi_id(j))%ndel(k)*equi_pp+equi_astr(equi_id(j))%ph(k)
+
+!JQIGOTO                 goto (901, 902, 903) equi_l
+!JQIGOTO  902            equi_rr = equi_astr(equi_id(j))%ee(k)*0.36309D0*(1.0D0-5.0D0*slat*slat)/slat
+!JQIGOTO                 goto 901
+!JQIGOTO  903            equi_rr = equi_astr(equi_id(j))%ee(k)*2.59808D0*slat
+!JQIGOTO  901            continue
+                 if(equi_l == 2)then                                                             !JQIGOTO
+                   equi_rr = equi_astr(equi_id(j))%ee(k)*0.36309D0*(1.0D0-5.0D0*slat*slat)/slat  !JQIGOTO
+                 else if(equi_l == 3)then                                                        !JQIGOTO
+                   equi_rr = equi_astr(equi_id(j))%ee(k)*2.59808D0*slat                          !JQIGOTO
+		 end if                                                                          !JQIGOTO
+                 equi_uudbl = equi_astr(equi_id(j))%ldel(k)*equi_p+equi_astr(equi_id(j))%mdel(k)*equi_enp+    &
+		              equi_astr(equi_id(j))%ndel(k)*equi_pp+equi_astr(equi_id(j))%ph(k)                 
                  equi_iuu = int(equi_uudbl)
                  equi_uu  = equi_uudbl - equi_iuu
                  
