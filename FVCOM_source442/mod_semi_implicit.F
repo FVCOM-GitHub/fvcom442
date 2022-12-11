@@ -1260,7 +1260,8 @@ END IF
   UA_N = 0.0_SP
   VA_N = 0.0_SP
 
-  DO I=1, N
+!JQIGOTO  DO I=1, N
+  ELOOP: DO I=1, N    !JQIGOTO
 
     IF(ISBCE(I) == 1) THEN
       ALPHA1=ALPHA(I)
@@ -1276,7 +1277,8 @@ END IF
                 UA_N(I) = UNTMP*COS(ANGLEQ(J))
                 VA_N(I) = UNTMP*SIN(ANGLEQ(J))
               ENDIF
-              GOTO 21
+              CYCLE ELOOP   !JQIGOTO
+!JQIGOTO              GOTO 21
             END IF
           END DO
         ELSE IF(RIVER_INFLOW_LOCATION == 'edge') THEN
@@ -1288,7 +1290,8 @@ END IF
                 UA_N(I) = UNTMP*COS(ANGLEQ(J))
                 VA_N(I) = UNTMP*SIN(ANGLEQ(J))
               ENDIF
-              GOTO 21
+              CYCLE ELOOP    !JQIGOTO
+!JQIGOTO              GOTO 21
             END IF
           END DO
         END IF
@@ -1300,9 +1303,10 @@ END IF
         VA_N(I)= UNTMP*SIN(ALPHA1)
       ENDIF
 
-21  CONTINUE
+!JQIGOTO21  CONTINUE
     END IF
-  END DO
+  END DO ELOOP    !JQIGOTO
+!JQIGOTO  END DO
 
   RETURN
   END SUBROUTINE UV2D_SBD
@@ -1324,7 +1328,8 @@ END IF
   V_N = 0.0_SP
 
   DO I=1, N
-    DO K=1, KBM1
+!JQIGOTO    DO K=1, KBM1
+    INLOOP: DO K=1, KBM1      !JQIGOTO
 
       IF(ISBCE(I).EQ.1) THEN
         ALPHA1=ALPHA(I)
@@ -1340,7 +1345,8 @@ END IF
                   U_N(I,K) = UNTMP*COS(ANGLEQ(J))
                   V_N(I,K) = UNTMP*SIN(ANGLEQ(J))
                 ENDIF
-                GOTO 31
+		CYCLE INLOOP      !JQIGOTO
+!JQIGOTO                GOTO 31
               ENDIF
             ENDDO
           ELSE IF(RIVER_INFLOW_LOCATION .EQ. 'edge') THEN
@@ -1352,7 +1358,8 @@ END IF
                   U_N(I,K) = UNTMP*COS(ANGLEQ(J))
                   V_N(I,K) = UNTMP*SIN(ANGLEQ(J))
                 ENDIF
-                GOTO 31
+		CYCLE INLOOP      !JQIGOTO
+!JQIGOTO                GOTO 31
               ENDIF
             ENDDO
           ELSE
@@ -1376,9 +1383,10 @@ END IF
           end if
 #         endif
 
-31    CONTINUE
+!JQIGOTO31    CONTINUE
       ENDIF
-    ENDDO
+    END DO INLOOP      !JQIGOTO
+!JQIGOTO    ENDDO
   ENDDO
 
   RETURN
